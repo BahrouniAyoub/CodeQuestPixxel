@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://whr7jqbw4arg"
+path="res://.godot/imported/Billie Jean - Michael Jackson Fingerstyle Guitar TAB + Chords + Lyrics (mp3cut.net).mp3-dbcd69d17877c540710cc9154d798d56.mp3str"
+
+[deps]
+
+source_file="res://music/Billie Jean - Michael Jackson Fingerstyle Guitar TAB + Chords + Lyrics (mp3cut.net).mp3"
+dest_files=["res://.godot/imported/Billie Jean - Michael Jackson Fingerstyle Guitar TAB + Chords + Lyrics (mp3cut.net).mp3-dbcd69d17877c540710cc9154d798d56.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

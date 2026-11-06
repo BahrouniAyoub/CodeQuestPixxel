@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://k2ip43jxhryi"
+path="res://.godot/imported/fridge - sound effect.mp3-ed8bba58258ed787d6d075d3fadec662.mp3str"
+
+[deps]
+
+source_file="res://music/fridge - sound effect.mp3"
+dest_files=["res://.godot/imported/fridge - sound effect.mp3-ed8bba58258ed787d6d075d3fadec662.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

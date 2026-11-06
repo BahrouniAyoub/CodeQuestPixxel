@@ -1,0 +1,308 @@
+[gd_scene format=3 uid="uid://4po7g0777ft1"]
+
+[ext_resource type="Script" uid="uid://cs1b36hsj570k" path="res://CustomizerMain.gd" id="1_3w67i"]
+[ext_resource type="Texture2D" uid="uid://c6jp15dbouw23" path="res://Customizer Assets/Assets/UI Assets/Customizer BG.png" id="1_nfeco"]
+[ext_resource type="Texture2D" uid="uid://b6sm44smu7007" path="res://Customizer Assets/Assets/UI Assets/BG Selector.png" id="2_3yu6r"]
+[ext_resource type="Texture2D" uid="uid://bkvv04s40u1ei" path="res://Customizer Assets/Assets/UI Assets/Basic Buttons-Sheet.png" id="2_bmho8"]
+[ext_resource type="FontFile" uid="uid://64xm6t5fxphb" path="res://Customizer Assets/Assets/UI Assets/Minecraft.ttf" id="2_oxjvg"]
+[ext_resource type="Texture2D" uid="uid://d4akicksk82el" path="res://Customizer Assets/Assets/UI Assets/Basic Textbox.png" id="3_43nsc"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_43nsc"]
+texture = ExtResource("2_3yu6r")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3w67i"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+texture = ExtResource("3_43nsc")
+
+[sub_resource type="Theme" id="Theme_3yu6r"]
+default_font = ExtResource("2_oxjvg")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t0ibe"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ogboj"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(48, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3armh"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(16, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s3w5q"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(64, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oxjvg"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3yu6r"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_43nsc"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3w67i"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rw8jj"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(0, 16, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j0aus"]
+atlas = ExtResource("2_bmho8")
+region = Rect2(48, 16, 16, 16)
+
+[node name="Customizer" type="Node2D" unique_id=391325700]
+script = ExtResource("1_3w67i")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1652701120]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_nfeco")
+
+[node name="PreviewWindow" type="Panel" parent="." unique_id=98925832]
+offset_left = 6.0
+offset_top = 3.0
+offset_right = 46.0
+offset_bottom = 43.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_43nsc")
+
+[node name="CharacterPreview" type="Node2D" parent="." unique_id=189958320]
+position = Vector2(26, 22)
+
+[node name="Body" type="Sprite2D" parent="CharacterPreview" unique_id=1855982832]
+
+[node name="Bottom" type="Sprite2D" parent="CharacterPreview" unique_id=1569094639]
+
+[node name="Top" type="Sprite2D" parent="CharacterPreview" unique_id=480990768]
+
+[node name="Feet" type="Sprite2D" parent="CharacterPreview" unique_id=1967301232]
+
+[node name="Hair" type="Sprite2D" parent="CharacterPreview" unique_id=1106517267]
+
+[node name="NameLabel" type="Label" parent="." unique_id=769117324]
+offset_left = 62.0
+offset_top = 6.0
+offset_right = 109.0
+offset_bottom = 29.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Name"
+
+[node name="NameEdit" type="LineEdit" parent="." unique_id=1218509152]
+offset_left = 81.0
+offset_top = 3.0
+offset_right = 210.37
+offset_bottom = 27.0
+scale = Vector2(0.46, 0.46)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_3w67i")
+
+[node name="BodyLabel" type="Label" parent="." unique_id=500371732]
+offset_left = 7.0
+offset_top = 66.0
+offset_right = 47.0
+offset_bottom = 89.0
+scale = Vector2(0.5, 0.5)
+theme = SubResource("Theme_3yu6r")
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Body"
+
+[node name="BodyAButton" type="TextureButton" parent="." unique_id=1440128346]
+offset_left = 31.0
+offset_top = 61.0
+offset_right = 47.0
+offset_bottom = 77.0
+texture_normal = SubResource("AtlasTexture_t0ibe")
+texture_pressed = SubResource("AtlasTexture_ogboj")
+
+[node name="BodyBButton" type="TextureButton" parent="." unique_id=886346250]
+offset_left = 47.0
+offset_top = 61.0
+offset_right = 63.0
+offset_bottom = 77.0
+texture_normal = SubResource("AtlasTexture_3armh")
+texture_pressed = SubResource("AtlasTexture_s3w5q")
+
+[node name="HairstyleLabel" type="Label" parent="." unique_id=195798666]
+offset_left = 73.0
+offset_top = 19.0
+offset_right = 143.0
+offset_bottom = 42.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Hairstyle"
+
+[node name="HairstylePrev" type="TextureButton" parent="." unique_id=1812791516]
+offset_left = 107.0
+offset_top = 14.0
+offset_right = 123.0
+offset_bottom = 30.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="HairstyleNext" type="TextureButton" parent="." unique_id=491121881]
+offset_left = 124.0
+offset_top = 14.0
+offset_right = 140.0
+offset_bottom = 30.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="HaircolorLabel" type="Label" parent="." unique_id=1089058925]
+offset_left = 73.0
+offset_top = 34.0
+offset_right = 144.0
+offset_bottom = 57.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Haircolor"
+
+[node name="HaircolorPrev" type="TextureButton" parent="." unique_id=140939740]
+offset_left = 107.0
+offset_top = 29.0
+offset_right = 123.0
+offset_bottom = 45.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="HaircolorNext" type="TextureButton" parent="." unique_id=630317157]
+offset_left = 124.0
+offset_top = 29.0
+offset_right = 140.0
+offset_bottom = 45.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="TopLabel" type="Label" parent="." unique_id=1224433281]
+offset_left = 73.0
+offset_top = 50.0
+offset_right = 144.0
+offset_bottom = 73.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Top"
+
+[node name="TopPrev" type="TextureButton" parent="." unique_id=1371190937]
+offset_left = 107.0
+offset_top = 45.0
+offset_right = 123.0
+offset_bottom = 61.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="TopNext" type="TextureButton" parent="." unique_id=2006013395]
+offset_left = 124.0
+offset_top = 45.0
+offset_right = 140.0
+offset_bottom = 61.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="BottomLabel" type="Label" parent="." unique_id=79146320]
+offset_left = 73.0
+offset_top = 66.0
+offset_right = 144.0
+offset_bottom = 89.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Bottom"
+
+[node name="BottomPrev" type="TextureButton" parent="." unique_id=1248436069]
+offset_left = 107.0
+offset_top = 61.0
+offset_right = 123.0
+offset_bottom = 77.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="BottomNext" type="TextureButton" parent="." unique_id=168503524]
+offset_left = 124.0
+offset_top = 61.0
+offset_right = 140.0
+offset_bottom = 77.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="FeetLabel" type="Label" parent="." unique_id=1105304325]
+offset_left = 73.0
+offset_top = 82.0
+offset_right = 144.0
+offset_bottom = 105.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Feet"
+
+[node name="FeetPrev" type="TextureButton" parent="." unique_id=705357108]
+offset_left = 107.0
+offset_top = 77.0
+offset_right = 123.0
+offset_bottom = 93.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="FeetNext" type="TextureButton" parent="." unique_id=142387630]
+offset_left = 124.0
+offset_top = 77.0
+offset_right = 140.0
+offset_bottom = 93.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="SkinLabel" type="Label" parent="." unique_id=1711789700]
+offset_left = 7.0
+offset_top = 81.0
+offset_right = 78.0
+offset_bottom = 104.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Skin"
+
+[node name="SkinPrev" type="TextureButton" parent="." unique_id=1116863506]
+offset_left = 30.0
+offset_top = 77.0
+offset_right = 46.0
+offset_bottom = 93.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="SkinNext" type="TextureButton" parent="." unique_id=151700367]
+offset_left = 48.0
+offset_top = 77.0
+offset_right = 64.0
+offset_bottom = 93.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="RandomLabel" type="Label" parent="." unique_id=1001220990]
+offset_left = 7.0
+offset_top = 49.0
+offset_right = 78.0
+offset_bottom = 72.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
+theme_override_font_sizes/font_size = 11
+text = "Random"
+
+[node name="RandomButton" type="TextureButton" parent="." unique_id=24012404]
+offset_left = 31.0
+offset_top = 44.0
+offset_right = 47.0
+offset_bottom = 60.0
+texture_normal = SubResource("AtlasTexture_rw8jj")
+texture_pressed = SubResource("AtlasTexture_j0aus")

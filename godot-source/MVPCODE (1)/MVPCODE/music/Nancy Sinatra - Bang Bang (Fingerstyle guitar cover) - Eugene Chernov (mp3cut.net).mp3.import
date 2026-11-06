@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://doqq4ldu040sa"
+path="res://.godot/imported/Nancy Sinatra - Bang Bang (Fingerstyle guitar cover) - Eugene Chernov (mp3cut.net).mp3-68cfc3b3c2776e064fd23a1d03d43bfe.mp3str"
+
+[deps]
+
+source_file="res://music/Nancy Sinatra - Bang Bang (Fingerstyle guitar cover) - Eugene Chernov (mp3cut.net).mp3"
+dest_files=["res://.godot/imported/Nancy Sinatra - Bang Bang (Fingerstyle guitar cover) - Eugene Chernov (mp3cut.net).mp3-68cfc3b3c2776e064fd23a1d03d43bfe.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cypiauunm7xk"
+path="res://.godot/imported/Whistling In The Shower SOUND Effect (mp3cut.net).mp3-b15dd8cdd99095148838d1091112995f.mp3str"
+
+[deps]
+
+source_file="res://music/Whistling In The Shower SOUND Effect (mp3cut.net).mp3"
+dest_files=["res://.godot/imported/Whistling In The Shower SOUND Effect (mp3cut.net).mp3-b15dd8cdd99095148838d1091112995f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
