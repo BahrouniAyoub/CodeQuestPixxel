@@ -1,0 +1,24 @@
+.cq-chapter1-tracker{display:flex;flex-direction:column;gap:0}
+.cq-chapter1-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.cq-chapter1-header h2{margin-bottom:0}
+.cq-chapter1-state{border:1px solid #55718f;background:#16243a;color:#a9bdd9;padding:5px 8px;font-size:10px;font-weight:800;letter-spacing:.7px;white-space:nowrap}
+.cq-chapter1-state.complete{border-color:#b49c55;background:#2b2a1b;color:#f4cb72}
+.cq-chapter1-current{background:#16243a;border:2px solid #3f5674;padding:14px;display:flex;flex-direction:column;gap:8px}
+.cq-chapter1-complete{border-color:#7e7a45}
+.cq-chapter1-quest{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cq-chapter1-quest strong{font-size:16px}
+.cq-chapter1-complete .cq-chapter1-quest svg{color:#f4cb72;flex-shrink:0}
+.cq-chapter1-count{margin-left:auto;color:#a9bdd9;font-size:10px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.cq-chapter1-objective{display:flex;align-items:flex-start;gap:7px;color:#b9cce5;line-height:1.45}
+.cq-chapter1-objective svg{flex-shrink:0;margin-top:1px;color:#69d9e8}
+.cq-chapter1-complete p{color:#b9cce5;line-height:1.45}
+.cq-chapter1-progress{margin-top:14px}
+.cq-chapter1-earnings{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;background:#1e2c45;border:1px solid #455671}
+.cq-chapter1-earnings>span{display:flex;align-items:center;gap:7px;color:#b9c8db}
+.cq-chapter1-earnings>span svg{color:#f4cb72}
+.cq-chapter1-earnings strong{color:#f4cb72;font-size:16px}
+.cq-chapter1-loading{display:flex;align-items:center;gap:8px;background:#16243a;border:1px dashed #46607f;padding:14px;color:#a9bdd9}
+.cq-chapter1-loading svg{flex-shrink:0;color:#69d9e8}
+.cq-chapter1-warning{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 12px;border:1px solid #b3853f;background:#332a1a;color:#f4cb72;line-height:1.45}
+.cq-chapter1-warning svg{flex-shrink:0;margin-top:1px}
+@media(max-width:650px){.cq-chapter1-header{flex-direction:column}.cq-chapter1-count{margin-left:0;width:100%}.cq-chapter1-earnings{align-items:flex-start;flex-direction:column;gap:4px}}

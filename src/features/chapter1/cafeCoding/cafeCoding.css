@@ -1,0 +1,298 @@
+/* Chapter 1 café coding panel inside the existing Python editor. */
+.cq-cafe-panel {
+  flex: 0 0 auto;
+  max-height: 330px;
+  overflow: auto;
+  padding: 12px 16px;
+  border-top: 1px solid #3d5270;
+  border-bottom: 1px solid #10192a;
+  background: linear-gradient(180deg, #1d2d49, #18253d);
+  color: #edf4ff;
+}
+
+.cq-cafe-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cq-cafe-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.9px;
+  color: #7ddde8;
+}
+
+.cq-cafe-head h3 {
+  margin: 3px 0 0;
+  font-size: 16px;
+  color: #f1f5ff;
+}
+
+.cq-cafe-progress-label {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border: 1px solid #67e8f9;
+  border-radius: 999px;
+  background: #164e63;
+  color: #cffafe;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.cq-cafe-progress-bar {
+  height: 6px;
+  margin: 9px 0 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #0f1b2e;
+}
+
+.cq-cafe-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22d3ee, #86efac);
+  transition: width 180ms ease;
+}
+
+.cq-cafe-milestones {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.cq-cafe-milestones li {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #3f5878;
+  border-radius: 7px;
+  background: #142238;
+}
+
+.cq-cafe-milestones li strong {
+  display: block;
+  overflow: hidden;
+  font-size: 10px;
+  color: #dbeafe;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cq-cafe-milestones li small {
+  display: block;
+  font-size: 9px;
+  color: #93a8c4;
+}
+
+.cq-cafe-milestone-current {
+  border-color: #67e8f9 !important;
+  background: #14364b !important;
+}
+
+.cq-cafe-milestone-complete {
+  border-color: #4ade80 !important;
+  background: #123326 !important;
+}
+
+.cq-cafe-milestone-complete small {
+  color: #86efac !important;
+}
+
+.cq-cafe-milestone-mark {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1e3a57;
+  color: #a5f3fc;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.cq-cafe-milestone-complete .cq-cafe-milestone-mark {
+  background: #166534;
+  color: #bbf7d0;
+}
+
+.cq-cafe-task {
+  padding: 10px;
+  border: 1px solid #3f5878;
+  border-radius: 9px;
+  background: #101f35;
+}
+
+.cq-cafe-task h4 {
+  margin: 0;
+  font-size: 12px;
+  color: #a5f3fc;
+}
+
+.cq-cafe-task p {
+  margin: 3px 0 6px !important;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.cq-cafe-task ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #dbeafe;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.cq-cafe-task pre {
+  margin: 7px 0;
+  padding: 7px 9px;
+  overflow: auto;
+  border: 1px solid #263b57;
+  border-radius: 6px;
+  background: #0a1424;
+  color: #bae6fd;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.cq-cafe-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.cq-cafe-hint {
+  font-size: 10px;
+  line-height: 1.4;
+  color: #9fb3ce;
+}
+
+.cq-cafe-warning {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 8px 0 0;
+  padding: 8px 9px;
+  border: 1px solid #f59e0b;
+  border-radius: 7px;
+  background: #3d2b0b;
+  color: #fde68a;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.cq-cafe-warning button {
+  width: auto !important;
+  padding: 4px 8px !important;
+  border-color: #f59e0b !important;
+  background: #b45309 !important;
+  color: #fff !important;
+  font-size: 10px !important;
+}
+
+.cq-cafe-results {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid #3f5878;
+  background: #101f35;
+}
+
+.cq-cafe-results-pass {
+  border-color: #4ade80;
+  background: #0f2b20;
+}
+
+.cq-cafe-results-fail {
+  border-color: #f87171;
+  background: #2e1418;
+}
+
+.cq-cafe-results > strong {
+  display: block;
+  font-size: 11px;
+  color: #f1f5ff;
+}
+
+.cq-cafe-results > small {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  color: #a9bcd5;
+}
+
+.cq-cafe-results ul {
+  display: grid;
+  gap: 4px;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cq-cafe-results li {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  font-size: 10px;
+}
+
+.cq-cafe-results li > span {
+  font-weight: 900;
+  color: #86efac;
+}
+
+.cq-cafe-results-fail li > span {
+  color: #fca5a5;
+}
+
+.cq-cafe-results li strong {
+  display: block;
+  color: #e2e8f0;
+}
+
+.cq-cafe-results li small {
+  display: block;
+  color: #9fb3ce;
+  line-height: 1.4;
+}
+
+.cq-cafe-ready,
+.cq-cafe-delivery-ready {
+  margin: 9px 0 0 !important;
+  padding: 8px 10px;
+  border: 1px solid #4ade80;
+  border-radius: 7px;
+  background: #0f2b20;
+  color: #bbf7d0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cq-cafe-delivery-ready {
+  border-color: #86efac;
+  background: #14532d;
+  color: #dcfce7;
+}
+
+.cq-cafe-spin {
+  animation: cq-cafe-spin 0.8s linear infinite;
+}
+
+@keyframes cq-cafe-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

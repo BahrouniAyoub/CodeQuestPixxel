@@ -28,6 +28,7 @@ import { notify } from "@/features/notifications/notificationStore";
 import { useWindows } from "@/core/windows/windowStore";
 import { useFileSession } from "@/features/editor/fileSession";
 import { getEntry, writeFile } from "@/services/filesystem/filesystem";
+import { CafeMilestonePanel } from "@/features/chapter1/cafeCoding/CafeMilestonePanel";
 import "../shared-apps.css";
 
 export function EditorApp() {
@@ -593,6 +594,8 @@ export function EditorApp() {
           Python
         </span>
       </div>
+
+      <CafeMilestonePanel code={code} filePath={filePath} fileReady={fileReady} />
 
       {fileError && (
         <div

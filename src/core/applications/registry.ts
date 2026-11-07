@@ -1,6 +1,7 @@
 import type { IconName } from "@/shared/components/PixelIcon";
 
-export type AppId = "tickets" | "editor" | "chat" | "progress" | "settings" | "terminal" | "explorer";
+export type AppId =
+  "tickets" | "editor" | "chat" | "browser" | "progress" | "settings" | "terminal" | "explorer";
 
 export interface AppDefinition {
   id: AppId;
@@ -51,6 +52,16 @@ export const APPS: Record<AppId, AppDefinition> = {
     minSize: { width: 480, height: 320 },
     pinned: true,
   },
+  browser: {
+    id: "browser",
+    title: "Browser",
+    shortTitle: "Browser",
+    description: "Visit CodeQuest websites",
+    icon: "browser",
+    defaultSize: { width: 880, height: 560 },
+    minSize: { width: 520, height: 360 },
+    pinned: true,
+  },
   progress: {
     id: "progress",
     title: "Progress",
@@ -93,7 +104,16 @@ export const APPS: Record<AppId, AppDefinition> = {
   },
 };
 
-export const APP_ORDER: AppId[] = ["tickets", "editor", "chat", "progress", "settings", "terminal", "explorer"];
+export const APP_ORDER: AppId[] = [
+  "tickets",
+  "editor",
+  "chat",
+  "browser",
+  "progress",
+  "settings",
+  "terminal",
+  "explorer",
+];
 export const PINNED_APPS: AppId[] = APP_ORDER.filter((id) => APPS[id].pinned);
 
 export function searchApps(query: string): AppDefinition[] {
