@@ -4,6 +4,8 @@ import type { Chapter1QuestId } from "@/features/chapter1/chapter1Quests";
 import { useGigboardApplication } from "@/features/browser/gigboardApplicationStore";
 import { CAFE_MILESTONE_COUNT } from "./cafeMilestones";
 import { useCafeMilestones } from "./cafeMilestoneStore";
+import { CAFE_DEV_TASK_COUNT } from "./cafeDevTasks";
+import { useCafeDev } from "./cafeDevStore";
 
 /**
  * Pure access check shared by the editor panel and tests. "Unlocked" means the
@@ -144,4 +146,82 @@ export function syncCafeProjectQuestFromStores(): Promise<CafeQuestSyncResult> {
     completeQuest: chapter.completeQuest,
     readCurrentQuestId: () => getCurrentChapter1Quest(useChapter1.getState().progress)?.id ?? null,
   });
+}
+
+/**
+ * Production adapter for the four-task development workflow. CH1-05 completes
+ * only after 4/4, and this adapter never awards XP, money, payment, or CH1-06.
+ */
+export function syncCafeDevelopmentQuestFromStores(): Promise<CafeQuestSyncResult> {
+  const chapter = useChapter1.getState();
+  const application = useGigboardApplication.getState();
+  const development = useCafeDev.getState();
+
+  return syncCafeProjectQuest({
+    milestoneHydrated: development.hydrated,
+    allMilestonesComplete: development.progress.currentTaskIndex === CAFE_DEV_TASK_COUNT,
+    chapterHydrated: chapter.hydrated,
+    currentQuestId: getCurrentChapter1Quest(chapter.progress)?.id ?? null,
+    completedQuestIds: chapter.progress.completedQuestIds,
+    applicationStatus: application.application?.status ?? null,
+    completeQuest: chapter.completeQuest,
+    readCurrentQuestId: () => getCurrentChapter1Quest(useChapter1.getState().progress)?.id ?? null,
+  });
+}
+
+export interface CafeDeliveryQuestSyncInput {
+  /** The approved submission is the only reason CH1-06 may be completed. */
+  readonly submissionApproved: boolean;
+  readonly chapterHydrated: boolean;
+  readonly currentQuestId: Chapter1QuestId | null;
+  readonly completedQuestIds: readonly Chapter1QuestId[];
+  readonly completeQuest: (questId: Chapter1QuestId) => Promise<boolean>;
+  /** Re-read the active quest after a failed save so an idempotent retry is safe. */
+  readonly readCurrentQuestId?: () => Chapter1QuestId | null;
+}
+
+const DELIVERY_RETRY_MESSAGE =
+  "Your project is approved, but Chapter 1 could not be updated. Retry the Chapter 1 update — do not submit or check the client response again.";
+
+/**
+ * Complete CH1-06 exactly once after Alex Morgan approves the submitted snapshot.
+ * The approved record stays intact when this fails, so the retry only repeats
+ * this idempotent quest step. It never awards money, XP, payment, CH1-07, or
+ * CH1-08, and it never completes a quest other than the active CH1-06.
+ */
+export async function syncCafeDeliveryQuest(
+  input: CafeDeliveryQuestSyncInput,
+): Promise<CafeQuestSyncResult> {
+  if (!input.submissionApproved) {
+    return {
+      ok: false,
+      completed: false,
+      reason: "Alex Morgan has not approved a submitted project yet.",
+    };
+  }
+  if (input.completedQuestIds.includes("CH1-06")) {
+    return { ok: true, completed: false };
+  }
+  if (!input.chapterHydrated) {
+    return {
+      ok: false,
+      completed: false,
+      reason: "Chapter 1 progress is not ready yet. Retry the Chapter 1 update.",
+    };
+  }
+  if (input.currentQuestId !== "CH1-06") {
+    return {
+      ok: false,
+      completed: false,
+      reason:
+        "“Deliver Your Work” (CH1-06) is not the active Chapter 1 quest. Retry when it is active.",
+    };
+  }
+
+  const completed = await input.completeQuest("CH1-06");
+  if (completed) return { ok: true, completed: true };
+
+  const after = input.readCurrentQuestId?.() ?? input.currentQuestId;
+  if (after !== "CH1-06") return { ok: true, completed: false };
+  return { ok: false, completed: false, reason: DELIVERY_RETRY_MESSAGE };
 }

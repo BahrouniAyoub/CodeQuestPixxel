@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bv0m464c81lg1"
+path="res://.godot/imported/father.dialogue-dbdc66b0ef6e4b31415f5b88cb77f2bb.tres"
+
+[deps]
+
+source_file="res://RESOURSEDIA/father.dialogue"
+dest_files=["res://.godot/imported/father.dialogue-dbdc66b0ef6e4b31415f5b88cb77f2bb.tres"]
+
+[params]
+
+defaults=true

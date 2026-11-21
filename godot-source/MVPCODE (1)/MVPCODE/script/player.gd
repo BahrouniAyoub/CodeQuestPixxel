@@ -1,5 +1,8 @@
 extends CharacterBody2D
 
+# Set to false while a dialogue is open.
+var can_move: bool = true
+
 # =============================================================================
 # MOVEMENT
 # =============================================================================
@@ -10,6 +13,25 @@ extends CharacterBody2D
 @export var run_action: StringName = &"run"
 @export var acceleration: float = 1400.0   # how fast he gets up to speed
 @export var friction: float = 1800.0       # how fast he slows down
+
+# =============================================================================
+# INTERACTION / DIALOGUE
+# =============================================================================
+@export_group("Interaction")
+## Assign E to this action in Project Settings > Input Map.
+@export var interaction_action: StringName = &"interact"
+## Collision layers used by interactive Area2D objects.
+@export_flags_2d_physics var interaction_collision_mask: int = 1
+
+# =============================================================================
+# FRAME ANIMATION (the walk sheets)
+# =============================================================================
+@export_group("Frame Animation")
+## ON = walk uses your walk sprite sheets and the fake walk bounce is turned off.
+## OFF = the old bounce-only walk.
+@export var use_frame_walk: bool = true
+## Frames in one walk cycle. It is set from CharacterData.WALK_FRAMES at start.
+@export var walk_frames: int = 6
 
 # =============================================================================
 # WALKING ANIMATION
@@ -139,6 +161,7 @@ extends CharacterBody2D
 @onready var feet_sprite: Sprite2D = $Feet
 @onready var hair_sprite: Sprite2D = $Hair
 @onready var footsteps: AudioStreamPlayer2D = $Footsteps
+@onready var player_collision: CollisionShape2D = $CollisionShape2D
 
 # CHARACTER CUSTOMIZATION
 var body_index: int = 0
@@ -157,6 +180,9 @@ var walk_time: float = 0.0
 var idle_time: float = 0.0
 var animation_amount: float = 0.0
 var run_blend: float = 0.0
+
+# Current walk frame. -1 = standing still (idle image)
+var walk_frame: int = -1
 
 var was_walking: bool = false
 var last_step_count: int = 0
@@ -230,6 +256,9 @@ func _ready() -> void:
 	bottom_index = CharacterSettings.bottom_index
 	feet_index = CharacterSettings.feet_index
 
+	# Always match the number of frames in the walk sheets
+	walk_frames = maxi(CharacterData.walk_frame_count, 1)
+
 	footsteps.volume_db = footsteps_volume
 
 	for sprite: Sprite2D in get_character_sprites():
@@ -250,6 +279,17 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# Keep interaction available so E can also close the dialogue.
+	if Input.is_action_just_pressed(interaction_action):
+		interact_with_nearby_actionable()
+
+	# Freeze movement and animation while dialogue is active.
+	if not can_move:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		stop_footsteps(false)
+		return
+
 	var real_input: Vector2 = Input.get_vector(
 		"ui_left",
 		"ui_right",
@@ -356,6 +396,17 @@ func _physics_process(delta: float) -> void:
 		update_routine(delta)
 
 	was_walking = is_walking
+
+	# WALK FRAMES: one clock (walk_time) drives all 5 layers at once,
+	# so body, clothes, feet and hair can never get out of sync.
+	if use_frame_walk:
+		var new_frame: int = -1
+		if is_walking:
+			new_frame = int(fposmod(walk_time, TAU) / TAU * float(walk_frames))
+			new_frame = clampi(new_frame, 0, walk_frames - 1)
+		if new_frame != walk_frame:
+			walk_frame = new_frame
+			update_sprites()
 
 	animate_character(delta)
 
@@ -840,26 +891,55 @@ func update_direction(input_direction: Vector2) -> void:
 		update_sprites()
 
 
+## Safely reads walk_list[a][b][direction] (an Array of frames).
+## Returns an empty array if the walk sheet is missing.
+func get_walk_frames(source: Array, a: int, b: int, d: int) -> Array:
+	if a < 0 or a >= source.size():
+		return []
+	var level1: Array = source[a]
+	if b < 0 or b >= level1.size():
+		return []
+	var level2: Array = level1[b]
+	if d < 0 or d >= level2.size():
+		return []
+	return level2[d]
+
+
+## While walking: returns the current walk frame. Otherwise (or if the
+## walk sheet is missing): returns the normal idle image.
+func pick_texture(walk_list: Array, idle_texture: Texture2D) -> Texture2D:
+	if use_frame_walk and walk_frame >= 0 and not walk_list.is_empty():
+		return walk_list[walk_frame % walk_list.size()]
+	return idle_texture
+
+
 func update_sprites() -> void:
-	body_sprite.texture = CharacterData.body_textures[
-		body_index
-	][skin_index][direction_index]
+	var d: int = direction_index
 
-	bottom_sprite.texture = CharacterData.bottom_textures[
-		body_index
-	][bottom_index][direction_index]
+	body_sprite.texture = pick_texture(
+		get_walk_frames(CharacterData.walk_body_textures, body_index, skin_index, d),
+		CharacterData.body_textures[body_index][skin_index][d]
+	)
 
-	top_sprite.texture = CharacterData.top_textures[
-		body_index
-	][top_index][direction_index]
+	bottom_sprite.texture = pick_texture(
+		get_walk_frames(CharacterData.walk_bottom_textures, body_index, bottom_index, d),
+		CharacterData.bottom_textures[body_index][bottom_index][d]
+	)
 
-	feet_sprite.texture = CharacterData.feet_textures[
-		body_index
-	][feet_index][direction_index]
+	top_sprite.texture = pick_texture(
+		get_walk_frames(CharacterData.walk_top_textures, body_index, top_index, d),
+		CharacterData.top_textures[body_index][top_index][d]
+	)
 
-	hair_sprite.texture = CharacterData.hair_textures[
-		hair_style_index
-	][hair_color_index][direction_index]
+	feet_sprite.texture = pick_texture(
+		get_walk_frames(CharacterData.walk_feet_textures, body_index, feet_index, d),
+		CharacterData.feet_textures[body_index][feet_index][d]
+	)
+
+	hair_sprite.texture = pick_texture(
+		get_walk_frames(CharacterData.walk_hair_textures, hair_style_index, hair_color_index, d),
+		CharacterData.hair_textures[hair_style_index][hair_color_index][d]
+	)
 
 
 # =============================================================================
@@ -882,14 +962,17 @@ func animate_character(delta: float) -> void:
 	move_lean = move_lean.lerp(move_ratio, 1.0 - exp(-lean_smoothing * delta))
 
 	# WALK / RUN values
-	var bounce: float = walk_bounce * (1.0 + run_blend * run_bounce_boost)
-	var sway: float = walk_sway * (1.0 + run_blend * 0.5)
+	# When the frame walk is on, the fake walk bounce/sway/stretch is switched off
+	# (your walk sheets already contain the walking motion).
+	var procedural: float = 0.0 if use_frame_walk else 1.0
+	var bounce: float = walk_bounce * (1.0 + run_blend * run_bounce_boost) * procedural
+	var sway: float = walk_sway * (1.0 + run_blend * 0.5) * procedural
 	var lean: float = lean_amount * (1.0 + run_blend * run_lean_boost)
 
 	var walk_wave: float = sin(walk_time)
 	var walk_bob: float = absf(walk_wave) * bounce
 	var walk_horizontal: float = walk_wave * sway
-	var walking_stretch: float = sin(walk_time * 2.0) * walk_stretch
+	var walking_stretch: float = sin(walk_time * 2.0) * walk_stretch * procedural
 	var hair_walk_bob: float = absf(sin(walk_time - hair_delay)) * bounce
 
 	# IDLE FIDGET SHAPES
@@ -1024,6 +1107,9 @@ func reset_animation() -> void:
 	wiggle_progress = 0.0
 	hop_active = false
 	hop_offset = 0.0
+
+	walk_frame = -1
+	update_sprites()
 
 	stop_footsteps(false)
 
@@ -1204,3 +1290,29 @@ func create_shadow() -> void:
 
 	add_child(shadow_sprite)
 	move_child(shadow_sprite, 0)   # behind all the character layers
+
+# =============================================================================
+# INTERACTION / DIALOGUE
+# =============================================================================
+func interact_with_nearby_actionable() -> void:
+	if player_collision == null or player_collision.shape == null:
+		push_warning("Player CollisionShape2D or its Shape2D is missing.")
+		return
+
+	# Reuse the player's own collision shape to check which Actionable Area2D
+	# objects are touching/overlapping it. No Direction or ActionableFinder node is needed.
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = player_collision.shape
+	query.transform = player_collision.global_transform
+	query.collision_mask = interaction_collision_mask
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+
+	var space_state := get_world_2d().direct_space_state
+	var results: Array[Dictionary] = space_state.intersect_shape(query, 32)
+
+	for result: Dictionary in results:
+		var collider: Object = result.get("collider")
+		if collider is Area2D and collider.has_method("action"):
+			collider.call("action")
+			return

@@ -182,6 +182,7 @@ texture_normal = SubResource("AtlasTexture_oxjvg")
 texture_pressed = SubResource("AtlasTexture_3yu6r")
 
 [node name="HairstyleNext" type="TextureButton" parent="." unique_id=491121881]
+modulate = Color(0.8018189, 0.90063757, 0.90005755, 1)
 layout_mode = 0
 offset_left = 124.0
 offset_top = 14.0

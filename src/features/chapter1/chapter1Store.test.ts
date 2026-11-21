@@ -149,6 +149,25 @@ describe("Chapter 1 store", () => {
     expect(h.store.getState().progress.money).toBe(50);
   });
 
+  it("accepts a larger wallet on reload and preserves it when CH1-08 completes", async () => {
+    const paidRecord = recordAfter(7);
+    const higherWalletRecord: Chapter1SaveRecord = {
+      ...paidRecord,
+      progress: { ...paidRecord.progress, money: 75 },
+    };
+    const h = makeStore(higherWalletRecord);
+    await h.store.getState().hydrate();
+
+    expect(h.store.getState().progress.money).toBe(75);
+    expect(getCurrentChapter1Quest(h.store.getState().progress)?.id).toBe("CH1-08");
+
+    const saved = await h.store.getState().completeQuest("CH1-08");
+
+    expect(saved).toBe(true);
+    expect(h.saved[0]?.progress.money).toBe(75);
+    expect(h.store.getState().progress.money).toBe(75);
+  });
+
   it("does not pay twice when CH1-07 is repeated", async () => {
     const h = makeStore(recordAfter(6));
     await h.store.getState().hydrate();
@@ -215,8 +234,16 @@ describe("Chapter 1 store", () => {
     await expectMalformedFallback({
       version: 1,
       progress: {
-        currentQuestIndex: 6,
-        completedQuestIds: ["CH1-01", "CH1-02", "CH1-03", "CH1-04", "CH1-05", "CH1-06"],
+        currentQuestIndex: 7,
+        completedQuestIds: [
+          "CH1-01",
+          "CH1-02",
+          "CH1-03",
+          "CH1-04",
+          "CH1-05",
+          "CH1-06",
+          "CH1-07",
+        ],
         money: 50,
         paymentClaimed: false,
       },

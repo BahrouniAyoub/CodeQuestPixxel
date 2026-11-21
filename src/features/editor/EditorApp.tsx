@@ -27,8 +27,8 @@ import type { RuntimeStatus } from "@/services/runner/types";
 import { notify } from "@/features/notifications/notificationStore";
 import { useWindows } from "@/core/windows/windowStore";
 import { useFileSession } from "@/features/editor/fileSession";
+import { loadSiblingProjectModules } from "@/features/editor/projectModules";
 import { getEntry, writeFile } from "@/services/filesystem/filesystem";
-import { CafeMilestonePanel } from "@/features/chapter1/cafeCoding/CafeMilestonePanel";
 import "../shared-apps.css";
 
 export function EditorApp() {
@@ -420,9 +420,20 @@ export function EditorApp() {
           }
         }
       } else {
+        // File mode may be a multi-file project: expose valid sibling `.py`
+        // files (for example calculator.py) to this run only. Ticket mode keeps
+        // executing exactly one file.
+        const projectModules =
+          isFileMode && runFilePath
+            ? await loadSiblingProjectModules({ currentPath: runFilePath })
+            : undefined;
+
+        if (!stillCurrent()) return;
+
         const result = await runner.run({
           code: submittedCode,
           stdin: stdin.split("\n"),
+          ...(projectModules && projectModules.length > 0 ? { projectModules } : {}),
           echoPrompts: true,
           timeoutMs: 5000,
           outputLimit: 20000,
@@ -594,8 +605,6 @@ export function EditorApp() {
           Python
         </span>
       </div>
-
-      <CafeMilestonePanel code={code} filePath={filePath} fileReady={fileReady} />
 
       {fileError && (
         <div

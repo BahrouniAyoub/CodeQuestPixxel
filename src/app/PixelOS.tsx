@@ -14,10 +14,16 @@ import { useProgress, type ProgressPersisted } from "@/features/progress/progres
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
 import { EditorApp } from "@/features/editor/EditorApp";
 import { ChatApp } from "@/features/chat/ChatApp";
+import { MailApp } from "@/features/mail/MailApp";
+import { useMail } from "@/features/mail/mailStore";
+import { syncCafeWelcomeEmail } from "@/features/mail/mailIntegration";
 import { ProgressApp } from "@/features/progress/ProgressApp";
 import { BrowserApp } from "@/features/browser/BrowserApp";
 import { useGigboardApplication } from "@/features/browser/gigboardApplicationStore";
 import { useCafeMilestones } from "@/features/chapter1/cafeCoding/cafeMilestoneStore";
+import { useCafeSubmission } from "@/features/chapter1/cafeCoding/cafeSubmissionStore";
+import { useCafePayment } from "@/features/chapter1/cafeCoding/cafePaymentStore";
+import { useCafeSetup } from "@/features/chapter1/cafeSetup/cafeSetupStore";
 import { SettingsApp } from "@/features/settings/SettingsApp";
 import { useChat, type ChatPersisted } from "@/features/chat/chatStore";
 import { useDrafts } from "@/features/tickets/draftStore";
@@ -31,12 +37,13 @@ function AppPreview({ id }: { id: AppId }) {
   if (id === "tickets") return <TicketsApp />;
   if (id === "editor") return <EditorApp />;
   if (id === "chat") return <ChatApp />;
+  if (id === "mail") return <MailApp />;
   if (id === "browser") return <BrowserApp />;
   if (id === "progress") return <ProgressApp />;
   if (id === "settings") return <SettingsApp />;
   if (id === "explorer") return <ExplorerApp />;
   if (id === "terminal") return <TerminalApp />;
-  return <div className="cq-app-empty"><PixelIcon name={APPS[id].icon} size={64}/><h2>{APPS[id].title}</h2><p>Coming soon — this application is not part of the current MVP.</p></div>;
+  return <div className="cq-app-empty"><PixelIcon name={APPS[id as AppId].icon} size={64}/><h2>{APPS[id as AppId].title}</h2><p>Coming soon — this application is not part of the current MVP.</p></div>;
 }
 
 function WindowFrame({ id, z }: { id: AppId; z: number }) {
@@ -70,7 +77,7 @@ export default function PixelOS() {
   const menuRef=useRef<HTMLDivElement>(null);
   const startButtonRef=useRef<HTMLButtonElement>(null);
   const results=useMemo(()=>searchApps(search),[search]);
-  useEffect(()=>{let alive=true;Promise.all([dbGet<Record<AppId,Geometry>>("prefs","windows"),dbGet<Partial<Settings>>("prefs","settings"),dbGet<ProgressPersisted>("progress","state"),dbGet<ChatPersisted>("chat","state"),dbGetAll<string>("drafts"),useChapter1.getState().hydrate(),useGigboardApplication.getState().hydrate(),useCafeMilestones.getState().hydrate()]).then(([geometry,prefs,savedProgress,savedChat,savedDrafts])=>{if(alive){hydrateGeometry(geometry);settings.hydrate(prefs);progress.hydrate(savedProgress);useChat.getState().hydrate(savedChat);useDrafts.getState().hydrate(savedDrafts as Partial<Record<TicketId,string>>);}}).catch(err=>{if(alive){setRestoreError(err instanceof Error?err.message:String(err));console.warn("Could not restore Pixel OS preferences",err);}}).finally(()=>{if(alive)setRestoring(false);});return()=>{alive=false;};},[]);
+  useEffect(()=>{let alive=true;Promise.all([dbGet<Record<AppId,Geometry>>("prefs","windows"),dbGet<Partial<Settings>>("prefs","settings"),dbGet<ProgressPersisted>("progress","state"),dbGet<ChatPersisted>("chat","state"),dbGetAll<string>("drafts"),useChapter1.getState().hydrate(),useGigboardApplication.getState().hydrate(),useCafeMilestones.getState().hydrate(),useCafeSetup.getState().hydrate(),useCafeSubmission.getState().hydrate(),useCafePayment.getState().hydrate(),useMail.getState().hydrate()]).then(([geometry,prefs,savedProgress,savedChat,savedDrafts])=>{if(alive){hydrateGeometry(geometry);settings.hydrate(prefs);progress.hydrate(savedProgress);useChat.getState().hydrate(savedChat);useDrafts.getState().hydrate(savedDrafts as Partial<Record<TicketId,string>>);void syncCafeWelcomeEmail().catch(err=>console.warn("Could not synchronize CodeQuest Mail",err));}}).catch(err=>{if(alive){setRestoreError(err instanceof Error?err.message:String(err));console.warn("Could not restore Pixel OS preferences",err);}}).finally(()=>{if(alive)setRestoring(false);});return()=>{alive=false;};},[]);
   useEffect(()=>{const t=window.setInterval(()=>setClock(new Date()),30000);return()=>clearInterval(t);},[]);
   useEffect(()=>{const resize=()=>dispatch({type:"CLAMP_ALL",bounds:desktopBounds()});window.addEventListener("resize",resize);return()=>window.removeEventListener("resize",resize);},[dispatch]);
   useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==="Escape"&&startOpen){setStartOpen(false);setSearch("");}};const pointer=(e:PointerEvent)=>{if(startOpen&&!menuRef.current?.contains(e.target as Node)&&!startButtonRef.current?.contains(e.target as Node))setStartOpen(false);};window.addEventListener("keydown",key);window.addEventListener("pointerdown",pointer);return()=>{window.removeEventListener("keydown",key);window.removeEventListener("pointerdown",pointer);};},[startOpen]);

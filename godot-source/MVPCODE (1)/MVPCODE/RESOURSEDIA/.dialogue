@@ -1,0 +1,11 @@
+~ start
+father: hola
+kid: asba lik
+- First one
+	kid: asba teii
+- Second one
+	kid: : asba teiik
+father: ok bb
+
+- End the conversation => END
+

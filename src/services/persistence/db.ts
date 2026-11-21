@@ -96,3 +96,132 @@ export function dbClear(store: StoreName): Promise<void> {
 export function dbDelete(store: StoreName, key: string): Promise<void> {
   return tx(store, "readwrite", s => s.delete(key)).then(() => undefined);
 }
+
+export type DbWriteMode = "put" | "add";
+
+export interface DbAtomicWrite {
+  readonly key: string;
+  readonly value: unknown;
+  /** `add` fails if the key already exists, which guards one-time records. */
+  readonly mode?: DbWriteMode;
+}
+
+export interface DbAtomicSuccess<T> {
+  readonly ok: true;
+  readonly writes: readonly DbAtomicWrite[];
+  readonly result: T;
+}
+
+export type DbAtomicPlan<T> = DbAtomicSuccess<T> | { ok: false; reason: string };
+
+export type DbAtomicResult<T> =
+  | { ok: true; result: T }
+  | { ok: false; reason: string; conflict: boolean };
+
+/**
+ * Read a set of keys and conditionally commit writes in one IndexedDB
+ * transaction. This lets a one-time reward and its durable guard record commit
+ * together: either both are saved or neither is.
+ */
+export function dbAtomic<T>(
+  store: StoreName,
+  keys: readonly string[],
+  plan: (records: ReadonlyMap<string, unknown>) => DbAtomicPlan<T>,
+): Promise<DbAtomicResult<T>> {
+  return openDb().then(
+    (db) =>
+      new Promise<DbAtomicResult<T>>((resolve, reject) => {
+        const transaction = db.transaction(store, "readwrite");
+        const objectStore = transaction.objectStore(store);
+        const records = new Map<string, unknown>();
+        let remaining = keys.length;
+        let lastError: DOMException | null = null;
+        let successResult: { readonly value: T } | null = null;
+        let settled = false;
+
+        const finish = (result: DbAtomicResult<T>) => {
+          if (settled) return;
+          settled = true;
+          resolve(result);
+        };
+        const failure = (reason: string, conflict: boolean) =>
+          finish({ ok: false, reason, conflict });
+
+        transaction.onerror = () =>
+          failure(
+            lastError?.message ?? transaction.error?.message ?? "Storage transaction failed",
+            lastError?.name === "ConstraintError",
+          );
+        transaction.onabort = () =>
+          failure(
+            lastError?.message ?? transaction.error?.message ?? "Storage transaction aborted",
+            lastError?.name === "ConstraintError",
+          );
+        transaction.oncomplete = () => {
+          if (successResult) finish({ ok: true, result: successResult.value });
+          else failure("Storage transaction completed without a result", false);
+        };
+
+        const applyWrites = (planned: DbAtomicSuccess<T>) => {
+          for (const write of planned.writes) {
+            const writeRequest =
+              write.mode === "add"
+                ? objectStore.add(write.value, write.key)
+                : objectStore.put(write.value, write.key);
+            writeRequest.onerror = () => {
+              lastError = writeRequest.error;
+            };
+          }
+          successResult = { value: planned.result };
+        };
+
+        if (remaining === 0) {
+          const planned = plan(records);
+          if (!planned.ok) {
+            failure(planned.reason, false);
+            return;
+          }
+          applyWrites(planned);
+          return;
+        }
+
+        keys.forEach((key) => {
+          const request = objectStore.get(key) as IDBRequest<unknown>;
+          request.onerror = () => {
+            lastError = request.error;
+          };
+          request.onsuccess = () => {
+            if (request.result !== undefined) records.set(key, request.result);
+            remaining -= 1;
+            if (remaining !== 0) return;
+
+            let planned: DbAtomicPlan<T>;
+            try {
+              planned = plan(records);
+            } catch (error) {
+              try {
+                transaction.abort();
+              } catch {
+                // The transaction may already have finished; report the original error.
+              }
+              if (!settled) {
+                settled = true;
+                reject(error);
+              }
+              return;
+            }
+            if (!planned.ok) {
+              try {
+                transaction.abort();
+              } catch {
+                // Resolved failure is reported even when abort is a no-op.
+              }
+              failure(planned.reason, false);
+              return;
+            }
+            applyWrites(planned);
+          };
+        });
+      }),
+  );
+}

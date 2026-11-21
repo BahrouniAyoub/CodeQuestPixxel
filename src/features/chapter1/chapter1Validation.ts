@@ -86,12 +86,14 @@ export function validateChapter1SaveRecord(raw: unknown): Chapter1ValidationResu
     (total, quest) => total + quest.moneyReward,
     0,
   );
-  if (money !== expectedMoney) {
-    return invalid(`money does not match completed quests (expected $${expectedMoney})`);
+  // Chapter 1 guarantees at least the canonical quest rewards. A wallet may
+  // legitimately contain more from other systems, so only a shortfall is invalid.
+  if (money < expectedMoney) {
+    return invalid(`money is below the completed quest rewards (expected at least $${expectedMoney})`);
   }
 
-  const paymentExpected = expectedMoney > 0;
-  if (paymentClaimed !== paymentExpected) {
+  const paymentQuestCompleted = ids.includes("CH1-07");
+  if (paymentClaimed !== paymentQuestCompleted) {
     return invalid("paymentClaimed is inconsistent with completed quests");
   }
 

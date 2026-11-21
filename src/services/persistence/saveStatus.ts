@@ -27,11 +27,11 @@ export function onSaveError(fn: ErrorListener) {
   errorListener = fn;
 }
 
-/** Write through IndexedDB while tracking accurate save status. Never swallows failures. */
-export async function trackedSave<T>(store: StoreName, key: string, value: T): Promise<boolean> {
+/** Track any durable write so multi-record commits share the save indicator. */
+export async function trackedTransaction<T>(operation: () => Promise<T>): Promise<T> {
   useSaveStatus.setState((s) => ({ pending: s.pending + 1, state: "saving" }));
   try {
-    await dbSet(store, key, value);
+    const result = await operation();
     useSaveStatus.setState((s) => {
       const pending = s.pending - 1;
       return {
@@ -41,11 +41,25 @@ export async function trackedSave<T>(store: StoreName, key: string, value: T): P
         lastError: null,
       };
     });
-    return true;
+    return result;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown storage error";
-    useSaveStatus.setState((s) => ({ pending: Math.max(0, s.pending - 1), state: "error", lastError: message }));
+    useSaveStatus.setState((s) => ({
+      pending: Math.max(0, s.pending - 1),
+      state: "error",
+      lastError: message,
+    }));
     errorListener?.(message);
+    throw err;
+  }
+}
+
+/** Write through IndexedDB while tracking accurate save status. Never swallows failures. */
+export async function trackedSave<T>(store: StoreName, key: string, value: T): Promise<boolean> {
+  try {
+    await trackedTransaction(() => dbSet(store, key, value));
+    return true;
+  } catch {
     return false;
   }
 }

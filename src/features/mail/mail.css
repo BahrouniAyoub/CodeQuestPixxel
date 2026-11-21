@@ -1,0 +1,506 @@
+.cq-mail {
+  display: grid;
+  grid-template-columns: 178px minmax(220px, 280px) minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+  background: #121b2d;
+  color: #edf4ff;
+  overflow: hidden;
+}
+
+.cq-mail-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 12px;
+  background: #16223a;
+  border-right: 2px solid #0b1221;
+  min-height: 0;
+}
+
+.cq-mail-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #9deaf1;
+}
+
+.cq-mail-brand div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.cq-mail-brand strong {
+  font-size: 13px;
+  letter-spacing: 0.4px;
+}
+
+.cq-mail-brand small {
+  color: #8fa8c6;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.cq-mail-folders {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cq-mail-folders button {
+  justify-content: flex-start;
+  width: 100%;
+  border-color: transparent;
+  background: transparent;
+  color: #c9d8ec;
+  font-weight: 700;
+}
+
+.cq-mail-folders button:hover:not(:disabled) {
+  background: #223451;
+}
+
+.cq-mail-folders button.active {
+  background: #2c4468;
+  border-color: #69d9e8;
+  color: #ffffff;
+}
+
+.cq-mail-unread-badge {
+  margin-left: auto;
+  min-width: 19px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: #69d9e8;
+  color: #12213a;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.cq-mail-side-note {
+  margin-top: auto;
+  color: #8099b7;
+  font-size: 10px;
+  line-height: 1.5;
+  border-top: 1px solid #2b3e5d;
+  padding-top: 10px;
+}
+
+.cq-mail-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #1a2741;
+  border-right: 1px solid #2c3e5c;
+}
+
+.cq-mail-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid #314665;
+  background: #1f2e4a;
+}
+
+.cq-mail-list-head div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cq-mail-list-head strong {
+  font-size: 12px;
+  color: #dce9f8;
+}
+
+.cq-mail-list-head > span {
+  color: #8fa8c6;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.cq-mail-items {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.cq-mail-item {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 4px !important;
+  width: 100%;
+  padding: 10px 12px !important;
+  border: 0 !important;
+  border-bottom: 1px solid #2a3c59 !important;
+  border-left: 3px solid transparent !important;
+  background: transparent !important;
+  text-align: left;
+  color: #cbd9eb !important;
+}
+
+.cq-mail-item:hover:not(:disabled) {
+  background: #223451 !important;
+}
+
+.cq-mail-item.selected {
+  background: #2b4368 !important;
+  border-left-color: #69d9e8 !important;
+}
+
+.cq-mail-item.unread {
+  background: #1f3553 !important;
+}
+
+.cq-mail-item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cq-mail-item-top strong {
+  color: #f0f6ff;
+  font-size: 12px;
+}
+
+.cq-mail-item-top time {
+  color: #839dbd;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.cq-mail-item-subject {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dbe8f8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cq-mail-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #69d9e8;
+  flex: 0 0 auto;
+}
+
+.cq-mail-item-preview {
+  color: #8fa8c6;
+  font-size: 11px;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.cq-mail-detail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #141f34;
+}
+
+.cq-mail-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #4a2a2e;
+  border-bottom: 1px solid #7d4048;
+  color: #ffd8d8;
+  font-size: 12px;
+}
+
+.cq-mail-banner span {
+  flex: 1;
+}
+
+.cq-mail-banner button {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.cq-mail-detail-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px;
+  color: #8fa8c6;
+  text-align: center;
+}
+
+.cq-mail-detail-empty h2 {
+  color: #cfe4f8;
+  font-size: 17px;
+}
+
+.cq-mail-detail-empty p {
+  max-width: 300px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cq-mail-conversation {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.cq-mail-conversation-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: #1d2c47;
+  border-bottom: 1px solid #334967;
+}
+
+.cq-mail-conversation-head h2 {
+  margin: 3px 0 4px;
+  font-size: 17px;
+  color: #f2f7ff;
+}
+
+.cq-mail-conversation-head p {
+  color: #8fa8c6;
+  font-size: 11px;
+}
+
+.cq-mail-open-tickets {
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+.cq-mail-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px) 0 0 / 100% 26px,
+    #141f34;
+}
+
+.cq-mail-message {
+  max-width: 86%;
+  padding: 10px 12px;
+  border: 1px solid #3b5374;
+  background: #1d2b45;
+  box-shadow: 3px 3px 0 #0d1626;
+}
+
+.cq-mail-message-incoming {
+  align-self: flex-start;
+  border-left: 3px solid #69d9e8;
+}
+
+.cq-mail-message-outgoing {
+  align-self: flex-end;
+  border-right: 3px solid #b18cf0;
+  background: #241f3c;
+}
+
+.cq-mail-message header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #8fa8c6;
+  font-size: 10px;
+}
+
+.cq-mail-message header strong {
+  color: #e7f0fd;
+  font-size: 12px;
+}
+
+.cq-mail-message header time {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.cq-mail-message-subject {
+  margin: 5px 0 !important;
+  color: #9deaf1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cq-mail-message-body {
+  color: #d8e5f5;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cq-mail-scripted {
+  display: block;
+  margin-top: 8px;
+  color: #7e94b2;
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.cq-mail-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px 14px 13px;
+  background: #1b2942;
+  border-top: 1px solid #344a69;
+}
+
+.cq-mail-compose label {
+  color: #9deaf1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.cq-mail-compose textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  max-height: 180px;
+  padding: 9px 10px;
+  border: 1px solid #5d7696;
+  background: #0f1a2c;
+  color: #eef5ff;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.cq-mail-compose textarea:focus {
+  outline: 2px solid #69d9e8;
+  outline-offset: -1px;
+}
+
+.cq-mail-compose-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cq-mail-compose-foot small {
+  color: #8099b7;
+  font-size: 10px;
+}
+
+.cq-mail-compose-foot button {
+  background: #69d9e8;
+  border-color: #69d9e8;
+  color: #12213a;
+  font-weight: 900;
+}
+
+.cq-mail-compose-foot button:hover:not(:disabled) {
+  background: #8ae7f1;
+}
+
+.cq-mail-compose-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffb9b9;
+  font-size: 11px;
+}
+
+.cq-mail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 16px;
+  color: #8fa8c6;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cq-mail-error {
+  color: #ffd0d0;
+}
+
+.cq-mail-error button {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.cq-mail-spin {
+  animation: cq-mail-spin 0.9s linear infinite;
+}
+
+@keyframes cq-mail-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 860px) {
+  .cq-mail {
+    grid-template-columns: 150px minmax(180px, 220px) minmax(0, 1fr);
+  }
+
+  .cq-mail-message {
+    max-width: 94%;
+  }
+}
+
+@media (max-width: 650px) {
+  .cq-mail {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(150px, 34%) minmax(0, 1fr);
+  }
+
+  .cq-mail-side {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 9px 10px;
+    border-right: 0;
+    border-bottom: 2px solid #0b1221;
+  }
+
+  .cq-mail-folders {
+    flex-direction: row;
+    margin-left: auto;
+  }
+
+  .cq-mail-folders button {
+    width: auto;
+  }
+
+  .cq-mail-side-note {
+    display: none;
+  }
+
+  .cq-mail-list {
+    border-right: 0;
+    border-bottom: 1px solid #2c3e5c;
+  }
+}

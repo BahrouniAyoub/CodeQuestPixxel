@@ -6,6 +6,7 @@ import {
   Clock3,
   FolderOpen,
   Loader2,
+  Mail,
   MapPin,
   MessageSquare,
   ShieldCheck,
@@ -20,10 +21,25 @@ import {
   isCafeMilestoneComplete,
 } from "@/features/chapter1/cafeCoding/cafeMilestoneProgress";
 import { useCafeMilestones } from "@/features/chapter1/cafeCoding/cafeMilestoneStore";
-import { openCafeProjectInEditor } from "@/features/chapter1/cafeCoding/cafeProjectFiles";
+import { useCafeDev } from "@/features/chapter1/cafeCoding/cafeDevStore";
+import { useCafeSubmission } from "@/features/chapter1/cafeCoding/cafeSubmissionStore";
+import { selectCafeWorkflow } from "@/features/chapter1/cafeCoding/cafeWorkflow";
+import { CafeProjectGuidancePanel } from "@/features/chapter1/cafeSetup/CafeProjectGuidancePanel";
+import { openCafeProjectWorkspace } from "@/features/chapter1/cafeSetup/cafeSetupActions";
+import { detectLegacyCafeProjectFiles } from "@/features/chapter1/cafeSetup/cafeSetupCompatibility";
+import { isCafeSetupComplete } from "@/features/chapter1/cafeSetup/cafeSetupProgress";
+import { useCafeSetup } from "@/features/chapter1/cafeSetup/cafeSetupStore";
+import {
+  CAFE_CLIENT_BRIEF_INTRO,
+  CAFE_CLIENT_BRIEF_REQUIREMENTS,
+  CAFE_CLIENT_BRIEF_SIGN_OFF,
+} from "@/features/chapter1/cafeSetup/cafeClientBrief";
 import { getCurrentChapter1Quest } from "@/features/chapter1/chapter1Progress";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
+import { useWindows } from "@/core/windows/windowStore";
+import { syncCafeWelcomeEmail } from "@/features/mail/mailIntegration";
 import { useGigboardApplication } from "../gigboardApplicationStore";
+import { isDevTestingEnabled } from "../devGigboardTesting";
 import { GIGBOARD_JOBS_ADDRESS } from "../browserRoutes";
 import type { GigboardJob } from "../data/gigboardJobs";
 import {
@@ -31,11 +47,15 @@ import {
   GIGBOARD_PROPOSAL_MIN_LENGTH,
   validateProposal,
 } from "../data/gigboardApplication";
+import { GigBoardDevTestingPanel } from "./GigBoardDevTestingPanel";
 import { GigBoardHeader } from "./GigBoardPage";
+import { CafeGigBoardDelivery } from "./CafeGigBoardDelivery";
 
 interface GigBoardJobDetailsProps {
   job: GigboardJob;
   onNavigate: (address: string) => void;
+  /** Test seam only. Production omits this and falls back to the DEV flag. */
+  devTestingEnabled?: boolean;
 }
 
 function formatTimestamp(value: string): string {
@@ -73,7 +93,11 @@ function lockedMessage(
   return "Finish the current Chapter 1 quest before applying to the café calculator project.";
 }
 
-export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps) {
+export function GigBoardJobDetails({
+  job,
+  onNavigate,
+  devTestingEnabled,
+}: GigBoardJobDetailsProps) {
   const progress = useChapter1((state) => state.progress);
   const chapterHydrated = useChapter1((state) => state.hydrated);
   const chapterError = useChapter1((state) => state.error);
@@ -82,6 +106,9 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
   const applicationError = useGigboardApplication((state) => state.error);
   const milestoneProgress = useCafeMilestones((state) => state.progress);
   const milestoneHydrated = useCafeMilestones((state) => state.hydrated);
+  const setupProgress = useCafeSetup((state) => state.progress);
+  const setupComplete = isCafeSetupComplete(setupProgress);
+  const developmentRecordPresent = useCafeDev((state) => state.hasSavedRecord);
 
   const [formOpen, setFormOpen] = useState(false);
   const [proposal, setProposal] = useState("");
@@ -93,6 +120,22 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
   const [retryingQuest, setRetryingQuest] = useState(false);
   const [openingProject, setOpeningProject] = useState(false);
   const [projectError, setProjectError] = useState<string | null>(null);
+  const [legacyMilestoneFileExists, setLegacyMilestoneFileExists] = useState(false);
+
+  useEffect(() => {
+    if (!job.chapter1Project) return;
+    let alive = true;
+    void detectLegacyCafeProjectFiles()
+      .then((exists) => {
+        if (alive) setLegacyMilestoneFileExists(exists);
+      })
+      .catch(() => {
+        if (alive) setLegacyMilestoneFileExists(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [job.chapter1Project]);
 
   useEffect(() => {
     if (!job.chapter1Project) return;
@@ -101,6 +144,9 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
     void useChapter1.getState().hydrate();
     void useGigboardApplication.getState().hydrate();
     void useCafeMilestones.getState().hydrate();
+    void useCafeDev.getState().hydrate();
+    void useCafeSetup.getState().hydrate();
+    void useCafeSubmission.getState().hydrate();
   }, [job.chapter1Project]);
 
   const currentQuest = getCurrentChapter1Quest(progress);
@@ -111,9 +157,20 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
   const milestonePercent = cafeMilestoneProgressPercent(milestoneProgress);
   const currentMilestone = getCurrentCafeMilestone(milestoneProgress);
   const projectReadyForDelivery = completedMilestoneCount === CAFE_MILESTONES.length;
+  const isDevelopmentWorkflow =
+    isCafeProject &&
+    selectCafeWorkflow({
+      legacyMilestoneIndex: milestoneProgress.currentMilestoneIndex,
+      // Match Tickets: a milestone file that already exists also marks this save
+      // as legacy, even before the first milestone is verified.
+      legacyMilestoneFileExists,
+      ch1_05Completed: progress.completedQuestIds.includes("CH1-05"),
+      developmentRecordPresent,
+    }) === "development";
   const canApply =
     isCafeProject &&
     !application &&
+    !submitting &&
     chapterHydrated &&
     applicationHydrated &&
     currentQuestId === "CH1-04";
@@ -200,9 +257,14 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
     if (openingProject) return;
     setOpeningProject(true);
     setProjectError(null);
-    const result = await openCafeProjectInEditor();
+    const result = await openCafeProjectWorkspace();
     setOpeningProject(false);
-    if (!result.ok) setProjectError(result.reason);
+    if (!result.ok) setProjectError(result.message);
+  };
+
+  const handleOpenMail = () => {
+    void syncCafeWelcomeEmail();
+    useWindows.getState().open("mail");
   };
 
   const handleDialogKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -281,70 +343,100 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
                   </p>
                 </div>
                 <p>
-                  Alex Morgan has hired you. Complete the three verified Python milestones in the
-                  Pixel OS editor to finish the build.
+                  {isDevelopmentWorkflow
+                    ? "Alex Morgan has hired you. Read the client brief, then set up the project workspace. Build the calculator through four coding tasks in Tickets, document it, and run the final checks."
+                    : "Alex Morgan has hired you. Read the client brief, then set up the project workspace before starting the three verified Python milestones."}
                 </p>
 
-                <div className="cq-gb-project-progress">
-                  <div>
-                    <span>
-                      {projectReadyForDelivery
-                        ? "All milestones complete"
-                        : currentMilestone
-                          ? `Current milestone: ${currentMilestone.index + 1}. ${currentMilestone.title}`
-                          : milestoneHydrated
-                            ? "Loading the next milestone…"
-                            : "Loading your milestone progress…"}
-                    </span>
-                    <strong>
-                      {completedMilestoneCount}/{CAFE_MILESTONES.length} · {milestonePercent}%
-                    </strong>
+                <section className="cq-gb-client-brief" aria-label="Client brief">
+                  <div className="cq-gb-client-brief-head">
+                    <MessageSquare size={16} aria-hidden="true" />
+                    <div>
+                      <strong>Client brief · Alex Morgan</strong>
+                      <small>Café Order Calculator requirements</small>
+                    </div>
                   </div>
-                  <div
-                    className="cq-gb-project-progress-bar"
-                    role="progressbar"
-                    aria-label="Café milestone progress"
-                    aria-valuemin={0}
-                    aria-valuemax={CAFE_MILESTONES.length}
-                    aria-valuenow={completedMilestoneCount}
-                  >
-                    <span style={{ width: `${milestonePercent}%` }} />
-                  </div>
-                </div>
+                  <p>{CAFE_CLIENT_BRIEF_INTRO}</p>
+                  <ul>
+                    {CAFE_CLIENT_BRIEF_REQUIREMENTS.map((requirement) => (
+                      <li key={requirement}>{requirement}</li>
+                    ))}
+                  </ul>
+                  <small>{CAFE_CLIENT_BRIEF_SIGN_OFF}</small>
+                </section>
 
-                <ol className="cq-gb-milestones" aria-label="Café milestones">
-                  {CAFE_MILESTONES.map((milestone) => {
-                    const completed = isCafeMilestoneComplete(milestoneProgress, milestone.id);
-                    const current = currentMilestone?.id === milestone.id;
-                    return (
-                      <li
-                        key={milestone.id}
-                        className={
-                          completed
-                            ? "cq-gb-milestone-complete"
-                            : current
-                              ? "cq-gb-milestone-current"
-                              : ""
-                        }
-                      >
-                        <span className="cq-gb-milestone-check" aria-hidden="true">
-                          {completed ? "✓" : current ? "●" : "○"}
+                <CafeProjectGuidancePanel />
+
+                {isDevelopmentWorkflow ? (
+                  <CafeGigBoardDelivery
+                    job={job}
+                    workflow="development"
+                    onOpenMail={handleOpenMail}
+                  />
+                ) : (
+                  <>
+                    <div className="cq-gb-project-progress">
+                      <div>
+                        <span>
+                          {projectReadyForDelivery
+                            ? "All milestones complete"
+                            : currentMilestone
+                              ? `Current milestone: ${currentMilestone.index + 1}. ${currentMilestone.title}`
+                              : milestoneHydrated
+                                ? "Loading the next milestone…"
+                                : "Loading your milestone progress…"}
                         </span>
-                        <div>
-                          <strong>{milestone.title}</strong>
-                          <p>{milestone.description}</p>
-                          <small>
-                            {completed ? "Completed" : current ? "Current milestone" : "Locked"}
-                          </small>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
+                        <strong>
+                          {completedMilestoneCount}/{CAFE_MILESTONES.length} · {milestonePercent}%
+                        </strong>
+                      </div>
+                      <div
+                        className="cq-gb-project-progress-bar"
+                        role="progressbar"
+                        aria-label="Café milestone progress"
+                        aria-valuemin={0}
+                        aria-valuemax={CAFE_MILESTONES.length}
+                        aria-valuenow={completedMilestoneCount}
+                      >
+                        <span style={{ width: `${milestonePercent}%` }} />
+                      </div>
+                    </div>
 
-                {projectReadyForDelivery ? (
-                  <p className="cq-gb-project-delivery-ready">Project ready for delivery.</p>
-                ) : null}
+                    <ol className="cq-gb-milestones" aria-label="Café milestones">
+                      {CAFE_MILESTONES.map((milestone) => {
+                        const completed = isCafeMilestoneComplete(milestoneProgress, milestone.id);
+                        const current = currentMilestone?.id === milestone.id;
+                        return (
+                          <li
+                            key={milestone.id}
+                            className={
+                              completed
+                                ? "cq-gb-milestone-complete"
+                                : current
+                                  ? "cq-gb-milestone-current"
+                                  : ""
+                            }
+                          >
+                            <span className="cq-gb-milestone-check" aria-hidden="true">
+                              {completed ? "✓" : current ? "●" : "○"}
+                            </span>
+                            <div>
+                              <strong>{milestone.title}</strong>
+                              <p>{milestone.description}</p>
+                              <small>
+                                {completed ? "Completed" : current ? "Current milestone" : "Locked"}
+                              </small>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+
+                    {projectReadyForDelivery ? (
+                      <p className="cq-gb-project-delivery-ready">Project ready for delivery.</p>
+                    ) : null}
+                  </>
+                )}
 
                 {projectError ? (
                   <p className="cq-gb-app-warning" role="alert">
@@ -365,15 +457,20 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
                       </>
                     ) : (
                       <>
-                        <FolderOpen size={14} aria-hidden="true" /> Open Project in Editor
+                        <FolderOpen size={14} aria-hidden="true" />{" "}
+                        {setupComplete ? "Open Project in Editor" : "Open Project Workspace"}
                       </>
                     )}
+                  </button>
+                  <button type="button" onClick={handleOpenMail}>
+                    <Mail size={14} aria-hidden="true" /> Open Mail
                   </button>
                 </div>
 
                 <p className="cq-gb-project-ready-note">
-                  The $50 payment is not granted in this step. Chapter 1 advances after all three
-                  milestones are verified.
+                  {isDevelopmentWorkflow
+                    ? "Chapter 1 advances after the four coding tasks are verified. Delivery preparation is a separate step: no work is submitted and the $50 payment is not granted here."
+                    : "The $50 payment is not granted in this step. Chapter 1 advances after all three milestones are verified."}
                 </p>
               </section>
             ) : null}
@@ -559,6 +656,10 @@ export function GigBoardJobDetails({ job, onNavigate }: GigBoardJobDetailsProps)
                 </p>
               </div>
             )}
+
+            {isCafeProject ? (
+              <GigBoardDevTestingPanel enabled={devTestingEnabled ?? isDevTestingEnabled()} />
+            ) : null}
           </aside>
         </div>
       </main>

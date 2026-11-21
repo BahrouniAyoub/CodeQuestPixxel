@@ -30,6 +30,8 @@ export interface Chapter1Store {
   hydrate: () => Promise<void>;
   /** Returns true only when a valid transition was saved successfully. */
   completeQuest: (questId: Chapter1QuestId) => Promise<boolean>;
+  /** Adopt progress that was already committed by an atomic cross-record write. */
+  adopt: (progress: Chapter1Progress) => void;
 }
 
 const defaultPersistence: Chapter1Persistence = {
@@ -139,6 +141,8 @@ export function createChapter1Store(persistence: Chapter1Persistence = defaultPe
           set({ progress: next, error: null });
           return true;
         }),
+
+      adopt: (progress) => set({ progress, error: null }),
     };
   });
 }

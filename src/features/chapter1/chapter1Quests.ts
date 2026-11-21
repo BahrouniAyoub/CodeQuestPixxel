@@ -21,6 +21,11 @@ export interface Chapter1QuestDefinition {
 /** The single Chapter 1 payment amount, in in-game dollars. */
 export const CHAPTER1_PAYMENT_REWARD = 50;
 
+/** Exact Chapter 1 completion copy shared by the bridge, tracker, and game route. */
+export const CHAPTER1_COMPLETE_TITLE = "Chapter 1 Complete — The First Paycheck";
+export const CHAPTER1_COMPLETE_MESSAGE =
+  "You completed your first programming job, earned $50, and proved that you can turn your coding skills into real opportunities.";
+
 export const CHAPTER1_QUESTS = [
   {
     id: "CH1-01",
@@ -49,7 +54,7 @@ export const CHAPTER1_QUESTS = [
   {
     id: "CH1-05",
     title: "Build the Application",
-    objective: "Complete all three Python milestones",
+    objective: "Complete and verify the café project build",
     moneyReward: 0,
   },
   {
@@ -67,7 +72,7 @@ export const CHAPTER1_QUESTS = [
   {
     id: "CH1-08",
     title: "A New Beginning",
-    objective: "Return to your father and share the news",
+    objective: "Return home and talk to your father.",
     moneyReward: 0,
   },
 ] as const satisfies readonly Chapter1QuestDefinition[];

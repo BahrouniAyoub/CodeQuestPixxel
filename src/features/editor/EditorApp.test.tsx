@@ -102,7 +102,7 @@ function resetStores(): void {
 beforeEach(resetStores);
 afterEach(cleanup);
 
-describe("existing Python editor with the café panel", () => {
+describe("Python editor after café instructions moved to Tickets", () => {
   it("keeps the existing ticket Run behavior", async () => {
     render(<EditorApp />);
 
@@ -125,7 +125,7 @@ describe("existing Python editor with the café panel", () => {
     expect(screen.getByRole("button", { name: /Test Results/ })).toBeInTheDocument();
   });
 
-  it("shows the café milestone panel for a hired player without breaking ticket Run", async () => {
+  it("does not render café milestone instructions inside the editor", async () => {
     useChapter1.setState({
       progress: progressAfter(4),
       hydrated: true,
@@ -148,10 +148,9 @@ describe("existing Python editor with the café panel", () => {
 
     render(<EditorApp />);
 
-    expect(screen.getByText("Build a Café Order Calculator")).toBeInTheDocument();
-    expect(screen.getByText("1. Variables and print")).toBeInTheDocument();
-    expect(screen.getByText("Milestone 1: Variables and print")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Run Tests" })).toBeDisabled();
+    expect(screen.queryByText("Build a Café Order Calculator")).not.toBeInTheDocument();
+    expect(screen.queryByText("Milestone 1: Variables and print")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Verify Task" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Run" }));
     await waitFor(() => expect(runner.run).toHaveBeenCalledTimes(1));

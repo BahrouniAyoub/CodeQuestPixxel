@@ -296,3 +296,5 @@
     transform: rotate(360deg);
   }
 }
+
+.cq-cafe-setup-required{margin:8px 0 0!important;padding:8px 10px;border:1px solid #fcd34d;border-radius:8px;background:#fffbeb;font-size:10.5px!important;line-height:1.4;color:#92400e!important}

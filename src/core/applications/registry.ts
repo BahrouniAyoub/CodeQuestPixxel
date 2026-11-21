@@ -1,7 +1,15 @@
 import type { IconName } from "@/shared/components/PixelIcon";
 
 export type AppId =
-  "tickets" | "editor" | "chat" | "browser" | "progress" | "settings" | "terminal" | "explorer";
+  | "tickets"
+  | "editor"
+  | "chat"
+  | "mail"
+  | "browser"
+  | "progress"
+  | "settings"
+  | "terminal"
+  | "explorer";
 
 export interface AppDefinition {
   id: AppId;
@@ -50,6 +58,16 @@ export const APPS: Record<AppId, AppDefinition> = {
     icon: "chat",
     defaultSize: { width: 700, height: 480 },
     minSize: { width: 480, height: 320 },
+    pinned: true,
+  },
+  mail: {
+    id: "mail",
+    title: "CodeQuest Mail",
+    shortTitle: "Mail",
+    description: "Client messages and project email",
+    icon: "mail",
+    defaultSize: { width: 920, height: 560 },
+    minSize: { width: 620, height: 380 },
     pinned: true,
   },
   browser: {
@@ -108,6 +126,7 @@ export const APP_ORDER: AppId[] = [
   "tickets",
   "editor",
   "chat",
+  "mail",
   "browser",
   "progress",
   "settings",

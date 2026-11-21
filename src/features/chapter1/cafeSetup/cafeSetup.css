@@ -1,0 +1,33 @@
+/* Café setup guidance inside GigBoard and Progress. */
+.cq-cafe-setup{display:flex;flex-direction:column;gap:9px;padding:14px;border:1px solid #bfdbfe;border-radius:12px;background:#f8fbff}
+.cq-cafe-setup-loading{flex-direction:row;align-items:center;color:#1e3a8a;font-size:11px}
+.cq-cafe-setup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.cq-cafe-setup-eyebrow{font-size:9px;font-weight:800;letter-spacing:.9px;color:#1d4ed8}
+.cq-cafe-setup-head h3{display:flex;align-items:center;gap:5px;margin:3px 0 0;font-size:14px;color:#0f172a}
+.cq-cafe-setup-count{flex-shrink:0;padding:3px 8px;border:1px solid #93c5fd;border-radius:999px;background:#dbeafe;color:#1e3a8a;font-size:10px;font-weight:800}
+.cq-cafe-setup-bar{height:6px;overflow:hidden;border-radius:999px;background:#dbeafe}
+.cq-cafe-setup-bar span{display:block;height:100%;border-radius:999px;background:#2563eb;transition:width .25s ease}
+.cq-cafe-setup-objective{margin:0!important;font-size:11px;line-height:1.45;color:#334155!important}
+.cq-cafe-setup-instructions{display:flex;flex-direction:column;gap:3px;margin:0;padding:0;list-style:none}
+.cq-cafe-setup-instructions li{display:flex;align-items:flex-start;gap:4px;font-size:10.5px;line-height:1.4;color:#475569}
+.cq-cafe-setup-instructions svg{flex-shrink:0;margin-top:2px;color:#2563eb}
+.cq-cafe-setup-brief{padding:10px;border:1px solid #fcd34d;border-radius:9px;background:#fffbeb}
+.cq-cafe-setup-brief p{margin:0 0 6px!important;font-size:10.5px;line-height:1.45;color:#78350f!important}
+.cq-cafe-setup-brief ul{margin:0;padding-left:16px;font-size:10.5px;line-height:1.5;color:#92400e}
+.cq-cafe-setup-brief small{display:block;margin-top:6px;font-size:9px;font-weight:700;color:#a16207}
+.cq-cafe-setup-checklist{margin:0;padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;background:#fff}
+.cq-cafe-setup-checklist legend{padding:0 4px;font-size:10px;font-weight:800;color:#334155}
+.cq-cafe-setup-checklist label{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10.5px;color:#475569;cursor:pointer}
+.cq-cafe-setup-checklist input{accent-color:#2563eb}
+.cq-cafe-setup-actions{display:flex;flex-wrap:wrap;gap:6px}
+.cq-app .cq-cafe-setup-actions button{display:inline-flex;align-items:center;gap:5px;padding:7px 10px!important;border:1px solid #cbd5e1!important;border-radius:7px!important;background:#fff!important;color:#1e293b!important;font-size:10px!important;font-weight:800!important}
+.cq-app .cq-cafe-setup-actions button:hover:not(:disabled){background:#eff6ff!important}
+.cq-app .cq-cafe-setup-actions button:disabled{opacity:.55;cursor:not-allowed}
+.cq-app .cq-cafe-setup-actions .cq-action-primary{border-color:#2563eb!important;background:#2563eb!important;color:#fff!important}
+.cq-app .cq-cafe-setup-actions .cq-action-primary:hover:not(:disabled){background:#1d4ed8!important}
+.cq-cafe-setup-hint{margin:0!important;font-size:9.5px;line-height:1.4;color:#64748b!important}
+.cq-cafe-setup-feedback{display:flex;align-items:flex-start;gap:5px;margin:0!important;font-size:10px!important;line-height:1.4;color:#166534!important}
+.cq-cafe-setup-error{color:#991b1b!important}
+.cq-cafe-setup-ready{display:flex;align-items:center;gap:5px;margin:0!important;font-size:11px!important;font-weight:700;color:#166534!important}
+.cq-cafe-setup-compact .cq-cafe-setup-hint{display:none}
+.cq-cafe-setup-compact{padding:11px}

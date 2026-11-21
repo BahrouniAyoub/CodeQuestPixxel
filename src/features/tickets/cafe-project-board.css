@@ -1,0 +1,131 @@
+/* Café calculator project inside the Tickets app. */
+.cq-jira-projects{display:flex;align-items:center;gap:0;padding:0 24px;border-bottom:2px solid #0e192b;background:#1a2840}
+.cq-jira-projects button{display:inline-flex;align-items:center;gap:6px;padding:9px 14px!important;border:0!important;border-bottom:3px solid transparent!important;background:transparent!important;color:#9fb5cf!important;font-size:11px!important;font-weight:800!important;letter-spacing:.4px}
+.cq-jira-projects button:hover{background:#22304a!important;color:#d8e4f4!important}
+.cq-jira-projects button.active{border-bottom-color:#69d9e8!important;color:#8de5f1!important;background:#22304a!important}
+.cq-cafe-board{display:flex;flex-direction:column;flex:1;min-height:0;background:#1b263c;color:#edf4ff}
+.cq-cafe-board-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;border-bottom:2px solid #0e192b;background:#24334c}
+.cq-cafe-board-strip h2{margin:4px 0;font-size:22px;line-height:1.3;font-family:var(--font-pixel),monospace}
+.cq-cafe-board-strip p{margin:0;color:#aebdd3;font-size:12px}
+.cq-cafe-board-progress{display:flex;flex-direction:column;align-items:flex-end;gap:7px;min-width:170px}
+.cq-cafe-board-progress strong{font-size:11px;color:#8de5f1;letter-spacing:.6px}
+.cq-cafe-board-progress-bar{width:100%;height:8px;border:1px solid #526c89;background:#101c30;overflow:hidden}
+.cq-cafe-board-progress-bar span{display:block;height:100%;background:#69d9e8;transition:width .25s ease}
+.cq-cafe-board-notice{display:flex;align-items:flex-start;gap:8px;margin:0;padding:11px 24px;background:#2d3047;border-bottom:1px solid #53647b;color:#d6e4f7;font-size:12px;line-height:1.5}
+.cq-cafe-board-notice svg{flex-shrink:0;margin-top:2px;color:#f4cb72}
+.cq-cafe-board-notice-legacy{background:#233b35;color:#c8f0d5}
+.cq-cafe-board-notice-legacy svg{color:#8bdeac}
+.cq-cafe-board-warning{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;margin:0;padding:11px 24px;background:#432b34;border-bottom:1px solid #7a4654;color:#ffd9df;font-size:11px;line-height:1.5}
+.cq-cafe-board-warning svg{flex-shrink:0;margin-top:1px;color:#ff9bac}
+.cq-cafe-board-warning button{margin-left:auto;padding:6px 9px!important;border:1px solid #9c6b76!important;background:#5a3540!important;color:#ffe1e6!important;font-size:10px!important;font-weight:800!important}
+.cq-cafe-board-workspace{display:grid;grid-template-columns:minmax(235px,32%) minmax(0,1fr);min-height:0;flex:1}
+.cq-cafe-tasklist{display:flex;flex-direction:column;gap:1px;min-height:0;overflow:auto;border-right:2px solid #10192b;background:#19243a;padding:12px 0}
+.cq-cafe-task{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;padding:12px 14px!important;border:0!important;border-left:3px solid transparent!important;background:transparent!important;color:#d8e4f4!important;text-align:left!important;cursor:pointer}
+.cq-cafe-task:hover{background:#22304a!important}
+.cq-cafe-task.selected{border-left-color:#69d9e8!important;background:#263a58!important}
+.cq-cafe-task-line{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.cq-cafe-task-id{font-size:10px;font-weight:900;letter-spacing:.8px;color:#8de5f1}
+.cq-cafe-task strong{font-size:13px;line-height:1.35}
+.cq-cafe-task small{font:10px/1.4 ui-monospace,monospace;color:#9fb5cf}
+.cq-cafe-status{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border:1px solid #52647b;background:#2b3a51;font-size:9px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+.cq-cafe-status-completed{border-color:#4c8063;background:#24402f;color:#a9f3c7}
+.cq-cafe-status-in-progress{border-color:#8a7645;background:#453b24;color:#ffe1a0}
+.cq-cafe-status-available{border-color:#4f7290;background:#233b52;color:#a8e4f4}
+.cq-cafe-status-locked{border-color:#4f5d70;background:#2a3546;color:#a9b7c8}
+.cq-cafe-taskdetail{min-width:0;overflow:auto;padding:20px 26px 30px}
+.cq-cafe-task-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:10px 0 12px}
+.cq-cafe-task-header h2{margin:4px 0 0;font-size:24px;line-height:1.3;font-family:var(--font-pixel),monospace}
+.cq-cafe-description{margin:0 0 22px!important;color:#d0ddef!important;font-size:13px;line-height:1.65}
+.cq-cafe-section{margin-bottom:22px}
+.cq-cafe-section h3{margin:0 0 9px;font-size:11px;letter-spacing:1px;font-weight:900;color:#83d8e9}
+.cq-cafe-section p{margin:0;color:#d0ddef;font-size:13px;line-height:1.65}
+.cq-cafe-instructions{margin:0;padding-left:20px;color:#d3dff1;font-size:13px;line-height:1.7}
+.cq-cafe-instructions li{padding:2px 0}
+.cq-cafe-example{margin:0;padding:12px;border:1px solid #405976;background:#101b2e;color:#a9f3d0;font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.cq-cafe-acceptance{margin:0;padding:0;list-style:none}
+.cq-cafe-acceptance li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;color:#d3dff1;font-size:13px;line-height:1.5}
+.cq-cafe-acceptance svg{flex-shrink:0;margin-top:2px;color:#8bdeac}
+.cq-cafe-hints{padding:14px;border:1px solid #6e6482;background:#2a3047}
+.cq-cafe-hints h3{display:flex;align-items:center;gap:7px;color:#f4cb72}
+.cq-cafe-hints p{margin:7px 0 10px;font-size:12px;line-height:1.55;color:#e4def2}
+.cq-cafe-hints button{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:7px 10px!important;border:1px solid #9c8758!important;background:#4d422c!important;color:#ffe1a0!important;font-size:11px!important;font-weight:800!important}
+.cq-cafe-hints button:hover{background:#685434!important}
+.cq-cafe-all-hints{color:#c9c0dc!important;font-size:11px!important}
+.cq-cafe-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:16px;border-top:1px solid #53647b}
+.cq-cafe-open,.cq-cafe-verify{display:inline-flex;align-items:center;gap:8px;padding:10px 13px!important;font-weight:900!important}
+.cq-cafe-open{border:2px solid #101b2c!important;background:#69d9e8!important;color:#12243a!important;box-shadow:3px 3px 0 #0b1422}
+.cq-cafe-open:hover:not(:disabled){background:#a2f1f8!important}
+.cq-cafe-verify{border:2px solid #101b2c!important;background:#f4cb72!important;color:#2a2110!important;box-shadow:3px 3px 0 #0b1422}
+.cq-cafe-verify:hover:not(:disabled){background:#ffe1a0!important}
+.cq-cafe-open:disabled,.cq-cafe-verify:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.cq-cafe-action-hint{display:flex;align-items:flex-start;gap:6px;margin:10px 0 0!important;color:#a7bad1!important;font-size:11px!important;line-height:1.5}
+.cq-cafe-action-hint svg{flex-shrink:0;margin-top:2px}
+.cq-cafe-feedback{display:flex;align-items:flex-start;gap:7px;margin:12px 0 0!important;padding:10px 12px;border:1px solid #52647b;background:#22304a;color:#d6e4f7!important;font-size:12px!important;line-height:1.5}
+.cq-cafe-feedback svg{flex-shrink:0;margin-top:1px}
+.cq-cafe-feedback-success{border-color:#4c8063;background:#24402f;color:#c8f0d5!important}
+.cq-cafe-feedback-success svg{color:#8bdeac}
+.cq-cafe-feedback-error{border-color:#7a4654;background:#432b34;color:#ffd9df!important}
+.cq-cafe-feedback-error svg{color:#ff9bac}
+.cq-cafe-feedback-info svg{color:#8de5f1}
+.cq-cafe-results{margin-top:12px;padding:12px;border:1px solid #52647b;background:#101b2e}
+.cq-cafe-results>strong{display:block;font-size:12px;margin-bottom:3px}
+.cq-cafe-results>small{display:block;color:#9fb5cf;font-size:10px;margin-bottom:8px}
+.cq-cafe-results ul{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none}
+.cq-cafe-results li{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.45}
+.cq-cafe-results li>span{font-weight:900}
+.cq-cafe-results li>div{display:flex;flex-direction:column;gap:2px}
+.cq-cafe-results li small{color:#9fb5cf;font-size:10px}
+.cq-cafe-results-pass{border-color:#4c8063}
+.cq-cafe-results-pass>strong{color:#a9f3c7}
+.cq-cafe-results-pass li>span{color:#8bdeac}
+.cq-cafe-results-fail{border-color:#7a4654}
+.cq-cafe-results-fail>strong{color:#ffb3c0}
+.cq-cafe-results-fail li>span{color:#ff9bac}
+.cq-cafe-delivery-ready{display:flex;align-items:center;gap:7px;margin:14px 0 0!important;padding:10px 12px;border:1px solid #4c8063;background:#24402f;color:#c8f0d5!important;font-size:12px!important;font-weight:800}
+.cq-cafe-delivery-ready svg{color:#f4cb72}
+.cq-cafe-task-score{display:flex;align-items:center;gap:6px;margin:12px 0 0!important;color:#9fb5cf!important;font-size:10.5px!important}
+.cq-cafe-task-score svg{color:#8bdeac}
+.cq-cafe-spin{animation:cq-cafe-spin 1s linear infinite}
+@keyframes cq-cafe-spin{to{transform:rotate(360deg)}}
+/* ---- Project Delivery Preparation ---- */
+.cq-cafe-delivery{display:flex;flex-direction:column;gap:12px;margin-top:18px;padding-top:16px;border-top:2px solid #33425b}
+.cq-cafe-delivery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.cq-cafe-delivery-head h3{margin:4px 0;font-size:19px;line-height:1.25;color:#edf4ff}
+.cq-cafe-delivery-head p{margin:0!important;font-size:11px!important;line-height:1.5;color:#a7bad1!important}
+.cq-cafe-delivery-badge{flex-shrink:0;padding:6px 10px;border:1px solid #52647b;border-radius:999px;background:#22304a;color:#cfe0f5;font-size:10px;font-weight:900;letter-spacing:.4px;text-transform:uppercase}
+.cq-cafe-delivery-badge-ready{border-color:#4c8063;background:#24402f;color:#a9f3c7}
+.cq-cafe-delivery-badge-checks{border-color:#8a6b32;background:#3d3221;color:#f4cb72}
+.cq-cafe-delivery-badge-development{border-color:#52647b;background:#22304a;color:#a7bad1}
+.cq-cafe-delivery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cq-cafe-delivery-card{display:flex;flex-direction:column;gap:3px;padding:9px 10px;border:1px solid #33425b;background:#101b2e}
+.cq-cafe-delivery-card strong{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:#8fa6c2}
+.cq-cafe-delivery-card span{font-size:13px;font-weight:800;color:#edf4ff}
+.cq-cafe-delivery-card small{font-size:9.5px;line-height:1.4;color:#8fa6c2}
+.cq-cafe-delivery-notice{display:flex;align-items:flex-start;gap:7px;margin:0!important;padding:9px 11px;border:1px solid #8a6b32;background:#3d3221;color:#f4d797!important;font-size:11px!important;line-height:1.45}
+.cq-cafe-delivery-notice svg{flex-shrink:0;margin-top:1px}
+.cq-cafe-delivery-task{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid #33425b;background:#162238}
+.cq-cafe-delivery-task-head{display:flex;align-items:flex-start;gap:9px}
+.cq-cafe-delivery-task-head>svg{flex-shrink:0;margin-top:2px;color:#8de5f1}
+.cq-cafe-delivery-task-head>div{flex:1;min-width:0}
+.cq-cafe-delivery-task-head strong{display:block;font-size:12px;color:#edf4ff}
+.cq-cafe-delivery-task-head small{display:block;margin-top:2px;font-size:9.5px;color:#8fa6c2}
+.cq-cafe-delivery-task>p{margin:0!important;font-size:11px!important;line-height:1.55;color:#a7bad1!important}
+.cq-cafe-delivery-objective{color:#cfe0f5!important}
+.cq-cafe-delivery-instructions summary{padding:6px 9px;border:1px solid #33425b;background:#101b2e;color:#8de5f1;font-size:10.5px;font-weight:800;cursor:pointer}
+.cq-cafe-delivery-instructions ol{margin:8px 0;padding-left:20px;font-size:10.5px;line-height:1.5;color:#cfdceb}
+.cq-cafe-delivery-instructions pre{margin:8px 0 0;padding:9px;overflow:auto;border:1px solid #2b3a52;background:#0b1424;color:#c8d8ee;font-size:10px;line-height:1.5;white-space:pre-wrap}
+.cq-cafe-delivery-hints{display:flex;flex-direction:column;gap:6px}
+.cq-cafe-delivery-hints p{margin:0!important;padding:8px 10px;border-left:3px solid #8de5f1;background:#1c2b43;color:#d6e4f7!important;font-size:10.5px!important;line-height:1.5}
+.cq-cafe-delivery-hints button{display:inline-flex;align-items:center;gap:6px;width:fit-content;padding:6px 9px!important;border:1px solid #52647b!important;background:#22304a!important;color:#d6e4f7!important;font-size:10.5px!important;font-weight:800!important;cursor:pointer}
+.cq-cafe-delivery-hints button:hover{background:#2b3d59!important}
+.cq-cafe-delivery-hints small{font-size:10px;color:#8fa6c2}
+.cq-cafe-delivery-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cq-cafe-final-check,.cq-cafe-preview{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border:1px solid #52647b;background:#22304a;color:#edf4ff;font-size:11px;font-weight:800;cursor:pointer}
+.cq-cafe-final-check{border-color:#8a6b32;background:#3d3221;color:#f4cb72}
+.cq-cafe-final-check:hover:not(:disabled){background:#4a3c27}
+.cq-cafe-preview{background:#1c2b43;color:#cfe0f5}
+.cq-cafe-preview:hover:not(:disabled){background:#263954}
+.cq-cafe-final-check:disabled,.cq-cafe-preview:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:900px){.cq-cafe-delivery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:800px){.cq-cafe-board-strip{padding:12px 14px}.cq-cafe-board-strip h2{font-size:18px}.cq-cafe-board-workspace{grid-template-columns:minmax(180px,38%) minmax(0,1fr)}.cq-cafe-taskdetail{padding:14px}}
+@media(max-width:550px){.cq-cafe-board-workspace{display:flex;flex-direction:column}.cq-cafe-tasklist{max-height:220px;border-right:0;border-bottom:2px solid #10192b}.cq-cafe-board-progress{display:none}}

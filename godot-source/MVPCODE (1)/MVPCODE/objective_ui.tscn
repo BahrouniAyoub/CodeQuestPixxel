@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dqybl30bla2bl"]
+
+[ext_resource type="Script" uid="uid://tqesdos0780c" path="res://objective_ui.gd" id="1_tco3q"]
+
+[node name="ObjectiveUI" type="CanvasLayer" unique_id=581299112]
+script = ExtResource("1_tco3q")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1484634578]
+offset_left = 14.0
+offset_top = 29.0
+offset_right = 87.0
+offset_bottom = 65.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1147535279]
+layout_mode = 2
+
+[node name="ObjectiveTitle" type="Label" parent="PanelContainer/VBoxContainer" unique_id=205438621]
+layout_mode = 2
+
+[node name="ObjectiveDescription" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1420141523]
+layout_mode = 2

@@ -116,12 +116,13 @@ describe("Chapter1Tracker", () => {
     expect(screen.getByText("CH1-07")).toBeInTheDocument();
   });
 
-  it("shows earnings after CH1-07", () => {
+  it("shows the exact return-to-father objective after CH1-07", () => {
     resetChapter1({ hydrated: true, progress: progressAfter(7) });
     render(<Chapter1Tracker />);
 
     expect(screen.getByText("$50 / $50")).toBeInTheDocument();
     expect(screen.getByText("CH1-08")).toBeInTheDocument();
+    expect(screen.getByText("Return home and talk to your father.")).toBeInTheDocument();
     expect(screen.getByText("7 / 8 COMPLETE")).toBeInTheDocument();
   });
 
@@ -129,7 +130,12 @@ describe("Chapter1Tracker", () => {
     resetChapter1({ hydrated: true, progress: progressAfter(CHAPTER1_QUESTS.length) });
     render(<Chapter1Tracker />);
 
-    expect(screen.getByText("Chapter complete")).toBeInTheDocument();
+    expect(screen.getByText("Chapter 1 Complete — The First Paycheck")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "You completed your first programming job, earned $50, and proved that you can turn your coding skills into real opportunities.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText("8 / 8 COMPLETE")).toBeInTheDocument();
     expect(screen.getByText("CHAPTER COMPLETE")).toBeInTheDocument();
     expect(screen.getByText("$50 / $50")).toBeInTheDocument();
@@ -162,7 +168,7 @@ describe("Chapter1Tracker", () => {
     expect(screen.getByText("$50 / $50")).toBeInTheDocument();
 
     act(() => useChapter1.setState({ progress: progressAfter(CHAPTER1_QUESTS.length) }));
-    expect(screen.getByText("Chapter complete")).toBeInTheDocument();
+    expect(screen.getByText("Chapter 1 Complete — The First Paycheck")).toBeInTheDocument();
   });
 
   it("keeps the existing Progress app sections working", () => {

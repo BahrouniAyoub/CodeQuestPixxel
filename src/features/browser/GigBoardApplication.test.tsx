@@ -8,6 +8,8 @@ import {
 } from "@/features/chapter1/chapter1Progress";
 import { CHAPTER1_QUESTS } from "@/features/chapter1/chapter1Quests";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
+import { initialCafeSetupProgress } from "@/features/chapter1/cafeSetup/cafeSetupProgress";
+import { useCafeSetup } from "@/features/chapter1/cafeSetup/cafeSetupStore";
 import { useProgress } from "@/features/progress/progressStore";
 import { BrowserApp } from "./BrowserApp";
 import { ALEX_ACCEPTANCE_MESSAGE } from "./data/gigboardApplication";
@@ -88,6 +90,15 @@ function resetStores(): void {
     currentTicketId: "CQ-001",
     started: [],
     celebrate: 0,
+  });
+  // jsdom has no IndexedDB, so pre-hydrate the café setup store. Without this
+  // the guidance panel would stay on its loading branch.
+  useCafeSetup.setState({
+    progress: initialCafeSetupProgress,
+    hydrated: true,
+    loading: false,
+    error: null,
+    hasSavedRecord: false,
   });
 }
 
@@ -191,9 +202,18 @@ describe("GigBoard café application UI", () => {
     await waitFor(() => expect(screen.getByText(ALEX_ACCEPTANCE_MESSAGE)).toBeInTheDocument());
     expect(screen.getAllByText("Hired / Accepted").length).toBeGreaterThan(0);
     expect(screen.getByText("Project ready: Build a Café Order Calculator")).toBeInTheDocument();
-    expect(screen.getByText("Variables and print")).toBeInTheDocument();
-    expect(screen.getByText("Arithmetic and functions")).toBeInTheDocument();
-    expect(screen.getByText("Conditional discounts")).toBeInTheDocument();
+    // A brand-new save has no legacy evidence, so the accepted project shows the
+    // four-task development workflow and its delivery readiness.
+    expect(screen.getByText("Project Delivery Preparation")).toBeInTheDocument();
+    // The readiness label hydrates asynchronously; its values are covered by
+    // GigBoardDeliveryReadiness.test.tsx. Here we assert the workflow choice:
+    // the four-task project replaces the retired milestone list.
+    expect(screen.getByText("Coding")).toBeInTheDocument();
+    expect(screen.getByText("Documentation")).toBeInTheDocument();
+    expect(screen.getByText("Final checks")).toBeInTheDocument();
+    expect(screen.getAllByText(/Read Client Brief/).length).toBeGreaterThan(0);
+    expect(screen.queryByLabelText("Café milestones")).not.toBeInTheDocument();
+    expect(screen.queryByText("Variables and print")).not.toBeInTheDocument();
 
     const chapter = useChapter1.getState().progress;
     expect(chapter.currentQuestIndex).toBe(4);

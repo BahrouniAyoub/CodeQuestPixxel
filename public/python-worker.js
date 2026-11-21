@@ -5,10 +5,26 @@ const PYODIDE_VERSION = "0.27.2";
 const INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v" + PYODIDE_VERSION + "/full/";
 
 const HARNESS = `
-import sys, io, json, traceback, builtins
+import sys, io, json, traceback, builtins, importlib.abc, importlib.util
 
 class _CQOutputLimit(BaseException):
     pass
+
+class _CQProjectFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+    """Import sibling project files lazily, so unused files never run."""
+    def __init__(self, sources):
+        self.sources = sources
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname in self.sources:
+            return importlib.util.spec_from_loader(fullname, self)
+        return None
+    def create_module(self, spec):
+        return None
+    def exec_module(self, module):
+        name = module.__name__
+        filename = name + ".py"
+        module.__file__ = filename
+        exec(compile(self.sources[name], filename, "exec"), module.__dict__)
 
 class _CQOut(io.StringIO):
     def __init__(self, limit):
@@ -29,8 +45,9 @@ class _CQOut(io.StringIO):
         self.size += len(s)
         return super().write(s)
 
-def _cq_run(code, inputs_json, check, echo, limit):
+def _cq_run(code, inputs_json, check, echo, limit, prelude="", modules_json="[]"):
     inputs = json.loads(inputs_json)
+    modules = json.loads(modules_json) if modules_json else []
     out = _CQOut(limit)
     it = iter(inputs)
     def _input(prompt=""):
@@ -48,10 +65,29 @@ def _cq_run(code, inputs_json, check, echo, limit):
     sys.stdout = out
     sys.stderr = out
     builtins.input = _input
-    res = {"ok": True, "error": None, "errorType": None, "line": None, "phase": None}
+    res = {"ok": True, "error": None, "errorType": None, "line": None, "file": None, "phase": None}
     phase = "program"
+    known_files = {"main.py", "_prelude.py"}
+    sources = {}
+    for module_spec in modules:
+        name = str(module_spec.get("name", ""))
+        sources[name] = str(module_spec.get("content", ""))
+        known_files.add(name + ".py")
+    # Replace any same-named installed module for this run only. Importing a
+    # project module then executes the saved source lazily; siblings that are
+    # never imported never run.
+    saved_modules = {}
+    for name in sources:
+        if name in sys.modules:
+            saved_modules[name] = sys.modules[name]
+        sys.modules.pop(name, None)
+    finder = _CQProjectFinder(sources) if sources else None
+    if finder is not None:
+        sys.meta_path.insert(0, finder)
     try:
         try:
+            if prelude:
+                exec(compile(prelude, "_prelude.py", "exec"), g)
             exec(compile(code, "main.py", "exec"), g)
         except SystemExit as e:
             if e.code not in (None, 0):
@@ -63,17 +99,30 @@ def _cq_run(code, inputs_json, check, echo, limit):
     except _CQOutputLimit:
         res.update(ok=False, error="Output limit reached — is there an endless print loop?", errorType="OutputLimit", phase=phase)
     except SyntaxError as e:
-        res.update(ok=False, error=f"{type(e).__name__}: {e.msg}", errorType=type(e).__name__, line=e.lineno if e.filename == "main.py" else None, phase=phase)
+        filename = e.filename if e.filename in known_files else None
+        res.update(ok=False, error=f"{type(e).__name__}: {e.msg}", errorType=type(e).__name__, line=e.lineno if filename else None, file=filename, phase=phase)
     except BaseException as e:
         line = None
+        filename = None
+        # Keep the innermost frame that belongs to the program or a project
+        # module so the editor can report calculator.py errors accurately.
         for fr in traceback.extract_tb(e.__traceback__):
-            if fr.filename == "main.py":
+            if fr.filename in known_files:
                 line = fr.lineno
+                filename = fr.filename
         msg = "".join(traceback.format_exception_only(type(e), e)).strip()
         if phase == "check" and isinstance(e, AssertionError):
             msg = "Assertion failed" + (": " + str(e) if str(e) else "")
-        res.update(ok=False, error=msg, errorType=type(e).__name__, line=line, phase=phase)
+        res.update(ok=False, error=msg, errorType=type(e).__name__, line=line, file=filename, phase=phase)
     finally:
+        # Never leak a project module or import hook into a later run.
+        if finder is not None and finder in sys.meta_path:
+            sys.meta_path.remove(finder)
+        for name in sources:
+            if name in saved_modules:
+                sys.modules[name] = saved_modules[name]
+            else:
+                sys.modules.pop(name, None)
         sys.stdout, sys.stderr, builtins.input = old_out, old_err, old_input
     res["stdout"] = out.getvalue()
     res["truncated"] = out.truncated
@@ -105,7 +154,15 @@ self.onmessage = async (event) => {
     if (type === "run") {
       await load();
       const fn = pyodide.globals.get("_cq_run");
-      const json = fn(payload.code, JSON.stringify(payload.stdin || []), payload.check || "", !!payload.echoPrompts, payload.outputLimit || 20000);
+      const json = fn(
+        payload.code,
+        JSON.stringify(payload.stdin || []),
+        payload.check || "",
+        !!payload.echoPrompts,
+        payload.outputLimit || 20000,
+        payload.prelude || "",
+        JSON.stringify(payload.projectModules || []),
+      );
       fn.destroy && fn.destroy();
       self.postMessage({ id, ok: true, result: JSON.parse(json) });
       return;

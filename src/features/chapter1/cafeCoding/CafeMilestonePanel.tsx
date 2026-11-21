@@ -20,6 +20,12 @@ import {
 } from "./cafeMilestoneValidator";
 import { evaluateCafeCodingAccess, syncCafeProjectQuestFromStores } from "./cafeQuestSync";
 import { isCafeMilestoneFilePath, openCafeMilestoneInEditor } from "./cafeProjectFiles";
+import {
+  evaluateCafeSetupRequirement,
+  detectLegacyCafeProject,
+} from "../cafeSetup/cafeSetupCompatibility";
+import { getCurrentCafeSetupTask, isCafeSetupComplete } from "../cafeSetup/cafeSetupProgress";
+import { useCafeSetup } from "../cafeSetup/cafeSetupStore";
 import "./cafeCoding.css";
 
 interface CafeMilestonePanelProps {
@@ -38,11 +44,14 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
   const chapterHydrated = useChapter1((state) => state.hydrated);
   const application = useGigboardApplication((state) => state.application);
   const applicationHydrated = useGigboardApplication((state) => state.hydrated);
+  const setupProgress = useCafeSetup((state) => state.progress);
+  const setupHydrated = useCafeSetup((state) => state.hydrated);
 
   const [running, setRunning] = useState(false);
   const [retryingQuest, setRetryingQuest] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [validation, setValidation] = useState<CafeMilestoneValidationResult | null>(null);
+  const [legacyProject, setLegacyProject] = useState<boolean | null>(null);
 
   const validationToken = useRef(0);
   const mounted = useRef(true);
@@ -60,12 +69,26 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
     currentQuestId,
   });
 
+  const setupComplete = isCafeSetupComplete(setupProgress);
+  const setupRequirement = evaluateCafeSetupRequirement({
+    setupHydrated,
+    setupComplete,
+    milestoneIndex: progress.currentMilestoneIndex,
+    legacyMilestoneFileExists: legacyProject === true,
+  });
+  const setupTask = getCurrentCafeSetupTask(setupProgress);
+
   const currentFileMatches = currentMilestone
     ? isCafeMilestoneFilePath(filePath, currentMilestone.id)
     : false;
 
   const canRunTests =
-    Boolean(currentMilestone) && access.allowed && currentFileMatches && fileReady && !running;
+    Boolean(currentMilestone) &&
+    access.allowed &&
+    !setupRequirement.required &&
+    currentFileMatches &&
+    fileReady &&
+    !running;
 
   useEffect(() => {
     // Loading persisted records is safe during setup. No quest is completed
@@ -73,6 +96,21 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
     void useCafeMilestones.getState().hydrate();
     void useChapter1.getState().hydrate();
     void useGigboardApplication.getState().hydrate();
+    void useCafeSetup.getState().hydrate();
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    void detectLegacyCafeProject()
+      .then((value) => {
+        if (alive) setLegacyProject(value);
+      })
+      .catch(() => {
+        if (alive) setLegacyProject(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -206,11 +244,15 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
   // The café panel is only visible to a hired player.
   if (!applicationHydrated || !accepted) return null;
 
-  const lockReason = !currentMilestone
-    ? "All three milestones are verified."
-    : !currentFileMatches
-      ? `Open ${currentMilestone.displayFileName} to run this milestone's tests.`
-      : access.reason;
+  const lockReason = setupRequirement.required
+    ? setupTask
+      ? `Complete the café project setup first: ${setupTask.title}. Open GigBoard to continue.`
+      : "Complete the café project setup in GigBoard before running milestone tests."
+    : !currentMilestone
+      ? "All three milestones are verified."
+      : !currentFileMatches
+        ? `Open ${currentMilestone.displayFileName} to run this milestone's tests.`
+        : access.reason;
 
   return (
     <section className="cq-cafe-panel" aria-label="Café coding project">
@@ -234,6 +276,13 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
       >
         <span style={{ width: `${percent}%` }} />
       </div>
+
+      {setupRequirement.required ? (
+        <p className="cq-cafe-setup-required" role="status">
+          Project setup required{setupTask ? `: ${setupTask.title}` : ""}. Open GigBoard to complete
+          the brief, folder, files, and plan before running milestone tests.
+        </p>
+      ) : null}
 
       <ol className="cq-cafe-milestones" aria-label="Café milestones">
         {CAFE_MILESTONES.map((milestone) => {
@@ -301,7 +350,7 @@ export function CafeMilestonePanel({ code, filePath, fileReady }: CafeMilestoneP
               )}
             </button>
 
-            {!currentFileMatches ? (
+            {!currentFileMatches && !setupRequirement.required ? (
               <button type="button" onClick={() => void openMilestoneFile(currentMilestone.id)}>
                 <FolderOpen size={14} aria-hidden="true" /> Open {currentMilestone.displayFileName}
               </button>

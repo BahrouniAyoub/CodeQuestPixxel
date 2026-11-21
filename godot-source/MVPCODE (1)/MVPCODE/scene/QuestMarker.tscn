@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cjt1tpangbi0p"]
+
+[ext_resource type="Texture2D" uid="uid://dyufm2a774lpn" path="res://assests/markerquest/RPG_Exclamation_Mark_Animation.png" id="1_r0mbs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v87vr"]
+atlas = ExtResource("1_r0mbs")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mvegt"]
+atlas = ExtResource("1_r0mbs")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k8txf"]
+atlas = ExtResource("1_r0mbs")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cpexw"]
+atlas = ExtResource("1_r0mbs")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lrqgo"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v87vr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mvegt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k8txf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cpexw")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Marker" type="Node2D" unique_id=1088417501]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=666143990]
+position = Vector2(-0.24999994, -32.125)
+scale = Vector2(1.40625, 1.4843751)
+sprite_frames = SubResource("SpriteFrames_lrqgo")
+autoplay = "default"
+frame_progress = 0.4307357
+speed_scale = 0.9

@@ -1,9 +1,28 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronRight, CircleDot, ClipboardList, Code2, Filter, Lightbulb, LockKeyhole, Search, Trophy } from "lucide-react";
 import { TICKETS, TICKETS_BY_ID, type TicketDefinition, type TicketId } from "./data/tickets";
 import { useProgress } from "@/features/progress/progressStore";
 import { isUnlocked } from "@/features/progress/progressLogic";
 import { useWindows } from "@/core/windows/windowStore";
+import { type CafeMilestoneId } from "@/features/chapter1/cafeCoding/cafeMilestones";
+import { useCafeMilestones } from "@/features/chapter1/cafeCoding/cafeMilestoneStore";
+import { type CafeDevTaskId } from "@/features/chapter1/cafeCoding/cafeDevTasks";
+import { useCafeDev } from "@/features/chapter1/cafeCoding/cafeDevStore";
+import { getCafeWorkflowSummary } from "@/features/chapter1/cafeCoding/cafeWorkflow";
+import { useChapter1 } from "@/features/chapter1/chapter1Store";
+import { detectLegacyCafeProjectFiles } from "@/features/chapter1/cafeSetup/cafeSetupCompatibility";
+import { useCafeSetup } from "@/features/chapter1/cafeSetup/cafeSetupStore";
+import { CafeProjectBoard } from "./CafeProjectBoard";
+import { CafeDevelopmentBoard } from "./CafeDevelopmentBoard";
+import {
+  getSelectedCafeDevTaskId,
+  getSelectedCafeTaskId,
+  getTicketsView,
+  setSelectedCafeDevTaskId,
+  setSelectedCafeTaskId,
+  setTicketsView,
+  type TicketsView,
+} from "./ticketsViewState";
 import "./tickets-app.css";
 
 type FilterValue = "all" | "available" | "in-progress" | "completed" | "locked";
@@ -15,6 +34,35 @@ export function TicketsApp() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterValue>("all");
   const [hintCount, setHintCount] = useState<Partial<Record<TicketId, number>>>({});
+  const [view, setView] = useState<TicketsView>(() => getTicketsView());
+  const [cafeTaskId, setCafeTaskId] = useState<CafeMilestoneId>(() => getSelectedCafeTaskId());
+  const [cafeDevTaskId, setCafeDevTaskId] = useState<CafeDevTaskId>(() => getSelectedCafeDevTaskId());
+  const [legacyMilestoneFileExists, setLegacyMilestoneFileExists] = useState(false);
+  const milestoneProgress = useCafeMilestones((state) => state.progress);
+  const developmentProgress = useCafeDev((state) => state.progress);
+  const developmentRecordPresent = useCafeDev((state) => state.hasSavedRecord);
+  const chapterProgress = useChapter1((state) => state.progress);
+
+  useEffect(() => {
+    void useCafeMilestones.getState().hydrate();
+    void useCafeDev.getState().hydrate();
+    void useCafeSetup.getState().hydrate();
+    void useChapter1.getState().hydrate();
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    void detectLegacyCafeProjectFiles()
+      .then((exists) => {
+        if (alive) setLegacyMilestoneFileExists(exists);
+      })
+      .catch(() => {
+        if (alive) setLegacyMilestoneFileExists(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
   const unlocked = useMemo(() => new Set(TICKETS.filter(t => isUnlocked(t.id, progress.completions)).map(t => t.id)), [progress.completions]);
   const statusOf = (id: TicketId): TicketStatus => {
     if (progress.completions[id]) return "completed";
@@ -29,6 +77,35 @@ export function TicketsApp() {
   const ticket: TicketDefinition = TICKETS_BY_ID[selected];
   const status = statusOf(selected);
   const count = (s: TicketStatus) => TICKETS.filter(t => statusOf(t.id) === s).length;
+
+  // One deterministic workflow and one matching count: legacy and development
+  // progress are never combined.
+  const cafeWorkflow = getCafeWorkflowSummary({
+    legacyMilestoneIndex: milestoneProgress.currentMilestoneIndex,
+    legacyMilestoneFileExists,
+    ch1_05Completed: chapterProgress.completedQuestIds.includes("CH1-05"),
+    developmentRecordPresent,
+    legacyCompleted: milestoneProgress.completedMilestones.length,
+    developmentCompleted: developmentProgress.completedTasks.length,
+  });
+  const cafeCompleted = cafeWorkflow.completed;
+  const cafeIsDevelopment = cafeWorkflow.workflow === "development";
+
+  const switchView = (next: TicketsView) => {
+    setTicketsView(next);
+    setView(next);
+  };
+
+  const selectCafeTask = (id: CafeMilestoneId) => {
+    setSelectedCafeTaskId(id);
+    setCafeTaskId(id);
+  };
+
+  const selectCafeDevTask = (id: CafeDevTaskId) => {
+    setSelectedCafeDevTaskId(id);
+    setCafeDevTaskId(id);
+  };
+
   const openEditor = () => {
     if (status === "locked") return;
     progress.setCurrentTicket(ticket.id);
@@ -37,8 +114,12 @@ export function TicketsApp() {
   };
   return <div className="cq-jira">
     <header className="cq-jira-top"><div className="cq-jira-brand"><ClipboardList size={21}/><span>CODEQUEST <b>/</b> PROJECT BOARD</span></div><span className="cq-jira-topright">PYTHON TRACK <span className="cq-jira-led"/> ONLINE</span></header>
-    <div className="cq-jira-overview"><div><div className="cq-jira-eyebrow">PROJECT / DEVELOPMENT</div><h1>My Tickets <span className="cq-jira-title-count">{TICKETS.length}</span></h1><p>Assigned programming issues · Sprint 01</p></div><div className="cq-jira-summary"><span><Trophy size={16}/> {TICKETS.filter(t=>!!progress.completions[t.id]).reduce((n,t)=>n+t.xp,0)} XP</span><span><Check size={16}/> {count("completed")}/{TICKETS.length} DONE</span></div></div>
-    <div className="cq-jira-workspace">
+    <div className="cq-jira-overview"><div><div className="cq-jira-eyebrow">PROJECT / {view === "cafe" ? "CLIENT WORK" : "DEVELOPMENT"}</div><h1>{view === "cafe" ? <>Café Calculator <span className="cq-jira-title-count">{cafeCompleted}/{cafeWorkflow.total}</span></> : <>My Tickets <span className="cq-jira-title-count">{TICKETS.length}</span></>}</h1><p>{view === "cafe" ? `Alex Morgan · Python client project · ${cafeIsDevelopment ? "Four development tasks" : "Three development tasks"}` : "Assigned programming issues · Sprint 01"}</p></div><div className="cq-jira-summary">{view === "cafe" ? <><span><Trophy size={16}/> {cafeCompleted}/{cafeWorkflow.total} {cafeIsDevelopment ? "TASKS" : "MILESTONES"}</span><span><Check size={16}/> CLIENT PROJECT</span></> : <><span><Trophy size={16}/> {TICKETS.filter(t=>!!progress.completions[t.id]).reduce((n,t)=>n+t.xp,0)} XP</span><span><Check size={16}/> {count("completed")}/{TICKETS.length} DONE</span></>}</div></div>
+    <div className="cq-jira-projects" role="tablist" aria-label="Project views">
+      <button type="button" role="tab" aria-selected={view === "general"} className={view === "general" ? "active" : ""} onClick={() => switchView("general")}><ClipboardList size={14}/> My Tickets</button>
+      <button type="button" role="tab" aria-selected={view === "cafe"} className={view === "cafe" ? "active" : ""} onClick={() => switchView("cafe")}><Code2 size={14}/> Café Calculator</button>
+    </div>
+    {view === "cafe" ? (cafeIsDevelopment ? <CafeDevelopmentBoard selectedTaskId={cafeDevTaskId} onSelectTask={selectCafeDevTask} /> : <CafeProjectBoard selectedTaskId={cafeTaskId} onSelectTask={selectCafeTask} />) : <div className="cq-jira-workspace">
       <aside className="cq-jira-list"><div className="cq-jira-search"><Search size={16}/><input aria-label="Search tickets" placeholder="Search issues..." value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="cq-jira-filter-title"><Filter size={14}/> FILTER ISSUES</div><div className="cq-jira-filters" aria-label="Ticket status filters">{(["all","available","in-progress","completed","locked"] as FilterValue[]).map(f=><button key={f} className={filter===f?"active":""} aria-pressed={filter===f} onClick={()=>setFilter(f)}>{f==="in-progress"?"In Progress":f.charAt(0).toUpperCase()+f.slice(1)}<span>{f==="all"?TICKETS.length:count(f)}</span></button>)}</div><div className="cq-jira-list-label">ISSUES <span>{filtered.length}</span></div><div className="cq-jira-issues">{filtered.map(t=>{const s=statusOf(t.id);return <button key={t.id} className={`cq-jira-issue ${selected===t.id?"selected":""}`} onClick={()=>setSelected(t.id)} aria-current={selected===t.id?"true":undefined}><div className="cq-jira-issue-line"><span className="cq-jira-id">{t.id}</span><span className={`cq-jira-status cq-status-${s}`}>{s==="locked"?<LockKeyhole size={11}/>:s==="completed"?<Check size={11}/>:<CircleDot size={11}/>} {s.replace("-"," ")}</span></div><strong>{t.title}</strong><small>{t.topic} <span>·</span> {t.xp} XP</small></button>;})}{filtered.length===0&&<div className="cq-jira-empty">No matching issues.</div>}</div></aside>
       <main className="cq-jira-detail"><div className="cq-jira-breadcrumb">CodeQuest <ChevronRight size={13}/> Python Basics <ChevronRight size={13}/> <b>{ticket.id}</b></div><div className="cq-jira-ticket-header"><div><div className="cq-jira-eyebrow">{ticket.id} <span>·</span> {ticket.topic.toUpperCase()}</div><h2>{ticket.title}</h2></div><span className={`cq-jira-status cq-status-${status}`}>{status==="locked"?<LockKeyhole size={12}/>:status==="completed"?<Check size={12}/>:<CircleDot size={12}/>} {status.replace("-"," ")}</span></div>
       <div className="cq-jira-meta"><div><small>DIFFICULTY</small><strong>{ticket.difficulty}</strong></div><div><small>REWARD</small><strong className="cq-jira-xp">✦ {ticket.xp} XP</strong></div><div><small>LANGUAGE</small><strong>Python</strong></div><div><small>FILE</small><strong>{ticket.fileName}</strong></div></div>
@@ -49,6 +130,6 @@ export function TicketsApp() {
       <section className="cq-jira-section cq-jira-hints"><h3><Lightbulb size={17}/> DEVELOPER HINTS <span>FREE</span></h3>{ticket.hints.slice(0,hintCount[ticket.id]??0).map((hint,i)=><p key={i}><b>Hint {i+1}:</b> {hint}</p>)}{(hintCount[ticket.id]??0)<ticket.hints.length?<button onClick={()=>setHintCount(s=>({...s,[ticket.id]:(s[ticket.id]??0)+1}))}><Lightbulb size={15}/> Reveal hint {(hintCount[ticket.id]??0)+1} of {ticket.hints.length}</button>:<p className="cq-jira-all-hints">All hints revealed. No XP penalty.</p>}</section>
       <div className="cq-jira-actions">{status==="locked"?<div className="cq-jira-locked"><LockKeyhole size={17}/> Complete the previous ticket to unlock this issue.</div>:<button className="cq-jira-open" onClick={openEditor}><Code2 size={17}/>{status==="completed"?"Practice in Editor":"Open in Code Editor"}<ChevronRight size={17}/></button>}<span>{status==="completed"?"Completed · XP already awarded":status==="locked"?"Locked issue":"Your code will be saved automatically in the editor"}</span></div>
       </main>
-    </div>
+    </div>}
   </div>;
 }

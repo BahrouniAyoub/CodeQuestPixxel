@@ -45,6 +45,10 @@ describe("café milestone definitions", () => {
     ]);
     expect(new Set(CAFE_MILESTONES.map((milestone) => milestone.filePath)).size).toBe(3);
     expect(CAFE_MILESTONES.every((milestone) => milestone.tests.length > 0)).toBe(true);
+    expect(CAFE_MILESTONES.every((milestone) => milestone.expectedBehavior.trim().length > 0)).toBe(
+      true,
+    );
+    expect(CAFE_MILESTONES.every((milestone) => milestone.hints.length > 0)).toBe(true);
     expect(isCafeMilestoneId("variables-print")).toBe(true);
     expect(isCafeMilestoneId("unknown")).toBe(false);
     expect(() => getCafeMilestone("unknown" as never)).toThrow(/unknown/i);

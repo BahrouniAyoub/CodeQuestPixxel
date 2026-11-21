@@ -28,8 +28,12 @@ export interface CafeMilestoneDefinition {
   readonly index: number;
   readonly title: string;
   readonly description: string;
+  /** Short, display-only summary of the behaviour the task must produce. */
+  readonly expectedBehavior: string;
   readonly instructions: readonly string[];
   readonly example: string;
+  /** Optional progressive hints shown in the Tickets task view. */
+  readonly hints: readonly string[];
   readonly displayFileName: string;
   readonly filePath: string;
   readonly starterCode: string;
@@ -44,12 +48,19 @@ export const CAFE_MILESTONES: readonly CafeMilestoneDefinition[] = [
     index: 0,
     title: "Variables and print",
     description: "Store the café item prices in Python variables and print a readable receipt.",
+    expectedBehavior:
+      "The program defines coffee_price = 3 and sandwich_price = 5, then prints both prices in the receipt.",
     instructions: [
       "Create a variable named coffee_price and set it to 3.",
       "Create a variable named sandwich_price and set it to 5.",
       "Print both item prices so Alex can see the receipt.",
     ],
     example: "Example output:\nCoffee: 3\nSandwich: 5",
+    hints: [
+      "Variables store values without quotes when the value is a number: coffee_price = 3.",
+      "Create both variables before you print anything.",
+      'Print a readable label with each value, for example print("Coffee:", coffee_price).',
+    ],
     displayFileName: "cafe_milestone_1.py",
     filePath: `${CAFE_PROJECT_DIRECTORY}/cafe_milestone_1.py`,
     starterCode: `# Café Order Calculator — Milestone 1
@@ -81,6 +92,8 @@ export const CAFE_MILESTONES: readonly CafeMilestoneDefinition[] = [
     index: 1,
     title: "Arithmetic and functions",
     description: "Calculate order totals with reusable arithmetic in a Python function.",
+    expectedBehavior:
+      "calculate_total(coffees, sandwiches) returns 3 × coffees + 5 × sandwiches for every valid order.",
     instructions: [
       "Coffee costs $3 and a sandwich costs $5.",
       "Implement calculate_total(coffees, sandwiches).",
@@ -88,6 +101,11 @@ export const CAFE_MILESTONES: readonly CafeMilestoneDefinition[] = [
     ],
     example:
       "calculate_total(2, 1) → 11\ncalculate_total(0, 2) → 10\ncalculate_total(3, 0) → 9\ncalculate_total(1, 1) → 8",
+    hints: [
+      "Multiply the number of coffees by 3 and the number of sandwiches by 5.",
+      "Add the two products together with +.",
+      "Use return so the caller receives the number instead of printing it.",
+    ],
     displayFileName: "cafe_milestone_2.py",
     filePath: `${CAFE_PROJECT_DIRECTORY}/cafe_milestone_2.py`,
     starterCode: `# Café Order Calculator — Milestone 2
@@ -128,6 +146,8 @@ def calculate_total(coffees, sandwiches):
     index: 2,
     title: "Conditional discounts",
     description: "Apply a 10% discount only when an order total is $20 or more.",
+    expectedBehavior:
+      "apply_discount(total) returns the total unchanged below $20 and returns 90% of the total at $20 or more.",
     instructions: [
       "Implement apply_discount(total).",
       "If the total is $20 or more, return 90% of the total.",
@@ -135,6 +155,11 @@ def calculate_total(coffees, sandwiches):
     ],
     example:
       "apply_discount(10) → 10\napply_discount(19) → 19\napply_discount(20) → 18\napply_discount(30) → 27\napply_discount(50) → 45",
+    hints: [
+      "Use an if statement to compare total with 20.",
+      "The threshold is inclusive: total >= 20 receives the discount.",
+      "A 10% discount means multiplying the total by 0.9; return total unchanged otherwise.",
+    ],
     displayFileName: "cafe_milestone_3.py",
     filePath: `${CAFE_PROJECT_DIRECTORY}/cafe_milestone_3.py`,
     starterCode: `# Café Order Calculator — Milestone 3

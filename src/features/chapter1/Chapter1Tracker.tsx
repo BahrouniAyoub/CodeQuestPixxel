@@ -1,7 +1,12 @@
 import { AlertTriangle, BookOpen, CheckCircle2, ChevronRight, Target, Wallet } from "lucide-react";
 import { useChapter1 } from "./chapter1Store";
 import { getCurrentChapter1Quest } from "./chapter1Progress";
-import { CHAPTER1_PAYMENT_REWARD, CHAPTER1_QUESTS } from "./chapter1Quests";
+import {
+  CHAPTER1_COMPLETE_MESSAGE,
+  CHAPTER1_COMPLETE_TITLE,
+  CHAPTER1_PAYMENT_REWARD,
+  CHAPTER1_QUESTS,
+} from "./chapter1Quests";
 import "./chapter1-tracker.css";
 
 const TOTAL_QUESTS: number = CHAPTER1_QUESTS.length;
@@ -80,7 +85,8 @@ export function Chapter1Tracker() {
                   {completedCount} / {TOTAL_QUESTS} COMPLETE
                 </span>
               </div>
-              <p>All {TOTAL_QUESTS} quests are finished. The First Paycheck is in the books.</p>
+              <strong>{CHAPTER1_COMPLETE_TITLE}</strong>
+              <p>{CHAPTER1_COMPLETE_MESSAGE}</p>
             </div>
           )}
 

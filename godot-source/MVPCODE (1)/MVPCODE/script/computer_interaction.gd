@@ -31,8 +31,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not player_nearby:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == interaction_key:
+		QuestManager.complete_quest()
+		#QuestManager.show_marker(get_node("#") , Vector2(35, -2)) hethi this lil mission ili baadha 
 		get_viewport().set_input_as_handled()
 		if OS.has_feature("web"):
+			
 			# Tell the parent React page to show Pixel OS; do not open a new tab.
 			JavaScriptBridge.eval("window.parent.postMessage({type:'codequest:open-os'}, window.location.origin);", true)
 		else:

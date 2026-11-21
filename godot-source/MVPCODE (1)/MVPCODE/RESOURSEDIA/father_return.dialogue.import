@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bf5615g16mctj"
+path="res://.godot/imported/father_return.dialogue-b5746692bf5364532dfd8022f9c18a04.tres"
+
+[deps]
+
+source_file="res://RESOURSEDIA/father_return.dialogue"
+dest_files=["res://.godot/imported/father_return.dialogue-b5746692bf5364532dfd8022f9c18a04.tres"]
+
+[params]
+
+defaults=true
