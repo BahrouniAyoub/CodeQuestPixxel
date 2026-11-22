@@ -9,9 +9,16 @@ import {
 import {
   createCodeQuestChapterState,
   FATHER_DIALOGUE_COMPLETION_PAYLOAD,
+  GODOT_CHAPTER_STATE_EVENT_TYPE,
+  handleEarlyQuestCompletion,
   handleFatherDialogueCompletion,
+  isEarlyQuestCompletionMessage,
+  isEarlyQuestCompletionPayload,
   isFatherDialogueCompletionMessage,
+  isFatherDialogueCompletionPayload,
   type CodeQuestChapterState,
+  type EarlyQuestCompletionPayload,
+  type FatherDialogueCompletionPayload,
 } from "@/features/chapter1/godotBridge";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
 
@@ -22,11 +29,13 @@ export const Route = createFileRoute("/game")({
 });
 
 type ChapterStateWindow = Window & { __codequestChapterState?: CodeQuestChapterState };
+type Chapter1BridgePayload = FatherDialogueCompletionPayload | EarlyQuestCompletionPayload;
 
 interface CompletionBanner {
   readonly kind: "success" | "retry";
   readonly title: string;
   readonly message: string;
+  readonly retryPayload?: Chapter1BridgePayload;
 }
 
 export function BrowserGame() {
@@ -50,7 +59,15 @@ export function BrowserGame() {
     (window as ChapterStateWindow).__codequestChapterState = snapshot;
 
     const iframeWindow = iframeRef.current?.contentWindow as ChapterStateWindow | null;
-    if (iframeWindow) iframeWindow.__codequestChapterState = snapshot;
+    if (iframeWindow) {
+      // Keep the mirror for on-demand reads and push a same-origin notification
+      // so Godot can refresh its objective without reloading or polling.
+      iframeWindow.__codequestChapterState = snapshot;
+      iframeWindow.postMessage(
+        { type: GODOT_CHAPTER_STATE_EVENT_TYPE, state: snapshot },
+        window.location.origin,
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -65,18 +82,40 @@ export function BrowserGame() {
     });
   }, []);
 
+  const applyBridgeCompletion = useCallback(
+    async (payload: Chapter1BridgePayload) => {
+      const isFatherEvent = isFatherDialogueCompletionPayload(payload);
+      const result = isFatherEvent
+        ? await handleFatherDialogueCompletion(payload)
+        : await handleEarlyQuestCompletion(payload);
+
+      if (result.status === "completed" || result.status === "already-complete") {
+        // Only the final father event shows the Chapter 1 completion banner.
+        if (isFatherEvent) showSuccessBanner();
+        else setBanner(null);
+        return;
+      }
+
+      if (result.status === "retry") {
+        setBanner({
+          kind: "retry",
+          title: isFatherEvent ? "Chapter 1 completion not saved" : "Chapter 1 progress not saved",
+          message: result.reason ?? "You can retry safely; no quest will be completed twice.",
+          retryPayload: payload,
+        });
+        return;
+      }
+
+      if (result.status === "blocked") {
+        console.warn("Chapter 1 bridge event blocked:", result.reason);
+      }
+    },
+    [showSuccessBanner],
+  );
+
   const retryCompletion = useCallback(async () => {
-    const result = await handleFatherDialogueCompletion(FATHER_DIALOGUE_COMPLETION_PAYLOAD);
-    if (result.status === "completed" || result.status === "already-complete") {
-      showSuccessBanner();
-      return;
-    }
-    setBanner({
-      kind: "retry",
-      title: "Chapter 1 completion not saved",
-      message: result.reason ?? "You can retry safely; no reward will be added twice.",
-    });
-  }, [showSuccessBanner]);
+    await applyBridgeCompletion(banner?.retryPayload ?? FATHER_DIALOGUE_COMPLETION_PAYLOAD);
+  }, [applyBridgeCompletion, banner?.retryPayload]);
 
   useEffect(() => {
     const receive = (event: MessageEvent) => {
@@ -85,34 +124,40 @@ export function BrowserGame() {
       if (event.origin !== window.location.origin) return;
       if (event.source !== iframeWindow) return;
 
-      if (isFatherDialogueCompletionMessage(event, window.location.origin, iframeWindow)) {
-        void handleFatherDialogueCompletion(event.data).then((result) => {
-          if (result.status === "completed" || result.status === "already-complete") {
-            showSuccessBanner();
-            return;
-          }
-          if (result.status === "retry") {
-            setBanner({
-              kind: "retry",
-              title: "Chapter 1 completion not saved",
-              message: result.reason ?? "You can retry safely; no reward will be added twice.",
-            });
-            return;
-          }
-          if (result.status === "blocked") {
-            console.warn("Father dialogue completion blocked:", result.reason);
-          }
-        });
+      const fatherMessageValid = isFatherDialogueCompletionMessage(
+        event,
+        window.location.origin,
+        iframeWindow,
+      );
+      if (fatherMessageValid && isFatherDialogueCompletionPayload(event.data)) {
+        void applyBridgeCompletion(event.data);
+        return;
+      }
+
+      const earlyMessageValid = isEarlyQuestCompletionMessage(
+        event,
+        window.location.origin,
+        iframeWindow,
+      );
+      if (earlyMessageValid && isEarlyQuestCompletionPayload(event.data)) {
+        void applyBridgeCompletion(event.data);
         return;
       }
 
       // Existing bridge event: unchanged behavior.
-      if (event.data?.type === "codequest:open-os") setShowOS(true);
+      if (
+        typeof event.data === "object" &&
+        event.data !== null &&
+        "type" in event.data &&
+        event.data.type === "codequest:open-os"
+      ) {
+        setShowOS(true);
+      }
     };
 
     window.addEventListener("message", receive);
     return () => window.removeEventListener("message", receive);
-  }, [showSuccessBanner]);
+  }, [applyBridgeCompletion]);
 
   return (
     <main style={{ position: "fixed", inset: 0, background: "#111827", overflow: "hidden" }}>

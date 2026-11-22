@@ -50,14 +50,6 @@ var _dust: CPUParticles2D
 
 
 func _ready() -> void:
-	QuestManager.set_objective(
-		"Talk to your dad",
-        "Find your father and talk to him."
-	)
-	QuestManager.show_marker(self)
-	QuestManager.show_marker(self, Vector2(0, -45))
-	_sync_chapter_objective()
-	_poll_chapter_objective()
 	randomize()
 	sprite = $AnimatedSprite2D
 	_base_scale = sprite.scale
@@ -74,25 +66,6 @@ func _ready() -> void:
 
 	_build_dust()
 	_enter_idle()
-
-
-# ---------------------------------------------------------------- chapter 1 return
-
-func _sync_chapter_objective() -> void:
-	if CodeQuestBridge.is_ch1_08_active():
-		QuestManager.set_objective(
-			"Return home and talk to your father.",
-			"Your father is waiting. Tell him about the café job."
-		)
-		QuestManager.show_marker(self, Vector2(0, -45))
-
-
-func _poll_chapter_objective() -> void:
-	# React hydrates IndexedDB after the iframe starts; retry briefly so the
-	# CH1-08 objective appears without any gameplay action.
-	for _i in range(12):
-		await get_tree().create_timer(0.5).timeout
-		_sync_chapter_objective()
 
 
 # ---------------------------------------------------------------- visuals

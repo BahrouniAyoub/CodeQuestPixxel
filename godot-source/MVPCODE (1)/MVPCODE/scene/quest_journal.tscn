@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://cqjournal001"]
+
+[ext_resource type="Script" path="res://script/quest_journal.gd" id="1_jrnl"]
+
+[node name="QuestJournal" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_jrnl")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.02, 0.04, 0.55)
+
+[node name="Center" type="CenterContainer" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Backdrop/Center"]
+custom_minimum_size = Vector2(132, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Backdrop/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="VBox" type="VBoxContainer" parent="Backdrop/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Header" type="VBoxContainer" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="Backdrop/Center/Panel/Margin/VBox/Header"]
+layout_mode = 2
+text = "QUEST JOURNAL"
+horizontal_alignment = 1
+
+[node name="Chapter" type="Label" parent="Backdrop/Center/Panel/Margin/VBox/Header"]
+layout_mode = 2
+text = "Chapter 1 — The First Paycheck"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Progress" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Progress: 0/8 quests complete"
+horizontal_alignment = 1
+
+[node name="MissionTitle" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Mission"
+autowrap_mode = 2
+
+[node name="MissionDesc" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Description"
+autowrap_mode = 2
+
+[node name="Objective" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Objective: —"
+autowrap_mode = 2
+
+[node name="Location" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Location: —"
+autowrap_mode = 2
+
+[node name="Completed" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "Completed: none yet"
+autowrap_mode = 2
+
+[node name="Footer" type="Label" parent="Backdrop/Center/Panel/Margin/VBox"]
+layout_mode = 2
+text = "J or Esc to close"
+horizontal_alignment = 1

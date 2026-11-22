@@ -7,6 +7,7 @@ export type AppId =
   | "mail"
   | "browser"
   | "progress"
+  | "journal"
   | "settings"
   | "terminal"
   | "explorer";
@@ -90,6 +91,16 @@ export const APPS: Record<AppId, AppDefinition> = {
     minSize: { width: 480, height: 360 },
     pinned: true,
   },
+  journal: {
+    id: "journal",
+    title: "Quest Journal",
+    shortTitle: "Journal",
+    description: "Current mission and chapter progress",
+    icon: "journal",
+    defaultSize: { width: 560, height: 520 },
+    minSize: { width: 420, height: 360 },
+    pinned: true,
+  },
   settings: {
     id: "settings",
     title: "Settings",
@@ -129,6 +140,7 @@ export const APP_ORDER: AppId[] = [
   "mail",
   "browser",
   "progress",
+  "journal",
   "settings",
   "terminal",
   "explorer",

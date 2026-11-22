@@ -1295,6 +1295,8 @@ func create_shadow() -> void:
 # INTERACTION / DIALOGUE
 # =============================================================================
 func interact_with_nearby_actionable() -> void:
+	if QuestManager.journal_open:
+		return
 	if player_collision == null or player_collision.shape == null:
 		push_warning("Player CollisionShape2D or its Shape2D is missing.")
 		return

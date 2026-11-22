@@ -16,6 +16,7 @@
 [ext_resource type="Resource" uid="uid://bv0m464c81lg1" path="res://RESOURSEDIA/father.dialogue" id="11_ga48g"]
 
 [ext_resource type="Resource" uid="uid://bf5615g16mctj" path="res://RESOURSEDIA/father_return.dialogue" id="12_frturn"]
+[ext_resource type="Resource" uid="uid://cq8fathpost01" path="res://RESOURSEDIA/father_post_complete.dialogue" id="12_fpost"]
 [ext_resource type="Texture2D" uid="uid://ccqmdlw0363xe" path="res://assests/inter/Guitare.png" id="11_r3aus"]
 [ext_resource type="Script" uid="uid://bkahxy70fi2au" path="res://script/poop.gd" id="12_64o46"]
 [ext_resource type="AudioStream" uid="uid://whr7jqbw4arg" path="res://music/Billie Jean - Michael Jackson Fingerstyle Guitar TAB + Chords + Lyrics (mp3cut.net).mp3" id="13_563h6"]
@@ -41,6 +42,7 @@
 [ext_resource type="Texture2D" uid="uid://d2nldkwg5ek7r" path="res://assests/mom.png" id="35_g1aoe"]
 [ext_resource type="AudioStream" uid="uid://66aj0t3yhq45" path="res://music/Enregistrement 2026-11-08 130144.mp3" id="38_spa6w"]
 [ext_resource type="PackedScene" uid="uid://dqybl30bla2bl" path="res://objective_ui.tscn" id="39_iegxr"]
+[ext_resource type="PackedScene" uid="uid://cqjournal001" path="res://scene/quest_journal.tscn" id="40_qjrnl"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3mrqo"]
 texture = ExtResource("1_r0x5m")
@@ -1109,6 +1111,7 @@ animation = &"walk_down"
 position = Vector2(19, 37)
 dialogue_resource = ExtResource("11_ga48g")
 return_dialogue_resource = ExtResource("12_frturn")
+post_complete_dialogue_resource = ExtResource("12_fpost")
 completion_quest_id = "CH1-08"
 player = NodePath("../../Player")
 npc = NodePath("..")
@@ -1411,6 +1414,8 @@ max_polyphony = 2
 panning_strength = 15.11
 
 [node name="ObjectiveUI" parent="." unique_id=581299112 instance=ExtResource("39_iegxr")]
+
+[node name="QuestJournal" parent="." unique_id=581299113 instance=ExtResource("40_qjrnl")]
 
 [connection signal="body_entered" from="screen/Area2D" to="screen" method="_on_area_2d_body_entered"]
 [connection signal="body_exited" from="screen/Area2D" to="screen" method="_on_area_2d_body_exited"]

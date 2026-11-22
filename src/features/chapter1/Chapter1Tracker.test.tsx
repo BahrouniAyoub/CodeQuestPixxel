@@ -54,7 +54,7 @@ describe("Chapter1Tracker", () => {
     render(<Chapter1Tracker />);
 
     expect(screen.getByTestId("chapter1-loading")).toHaveTextContent("Loading Chapter 1 progress…");
-    expect(screen.queryByText("A Difficult Morning")).not.toBeInTheDocument();
+    expect(screen.queryByText("A Tough Morning")).not.toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
@@ -66,7 +66,7 @@ describe("Chapter1Tracker", () => {
     render(<Chapter1Tracker />);
 
     expect(screen.getByText("Chapter 1 progress is not available.")).toBeInTheDocument();
-    expect(screen.queryByText("A Difficult Morning")).not.toBeInTheDocument();
+    expect(screen.queryByText("A Tough Morning")).not.toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Could not load Chapter 1 progress");
   });
 
@@ -78,8 +78,8 @@ describe("Chapter1Tracker", () => {
       screen.getByRole("heading", { name: /Chapter 1 — The First Paycheck/ }),
     ).toBeInTheDocument();
     expect(screen.getByText("CH1-01")).toBeInTheDocument();
-    expect(screen.getByText("A Difficult Morning")).toBeInTheDocument();
-    expect(screen.getByText("Listen to your father's warning")).toBeInTheDocument();
+    expect(screen.getByText("A Tough Morning")).toBeInTheDocument();
+    expect(screen.getByText("Talk to Dad in the living room")).toBeInTheDocument();
     expect(screen.getByText("0 / 8 COMPLETE")).toBeInTheDocument();
     expect(screen.getByText("IN PROGRESS")).toBeInTheDocument();
   });
@@ -89,10 +89,10 @@ describe("Chapter1Tracker", () => {
     render(<Chapter1Tracker />);
 
     expect(screen.getByText("CH1-02")).toBeInTheDocument();
-    expect(screen.getByText("Find a Way Out")).toBeInTheDocument();
-    expect(screen.getByText("Go to your bedroom and open the computer")).toBeInTheDocument();
+    expect(screen.getByText("Check the Computer")).toBeInTheDocument();
+    expect(screen.getByText("Use the computer in your bedroom")).toBeInTheDocument();
     expect(screen.getByText("1 / 8 COMPLETE")).toBeInTheDocument();
-    expect(screen.queryByText("A Difficult Morning")).not.toBeInTheDocument();
+    expect(screen.queryByText("A Tough Morning")).not.toBeInTheDocument();
   });
 
   it("reports completion percentage from the quest definitions", () => {
@@ -122,7 +122,7 @@ describe("Chapter1Tracker", () => {
 
     expect(screen.getByText("$50 / $50")).toBeInTheDocument();
     expect(screen.getByText("CH1-08")).toBeInTheDocument();
-    expect(screen.getByText("Return home and talk to your father.")).toBeInTheDocument();
+    expect(screen.getByText("Go home and tell Dad about your job")).toBeInTheDocument();
     expect(screen.getByText("7 / 8 COMPLETE")).toBeInTheDocument();
   });
 
@@ -140,7 +140,7 @@ describe("Chapter1Tracker", () => {
     expect(screen.getByText("CHAPTER COMPLETE")).toBeInTheDocument();
     expect(screen.getByText("$50 / $50")).toBeInTheDocument();
     expect(screen.getByText("8 / 8 · 100%")).toBeInTheDocument();
-    expect(screen.queryByText("A New Beginning")).not.toBeInTheDocument();
+    expect(screen.queryByText("Share the Good News")).not.toBeInTheDocument();
   });
 
   it("shows a non-blocking warning when saved data was recovered", () => {
@@ -151,14 +151,14 @@ describe("Chapter1Tracker", () => {
     render(<Chapter1Tracker />);
 
     expect(screen.getByRole("alert")).toHaveTextContent("Saved Chapter 1 progress was invalid");
-    expect(screen.getByText("A Difficult Morning")).toBeInTheDocument();
+    expect(screen.getByText("A Tough Morning")).toBeInTheDocument();
   });
 
   it("reacts to Zustand store updates", () => {
     resetChapter1({ hydrated: true });
     render(<Chapter1Tracker />);
 
-    expect(screen.getByText("A Difficult Morning")).toBeInTheDocument();
+    expect(screen.getByText("A Tough Morning")).toBeInTheDocument();
 
     act(() => useChapter1.setState({ progress: progressAfter(1) }));
     expect(screen.getByText("CH1-02")).toBeInTheDocument();

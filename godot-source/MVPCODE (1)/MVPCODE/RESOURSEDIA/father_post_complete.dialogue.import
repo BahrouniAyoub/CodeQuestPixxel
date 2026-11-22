@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cq8fathpost01"
+path="res://.godot/imported/father_post_complete.dialogue-9518fb31c3b2d88cd5e8cf15c235514e.tres"
+
+[deps]
+
+source_file="res://RESOURSEDIA/father_post_complete.dialogue"
+dest_files=["res://.godot/imported/father_post_complete.dialogue-9518fb31c3b2d88cd5e8cf15c235514e.tres"]
+
+[params]
+
+defaults=true

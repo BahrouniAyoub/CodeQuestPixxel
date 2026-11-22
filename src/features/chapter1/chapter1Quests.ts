@@ -13,7 +13,12 @@
 export interface Chapter1QuestDefinition {
   readonly id: string;
   readonly title: string;
+  /** Short, player-facing objective shown in HUD/journal. */
   readonly objective: string;
+  /** One-sentence description of what to do and why it matters. */
+  readonly description: string;
+  /** Where the player should go, or null when no world location applies. */
+  readonly location: string | null;
   /** In-game money granted when this quest is completed. Only CH1-07 pays out. */
   readonly moneyReward: number;
 }
@@ -26,53 +31,72 @@ export const CHAPTER1_COMPLETE_TITLE = "Chapter 1 Complete — The First Paychec
 export const CHAPTER1_COMPLETE_MESSAGE =
   "You completed your first programming job, earned $50, and proved that you can turn your coding skills into real opportunities.";
 
+/** Canonical display title for Chapter 1, shared by HUD, journal, and bridge. */
+export const CHAPTER1_TITLE = "Chapter 1 — The First Paycheck";
+
 export const CHAPTER1_QUESTS = [
   {
     id: "CH1-01",
-    title: "A Difficult Morning",
-    objective: "Listen to your father's warning",
+    title: "A Tough Morning",
+    objective: "Talk to Dad in the living room",
+    description: "Dad has something important to say. Listen to him to find out what's going on.",
+    location: "Living room · Dad",
     moneyReward: 0,
   },
   {
     id: "CH1-02",
-    title: "Find a Way Out",
-    objective: "Go to your bedroom and open the computer",
+    title: "Check the Computer",
+    objective: "Use the computer in your bedroom",
+    description: "Your computer might help you find work. Head to your bedroom and turn it on.",
+    location: "Bedroom · Computer",
     moneyReward: 0,
   },
   {
     id: "CH1-03",
-    title: "Your First Opportunity",
-    objective: "Find a freelance Python job on GigBoard",
+    title: "Find a Job",
+    objective: "Find a Python job on GigBoard",
+    description: "Look through GigBoard on your computer and find a freelance job that fits your skills.",
+    location: "PixelOS · GigBoard",
     moneyReward: 0,
   },
   {
     id: "CH1-04",
-    title: "The First Client",
-    objective: "Apply for the café calculator project",
+    title: "Apply for the Job",
+    objective: "Apply to the café calculator project",
+    description: "Send your application for the café calculator job so you can start working.",
+    location: "PixelOS · GigBoard",
     moneyReward: 0,
   },
   {
     id: "CH1-05",
-    title: "Build the Application",
-    objective: "Complete and verify the café project build",
+    title: "Build the Calculator",
+    objective: "Finish and test the café project",
+    description: "Complete the café calculator project and make sure it works before sending it off.",
+    location: "PixelOS · Code Editor",
     moneyReward: 0,
   },
   {
     id: "CH1-06",
-    title: "Deliver Your Work",
-    objective: "Submit the completed project to the client",
+    title: "Send Your Work",
+    objective: "Submit the finished project to the client",
+    description: "Your project is ready. Submit it so the café owner can review your work.",
+    location: "PixelOS · Submit Project",
     moneyReward: 0,
   },
   {
     id: "CH1-07",
-    title: "The First Paycheck",
-    objective: "Receive the $50 payment",
+    title: "Get Paid",
+    objective: "Claim your $50 payment",
+    description: "The client approved your work. Collect your first paycheck!",
+    location: "PixelOS · Mail",
     moneyReward: CHAPTER1_PAYMENT_REWARD,
   },
   {
     id: "CH1-08",
-    title: "A New Beginning",
-    objective: "Return home and talk to your father.",
+    title: "Share the Good News",
+    objective: "Go home and tell Dad about your job",
+    description: "You earned your first paycheck. Head back to the living room and talk to Dad.",
+    location: "Living room · Dad",
     moneyReward: 0,
   },
 ] as const satisfies readonly Chapter1QuestDefinition[];

@@ -8,6 +8,9 @@ extends Area2D
 @export var return_dialogue_resource: DialogueResource
 @export var return_dialogue_start: String = "start"
 @export var completion_quest_id: String = ""
+# Optional friendly dialogue shown after Chapter 1 is complete.
+@export var post_complete_dialogue_resource: DialogueResource
+@export var post_complete_dialogue_start: String = "start"
 @export var prompt_label: Label
 
 @export var player: CharacterBody2D
@@ -17,6 +20,9 @@ var dialogue_balloon: Node = null
 var player_nearby := false
 var _using_return_dialogue := false
 var _return_event_sent := false
+var _using_intro_dialogue := false
+var _intro_event_sent := false
+var _using_post_complete_dialogue := false
 
 
 func _ready() -> void:
@@ -42,23 +48,51 @@ func _on_body_exited(body: Node2D) -> void:
 
 
 func action() -> void:
-	# If dialogue is already open, close it. Closing early never emits the
+	if QuestManager.journal_open:
+		return
+
+	# If dialogue is already open, close it. Closing early never emits a
 	# completion event; only DialogueManager.dialogue_ended does that.
 	if is_instance_valid(dialogue_balloon):
 		_close_dialogue()
 		return
 
+	var chapter_complete := CodeQuestBridge.is_chapter_complete()
+	var quest_id := CodeQuestBridge.get_chapter_quest_id()
+
 	_using_return_dialogue = (
-		completion_quest_id == CodeQuestBridge.CH1_08_QUEST_ID
+		not chapter_complete
+		and completion_quest_id == CodeQuestBridge.CH1_08_QUEST_ID
 		and return_dialogue_resource != null
-		and CodeQuestBridge.is_ch1_08_active()
+		and quest_id == CodeQuestBridge.CH1_08_QUEST_ID
+	)
+	_using_intro_dialogue = (
+		not chapter_complete
+		and not _using_return_dialogue
+		and dialogue_resource != null
+		and quest_id == CodeQuestBridge.CH1_01_QUEST_ID
+	)
+	_using_post_complete_dialogue = (
+		not _using_return_dialogue
+		and not _using_intro_dialogue
+		and post_complete_dialogue_resource != null
 	)
 
-	var chosen_resource := dialogue_resource
+	var chosen_resource: DialogueResource = dialogue_resource
 	var chosen_start := dialogue_start
 	if _using_return_dialogue:
 		chosen_resource = return_dialogue_resource
 		chosen_start = return_dialogue_start
+	elif _using_post_complete_dialogue:
+		chosen_resource = post_complete_dialogue_resource
+		chosen_start = post_complete_dialogue_start
+	elif not _using_intro_dialogue:
+		# No quest dialogue applies (e.g. CH1-02..CH1-07) and no friendly fallback
+		# was configured. Do not replay the intro dialogue.
+		return
+
+	if chosen_resource == null:
+		return
 
 	if prompt_label:
 		prompt_label.hide()
@@ -72,40 +106,50 @@ func action() -> void:
 	)
 
 	if is_instance_valid(dialogue_balloon):
-		if _using_return_dialogue and not DialogueManager.dialogue_ended.is_connected(_on_return_dialogue_ended):
-			DialogueManager.dialogue_ended.connect(_on_return_dialogue_ended)
+		var completion_tracked := _using_return_dialogue or _using_intro_dialogue
+		if completion_tracked and not DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended):
+			DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
 		dialogue_balloon.tree_exited.connect(_on_dialogue_closed)
 
 
-func _on_return_dialogue_ended(resource: DialogueResource) -> void:
-	# The signal is global, so verify it belongs to this exact father dialogue.
-	if not _using_return_dialogue or resource != return_dialogue_resource:
-		return
-	if _return_event_sent:
+func _on_dialogue_ended(resource: DialogueResource) -> void:
+	# The signal is global, so verify it belongs to the exact dialogue we opened.
+	if _using_return_dialogue:
+		if resource != return_dialogue_resource or _return_event_sent:
+			return
+		# Safety guard: never emit the final completion again after chapter is done.
+		if CodeQuestBridge.is_chapter_complete():
+			return
+		_return_event_sent = true
+		CodeQuestBridge.notify_father_dialogue_completed()
 		return
 
-	_return_event_sent = true
-	QuestManager.set_objective(
-		"Chapter 1 complete",
-		"You told your father about the café job."
-	)
-	CodeQuestBridge.notify_father_dialogue_completed()
+	if _using_intro_dialogue:
+		if resource != dialogue_resource or _intro_event_sent:
+			return
+		# Only complete CH1-01 once and only while it is active.
+		if CodeQuestBridge.get_chapter_quest_id() != CodeQuestBridge.CH1_01_QUEST_ID or CodeQuestBridge.is_chapter_complete():
+			return
+		_intro_event_sent = true
+		CodeQuestBridge.notify_father_intro_completed()
 
 
 func _close_dialogue() -> void:
 	if is_instance_valid(dialogue_balloon):
 		dialogue_balloon.queue_free()
 	dialogue_balloon = null
-	_disconnect_return_signal()
+	_disconnect_dialogue_ended()
 	_using_return_dialogue = false
+	_using_intro_dialogue = false
+	_using_post_complete_dialogue = false
 	set_characters_movement(true)
 	if prompt_label and player_nearby:
 		prompt_label.show()
 
 
-func _disconnect_return_signal() -> void:
-	if DialogueManager.dialogue_ended.is_connected(_on_return_dialogue_ended):
-		DialogueManager.dialogue_ended.disconnect(_on_return_dialogue_ended)
+func _disconnect_dialogue_ended() -> void:
+	if DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended):
+		DialogueManager.dialogue_ended.disconnect(_on_dialogue_ended)
 
 
 func set_characters_movement(enabled: bool) -> void:
@@ -117,18 +161,19 @@ func set_characters_movement(enabled: bool) -> void:
 
 
 func _on_dialogue_closed() -> void:
-	_disconnect_return_signal()
+	_disconnect_dialogue_ended()
 
-	if _using_return_dialogue:
-		_using_return_dialogue = false
-	else:
-		QuestManager.set_objective(
-			"Go to your computer",
-			"Your father wants you to start looking for a job."
-		)
-		QuestManager.show_marker(get_node("../../screen"), Vector2(35, -2))
-
+	var ended_with_event := _intro_event_sent or _return_event_sent
+	_using_return_dialogue = false
+	_using_intro_dialogue = false
+	_using_post_complete_dialogue = false
 	dialogue_balloon = null
 	set_characters_movement(true)
+
+	# A premature close has no bridge event, so restore the authoritative
+	# objective from React instead of inventing a new quest state locally.
+	if not ended_with_event:
+		CodeQuestStateSync.refresh_from_mirror()
+
 	if prompt_label and player_nearby:
 		prompt_label.show()

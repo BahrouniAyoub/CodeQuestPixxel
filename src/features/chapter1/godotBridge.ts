@@ -20,6 +20,8 @@ import {
   CHAPTER1_COMPLETE_MESSAGE,
   CHAPTER1_COMPLETE_TITLE,
   CHAPTER1_QUESTS,
+  CHAPTER1_TITLE,
+  type Chapter1QuestId,
 } from "./chapter1Quests";
 import { useChapter1, type Chapter1Store } from "./chapter1Store";
 
@@ -28,6 +30,39 @@ export const GODOT_EVENT_SOURCE = "godot";
 export const FATHER_RETURN_QUEST_ID = "CH1-08";
 export const FATHER_RETURN_DIALOGUE_ID = "father-return-v1";
 export const FATHER_RETURN_EVENT_ID = "ch1-08-father-dialogue-v1";
+
+/** CH1-01: emitted only when the real father introduction dialogue ends. */
+export const GODOT_INTRO_COMPLETE_EVENT_TYPE = "codequest:chapter1-intro-complete";
+export const FATHER_INTRO_QUEST_ID: Chapter1QuestId = "CH1-01";
+export const FATHER_INTRO_DIALOGUE_ID = "father-intro-v1";
+export const FATHER_INTRO_EVENT_ID = "ch1-01-father-dialogue-v1";
+export const FATHER_INTRO_COMPLETION_PAYLOAD = {
+  type: GODOT_INTRO_COMPLETE_EVENT_TYPE,
+  source: GODOT_EVENT_SOURCE,
+  questId: FATHER_INTRO_QUEST_ID,
+  dialogueId: FATHER_INTRO_DIALOGUE_ID,
+  eventId: FATHER_INTRO_EVENT_ID,
+} as const;
+
+/** CH1-02: emitted only from the real E interaction with the computer. */
+export const GODOT_COMPUTER_COMPLETE_EVENT_TYPE = "codequest:chapter1-computer-complete";
+export const COMPUTER_INTERACTION_QUEST_ID: Chapter1QuestId = "CH1-02";
+export const COMPUTER_INTERACTION_DIALOGUE_ID = "computer-interaction-v1";
+export const COMPUTER_INTERACTION_EVENT_ID = "ch1-02-computer-interaction-v1";
+export const COMPUTER_INTERACTION_COMPLETION_PAYLOAD = {
+  type: GODOT_COMPUTER_COMPLETE_EVENT_TYPE,
+  source: GODOT_EVENT_SOURCE,
+  questId: COMPUTER_INTERACTION_QUEST_ID,
+  dialogueId: COMPUTER_INTERACTION_DIALOGUE_ID,
+  eventId: COMPUTER_INTERACTION_EVENT_ID,
+} as const;
+
+/** React → Godot state-change notification. The mirror remains the authority. */
+export const GODOT_CHAPTER_STATE_EVENT_TYPE = "codequest:chapter-state";
+
+export type EarlyQuestCompletionPayload =
+  | typeof FATHER_INTRO_COMPLETION_PAYLOAD
+  | typeof COMPUTER_INTERACTION_COMPLETION_PAYLOAD;
 
 export { CHAPTER1_COMPLETE_MESSAGE, CHAPTER1_COMPLETE_TITLE };
 
@@ -48,13 +83,22 @@ export interface FatherDialogueCompletionPayload {
   readonly eventId: typeof FATHER_RETURN_EVENT_ID;
 }
 
-/** State mirrored into the iframe so Godot can select the CH1-08 dialogue. */
+/** State mirrored into the iframe so Godot/PixelOS can render the same quest UI. */
 export interface CodeQuestChapterState {
   readonly schema: 1;
+  readonly chapterTitle: string;
   readonly questId: string | null;
+  readonly questTitle: string | null;
+  /** Canonical objective text from chapter1Quests.ts; Godot displays this directly. */
+  readonly questObjective: string | null;
+  readonly questDescription: string | null;
+  readonly questLocation: string | null;
   readonly chapterComplete: boolean;
   readonly money: number;
   readonly paymentClaimed: boolean;
+  readonly completedQuestIds: readonly string[];
+  readonly completedQuests: readonly { readonly id: string; readonly title: string }[];
+  readonly totalQuests: number;
 }
 
 export interface FatherCompletionMessageLike {
@@ -124,16 +168,69 @@ export function isFatherDialogueCompletionMessage(
   );
 }
 
+/**
+ * Accepts only the two early Chapter 1 events. Each event type has exactly one
+ * valid quest/dialogue/event-id triple, so a guessed or replayed payload cannot
+ * advance a different quest.
+ */
+export function isEarlyQuestCompletionPayload(
+  value: unknown,
+): value is EarlyQuestCompletionPayload {
+  if (!isRecord(value) || value["source"] !== GODOT_EVENT_SOURCE) return false;
+
+  if (value["type"] === GODOT_INTRO_COMPLETE_EVENT_TYPE) {
+    return (
+      value["questId"] === FATHER_INTRO_QUEST_ID &&
+      value["dialogueId"] === FATHER_INTRO_DIALOGUE_ID &&
+      value["eventId"] === FATHER_INTRO_EVENT_ID
+    );
+  }
+
+  if (value["type"] === GODOT_COMPUTER_COMPLETE_EVENT_TYPE) {
+    return (
+      value["questId"] === COMPUTER_INTERACTION_QUEST_ID &&
+      value["dialogueId"] === COMPUTER_INTERACTION_DIALOGUE_ID &&
+      value["eventId"] === COMPUTER_INTERACTION_EVENT_ID
+    );
+  }
+
+  return false;
+}
+
+export function isEarlyQuestCompletionMessage(
+  message: FatherCompletionMessageLike,
+  expectedOrigin: string,
+  expectedSource: unknown,
+): message is FatherCompletionMessageLike & { data: EarlyQuestCompletionPayload } {
+  return (
+    message.origin === expectedOrigin &&
+    message.source === expectedSource &&
+    isEarlyQuestCompletionPayload(message.data)
+  );
+}
+
 /** Build the same-origin mirror consumed by Godot. No event is an authority here. */
 export function createCodeQuestChapterState(
   progress: Chapter1Store["progress"],
 ): CodeQuestChapterState {
+  const quest = getCurrentChapter1Quest(progress);
   return {
     schema: 1,
-    questId: getCurrentChapter1Quest(progress)?.id ?? null,
-    chapterComplete: getCurrentChapter1Quest(progress) === null,
+    chapterTitle: CHAPTER1_TITLE,
+    questId: quest?.id ?? null,
+    questTitle: quest?.title ?? null,
+    questObjective: quest?.objective ?? null,
+    questDescription: quest?.description ?? null,
+    questLocation: quest?.location ?? null,
+    chapterComplete: quest === null,
     money: progress.money,
     paymentClaimed: progress.paymentClaimed,
+    completedQuestIds: progress.completedQuestIds,
+    completedQuests: progress.completedQuestIds.map((id) => {
+      const def = CHAPTER1_QUESTS.find((q) => q.id === id);
+      return { id, title: def?.title ?? id };
+    }),
+    totalQuests: CHAPTER1_QUESTS.length,
   };
 }
 
@@ -234,6 +331,96 @@ export function createFatherDialogueCompletionHandler(dependencies: FatherComple
     return { status: "completed" };
   };
 }
+
+export type EarlyQuestCompletionStatus =
+  | "invalid-event"
+  | "duplicate"
+  | "already-complete"
+  | "blocked"
+  | "retry"
+  | "completed";
+
+export interface EarlyQuestCompletionResult {
+  readonly status: EarlyQuestCompletionStatus;
+  readonly reason?: string;
+}
+
+export interface EarlyQuestCompletionDependencies {
+  readonly chapterStore: ChapterStoreLike;
+}
+
+/**
+ * Shared handler for CH1-01 and CH1-02. Persistent quest state is the durable
+ * guard across reloads; the in-memory event-id set only dedupes within a session.
+ * A failed save is never deduplicated, so Godot/React can retry safely.
+ */
+export function createEarlyQuestCompletionHandler(
+  dependencies: EarlyQuestCompletionDependencies,
+) {
+  const processedEventIds = new Set<string>();
+
+  return async function handleEarlyQuestCompletion(
+    data: unknown,
+  ): Promise<EarlyQuestCompletionResult> {
+    if (!isEarlyQuestCompletionPayload(data)) {
+      return { status: "invalid-event", reason: "Unrecognized Godot event." };
+    }
+    if (processedEventIds.has(data.eventId)) {
+      return { status: "duplicate", reason: "This quest event was already handled." };
+    }
+
+    try {
+      await dependencies.chapterStore.hydrate();
+    } catch (error) {
+      return {
+        status: "retry",
+        reason: `Saved progress could not be loaded. Try again. ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+
+    const chapter = dependencies.chapterStore.getState();
+    if (!chapter.hydrated) {
+      return {
+        status: "retry",
+        reason: chapter.error ?? "Chapter 1 progress is still loading. Try again.",
+      };
+    }
+
+    const progress = chapter.progress;
+    const currentQuest = getCurrentChapter1Quest(progress);
+    if (currentQuest?.id !== data.questId) {
+      if (progress.completedQuestIds.includes(data.questId)) {
+        processedEventIds.add(data.eventId);
+        return { status: "already-complete", reason: "This quest is already complete." };
+      }
+      return {
+        status: "blocked",
+        reason: `${data.questId} is not the active Chapter 1 quest.`,
+      };
+    }
+
+    const saved = await dependencies.chapterStore.completeQuest(data.questId);
+    if (!saved) {
+      return {
+        status: "retry",
+        reason:
+          dependencies.chapterStore.getState().error ??
+          "Could not save Chapter 1 progress. You can retry safely.",
+      };
+    }
+
+    processedEventIds.add(data.eventId);
+    return { status: "completed" };
+  };
+}
+
+export const handleEarlyQuestCompletion = createEarlyQuestCompletionHandler({
+  chapterStore: {
+    hydrate: () => useChapter1.getState().hydrate(),
+    completeQuest: (questId) => useChapter1.getState().completeQuest(questId),
+    getState: () => useChapter1.getState(),
+  },
+});
 
 // These adapters make the module-level handler's dependency on the live Zustand
 // singletons explicit while keeping the handler factory easy to test in isolation.

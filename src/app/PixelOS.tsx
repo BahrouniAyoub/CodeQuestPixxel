@@ -18,6 +18,7 @@ import { MailApp } from "@/features/mail/MailApp";
 import { useMail } from "@/features/mail/mailStore";
 import { syncCafeWelcomeEmail } from "@/features/mail/mailIntegration";
 import { ProgressApp } from "@/features/progress/ProgressApp";
+import { QuestJournalApp } from "@/features/journal/QuestJournalApp";
 import { BrowserApp } from "@/features/browser/BrowserApp";
 import { useGigboardApplication } from "@/features/browser/gigboardApplicationStore";
 import { useCafeMilestones } from "@/features/chapter1/cafeCoding/cafeMilestoneStore";
@@ -40,6 +41,7 @@ function AppPreview({ id }: { id: AppId }) {
   if (id === "mail") return <MailApp />;
   if (id === "browser") return <BrowserApp />;
   if (id === "progress") return <ProgressApp />;
+  if (id === "journal") return <QuestJournalApp />;
   if (id === "settings") return <SettingsApp />;
   if (id === "explorer") return <ExplorerApp />;
   if (id === "terminal") return <TerminalApp />;

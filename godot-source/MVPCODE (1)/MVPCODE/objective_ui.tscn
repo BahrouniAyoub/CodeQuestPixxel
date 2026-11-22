@@ -2,20 +2,45 @@
 
 [ext_resource type="Script" uid="uid://tqesdos0780c" path="res://objective_ui.gd" id="1_tco3q"]
 
-[node name="ObjectiveUI" type="CanvasLayer" unique_id=581299112]
+[node name="ObjectiveUI" type="CanvasLayer"]
 script = ExtResource("1_tco3q")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1484634578]
-offset_left = 14.0
-offset_top = 29.0
-offset_right = 87.0
-offset_bottom = 65.0
+[node name="PanelContainer" type="PanelContainer" parent="."]
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 74.0
+offset_bottom = 34.0
+mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1147535279]
+[node name="Margin" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 1
 
-[node name="ObjectiveTitle" type="Label" parent="PanelContainer/VBoxContainer" unique_id=205438621]
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/Margin"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
 
-[node name="ObjectiveDescription" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1420141523]
+[node name="ChapterLabel" type="Label" parent="PanelContainer/Margin/VBox"]
 layout_mode = 2
+text = "CHAPTER 1"
+uppercase = true
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+text = "Quest Title"
+autowrap_mode = 2
+
+[node name="ObjectiveLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+text = "Objective"
+autowrap_mode = 2
+
+[node name="HintLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+layout_mode = 2
+text = "J · Journal"
+horizontal_alignment = 2

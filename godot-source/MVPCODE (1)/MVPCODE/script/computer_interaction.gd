@@ -30,12 +30,17 @@ func _on_body_exited(body: Node2D) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not player_nearby:
 		return
+	if QuestManager.journal_open:
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == interaction_key:
-		QuestManager.complete_quest()
-		#QuestManager.show_marker(get_node("#") , Vector2(35, -2)) hethi this lil mission ili baadha 
+		# React owns quest progression. The local marker is only UI; the validated
+		# event below is emitted only from this real E interaction, never when
+		# PixelOS merely loads or the iframe refreshes.
+		QuestManager.hide_marker()
 		get_viewport().set_input_as_handled()
 		if OS.has_feature("web"):
-			
+			CodeQuestBridge.notify_computer_interaction_completed()
+
 			# Tell the parent React page to show Pixel OS; do not open a new tab.
 			JavaScriptBridge.eval("window.parent.postMessage({type:'codequest:open-os'}, window.location.origin);", true)
 		else:
