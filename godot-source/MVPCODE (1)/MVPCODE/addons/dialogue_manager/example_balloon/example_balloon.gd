@@ -21,16 +21,20 @@ extends CanvasLayer
 @export var skip_action: StringName = &"ui_cancel"
 
 ## Dialogue size
-@export_range(0.2, 1.0, 0.05) var balloon_scale: float = 0.45
+@export_range(0.2, 1.0, 0.05) var balloon_scale: float = 1.0
 
 ## Close dialogue when player leaves the father's collision
 @export var close_when_player_leaves: bool = true
 
 
 @onready var audio_stream_player: AudioStreamPlayer = %AudioStreamPlayer
+@onready var talk_sound_player: AudioStreamPlayer = get_node_or_null("%TalkSoundPlayer") as AudioStreamPlayer
 @onready var balloon: Control = %Balloon
+@onready var panel: Control = get_node_or_null("%PanelContainer") as Control
 @onready var character_label: RichTextLabel = %CharacterLabel
+@onready var speaker_initial: Label = get_node_or_null("%SpeakerInitial") as Label
 @onready var dialogue_label: DialogueLabel = %DialogueLabel
+@onready var continue_hint: Label = get_node_or_null("%ContinueHint") as Label
 @onready var responses_menu: DialogueResponsesMenu = %ResponsesMenu
 @onready var progress: Polygon2D = %Progress
 
@@ -43,6 +47,13 @@ var locals: Dictionary = {}
 var _locale: String = TranslationServer.get_locale()
 var _dialogue_closed: bool = false
 var _active_actionable: Area2D = null
+var _balloon_entered: bool = false
+var _is_closing: bool = false
+var _panel_tween: Tween
+var talk_sound_timer: Timer
+var _talk_streams: Dictionary = {}
+var _voice_key := "default"
+var _blip_index := 0
 
 var mutation_cooldown: Timer = Timer.new()
 
@@ -56,11 +67,7 @@ var dialogue_line: DialogueLine:
 		else:
 			is_waiting_for_input = false
 			_dialogue_closed = true
-
-			if owner == null:
-				queue_free()
-			else:
-				hide()
+			_animate_balloon_out()
 
 	get:
 		return dialogue_line
@@ -75,6 +82,9 @@ func _ready() -> void:
 	balloon.scale = Vector2.ONE * balloon_scale
 	balloon.pivot_offset = balloon.size / 2.0
 
+	if is_instance_valid(panel):
+		panel.pivot_offset = Vector2(0.0, maxf(panel.size.y, 1.0) / 2.0)
+
 	# Connect Dialogue Manager mutations
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
 
@@ -85,6 +95,7 @@ func _ready() -> void:
 	# Mutation timer
 	mutation_cooldown.timeout.connect(_on_mutation_cooldown_timeout)
 	add_child(mutation_cooldown)
+	_setup_talk_sound()
 
 	# Automatic dialogue
 	if auto_start:
@@ -100,12 +111,15 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(dialogue_line):
 		return
 
-	# Show the progress indicator
-	progress.visible = (
+	# Show the progress indicator and continue hint
+	var can_continue := (
 		not dialogue_label.is_typing
 		and dialogue_line.responses.is_empty()
 		and not dialogue_line.has_tag("voice")
 	)
+	progress.visible = can_continue
+	if is_instance_valid(continue_hint):
+		continue_hint.visible = can_continue and is_waiting_for_input
 
 	# Check whether the player has left the father's collision
 	if close_when_player_leaves and is_instance_valid(_active_actionable):
@@ -120,10 +134,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _dialogue_closed or not is_instance_valid(dialogue_line):
 		return
 
-	# Skip typing with the skip key
-	if event.is_action_pressed(skip_action) and dialogue_label.is_typing:
+	if event.is_action_pressed(skip_action):
 		get_viewport().set_input_as_handled()
-		dialogue_label.skip_typing()
+		if dialogue_label.is_typing:
+			dialogue_label.skip_typing()
+		else:
+			close_dialogue()
 		return
 
 	# E advances the dialogue
@@ -178,7 +194,13 @@ func start(
 ) -> void:
 
 	_dialogue_closed = false
+	_balloon_entered = false
+	_is_closing = false
 	is_waiting_for_input = false
+
+	if is_instance_valid(panel):
+		panel.modulate.a = 1.0
+		panel.scale = Vector2.ONE
 
 	temporary_game_states = [self] + extra_game_states
 
@@ -251,13 +273,7 @@ func close_dialogue() -> void:
 
 	mutation_cooldown.stop()
 
-	if is_instance_valid(balloon):
-		balloon.hide()
-
-	hide()
-
-	if owner == null:
-		queue_free()
+	_animate_balloon_out()
 
 
 ## Apply a dialogue line
@@ -274,8 +290,12 @@ func apply_dialogue_line() -> void:
 	balloon.focus_mode = Control.FOCUS_ALL
 	balloon.grab_focus()
 
-	character_label.visible = not dialogue_line.character.is_empty()
-	character_label.text = tr(dialogue_line.character, "dialogue")
+	var speaker_name := tr(dialogue_line.character, "dialogue")
+	_set_voice_for_speaker(speaker_name)
+	character_label.visible = not speaker_name.is_empty()
+	character_label.text = "[b][color=#7CC0FF]> %s[/color][/b]" % speaker_name
+	if is_instance_valid(speaker_initial) and not speaker_name.is_empty():
+		speaker_initial.text = speaker_name.substr(0, 1).to_upper()
 
 	dialogue_label.hide()
 	dialogue_label.dialogue_line = dialogue_line
@@ -286,6 +306,7 @@ func apply_dialogue_line() -> void:
 	# Show dialogue
 	balloon.show()
 	will_hide_balloon = false
+	_animate_balloon_in()
 
 	dialogue_label.show()
 
@@ -294,7 +315,14 @@ func apply_dialogue_line() -> void:
 
 		dialogue_label.type_out()
 
+		if is_instance_valid(talk_sound_timer):
+			talk_sound_timer.start()
+			_play_talk_blip()
+
 		await dialogue_label.finished_typing
+
+		if is_instance_valid(talk_sound_timer):
+			talk_sound_timer.stop()
 
 	if _dialogue_closed or not is_instance_valid(dialogue_line):
 		return
@@ -357,6 +385,152 @@ func next(next_id: String) -> void:
 		next_id,
 		temporary_game_states
 	)
+
+
+func _setup_talk_sound() -> void:
+	if not is_instance_valid(talk_sound_player):
+		return
+
+	talk_sound_player.volume_db = -30.0
+
+	_talk_streams = {
+		"father": _build_voice_bank(360.0, 0.055, 0),
+		"kid": _build_voice_bank(500.0, 0.05, 3),
+		"mother": _build_voice_bank(560.0, 0.05, 6),
+		"default": _build_voice_bank(450.0, 0.055, 9),
+	}
+
+	talk_sound_timer = Timer.new()
+	talk_sound_timer.wait_time = 0.115
+	talk_sound_timer.one_shot = false
+	talk_sound_timer.timeout.connect(_play_talk_blip)
+	add_child(talk_sound_timer)
+
+
+func _build_voice_bank(base_hz: float, length: float, seed_offset: int) -> Array:
+	var bank: Array = []
+	for variant in 4:
+		bank.append(_make_cartoon_blip(base_hz, length, seed_offset + variant))
+	return bank
+
+
+func _make_cartoon_blip(base_hz: float, length: float, seed: int) -> AudioStreamWAV:
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_8_BITS
+	stream.mix_rate = 22050
+	stream.stereo = false
+	stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
+
+	var frames := int(stream.mix_rate * length)
+	var data := PackedByteArray()
+	var bend := sin(float(seed) * 2.7) * 0.08
+	var start_hz := base_hz * (1.0 + bend)
+	var end_hz := base_hz * (1.0 - bend * 0.6)
+	var phase := 0.0
+	var smoothed := 0.0
+
+	for i in range(frames):
+		var p := float(i) / float(frames)
+		var fade_in := clampf(p / 0.2, 0.0, 1.0)
+		var fade_out := clampf((1.0 - p) / 0.35, 0.0, 1.0)
+		var envelope := pow(sin(PI * p), 1.35) * fade_in * fade_out
+		var glide := lerpf(start_hz, end_hz, p)
+		var bounce := sin(p * TAU * 2.0 + float(seed)) * 0.04
+		var wobble := sin(p * TAU * 7.0 + float(seed) * 0.7) * 0.012
+		var freq := glide * (1.0 + bounce + wobble)
+		phase += TAU * freq / float(stream.mix_rate)
+
+		var wave := sin(phase)
+		wave += sin(phase * 2.0 + 0.5) * 0.08
+		wave /= 1.08
+		smoothed = lerpf(smoothed, wave, 0.4)
+		var value := int(round(128.0 + smoothed * envelope * 20.0))
+		data.append(int(clamp(value, 0, 255)))
+
+	stream.data = data
+	return stream
+
+
+func _set_voice_for_speaker(speaker: String) -> void:
+	var key := speaker.strip_edges().to_lower()
+	if not _talk_streams.has(key):
+		key = "default"
+	_voice_key = key
+	if not is_instance_valid(talk_sound_timer):
+		return
+	match key:
+		"kid": talk_sound_timer.wait_time = 0.105
+		"mother": talk_sound_timer.wait_time = 0.1
+		_: talk_sound_timer.wait_time = 0.115
+
+
+func _play_talk_blip() -> void:
+	if not is_instance_valid(talk_sound_player) or not is_instance_valid(dialogue_line):
+		return
+	if not dialogue_label.is_typing:
+		return
+
+	var bank: Array = _talk_streams.get(_voice_key, [])
+	if bank.is_empty():
+		return
+
+	_blip_index = (_blip_index + 1) % bank.size()
+	talk_sound_player.stream = bank[_blip_index]
+	talk_sound_player.pitch_scale = randf_range(0.98, 1.12)
+	talk_sound_player.play()
+
+
+## Animate the panel in when the conversation begins
+func _animate_balloon_in() -> void:
+	if not is_instance_valid(panel) or _balloon_entered:
+		return
+
+	_balloon_entered = true
+	panel.pivot_offset = Vector2(0.0, maxf(panel.size.y, 1.0) / 2.0)
+	panel.modulate.a = 0.0
+	panel.scale = Vector2(0.94, 0.94)
+
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
+
+	_panel_tween = create_tween()
+	_panel_tween.set_parallel(true)
+	_panel_tween.tween_property(panel, "modulate:a", 1.0, 0.18)
+	_panel_tween.tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+## Animate the panel out before hiding or freeing the balloon
+func _animate_balloon_out() -> void:
+	if _is_closing:
+		return
+
+	_is_closing = true
+
+	if not is_instance_valid(panel):
+		_finish_close()
+		return
+
+	if _panel_tween and _panel_tween.is_valid():
+		_panel_tween.kill()
+
+	_panel_tween = create_tween()
+	_panel_tween.set_parallel(true)
+	_panel_tween.tween_property(panel, "modulate:a", 0.0, 0.12)
+	_panel_tween.tween_property(panel, "scale", Vector2(0.82, 0.82), 0.12)
+	_panel_tween.chain().tween_callback(_finish_close)
+
+
+func _finish_close() -> void:
+	if is_instance_valid(talk_sound_timer):
+		talk_sound_timer.stop()
+
+	if is_instance_valid(balloon):
+		balloon.hide()
+
+	hide()
+
+	if owner == null:
+		queue_free()
 
 
 #region Signals

@@ -1,0 +1,423 @@
+[gd_scene load_steps=8 format=3 uid="uid://cqmainmenu001"]
+
+[ext_resource type="Script" uid="uid://cqmmenu001" path="res://script/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" uid="uid://0dbqqab4qn1v" path="res://Customizer Assets/Assets/UI Assets/Cozy Pixel House at Night.png" id="2_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.035, 0.055, 0.09, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.85, 0.7, 0.28, 1)
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.11, 0.16, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.62, 0.72, 1)
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.2, 0.38, 0.48, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.86, 0.38, 1)
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.95, 0.7, 0.22, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.95, 0.7, 1)
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
+bg_color = Color(0.12, 0.14, 0.16, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.32, 0.34, 0.8)
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+
+[node name="MainMenu" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_menu")
+
+[node name="Background" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Veil" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.05, 0.09, 0.58)
+
+[node name="GlowA" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.32, 0.62, 0.5)
+
+[node name="GlowB" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.5, 0.16, 0.58, 0.38)
+
+[node name="Stars" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Star1" type="ColorRect" parent="Stars"]
+offset_left = 12.0
+offset_top = 9.0
+offset_right = 13.0
+offset_bottom = 10.0
+mouse_filter = 2
+color = Color(0.85, 0.95, 1, 0.9)
+
+[node name="Star2" type="ColorRect" parent="Stars"]
+offset_left = 38.0
+offset_top = 18.0
+offset_right = 39.0
+offset_bottom = 19.0
+mouse_filter = 2
+color = Color(1, 0.88, 0.55, 0.8)
+
+[node name="Star3" type="ColorRect" parent="Stars"]
+offset_left = 71.0
+offset_top = 7.0
+offset_right = 72.0
+offset_bottom = 8.0
+mouse_filter = 2
+color = Color(0.72, 0.9, 1, 0.85)
+
+[node name="Star4" type="ColorRect" parent="Stars"]
+offset_left = 104.0
+offset_top = 21.0
+offset_right = 105.0
+offset_bottom = 22.0
+mouse_filter = 2
+color = Color(1, 0.82, 0.68, 0.75)
+
+[node name="Star5" type="ColorRect" parent="Stars"]
+offset_left = 126.0
+offset_top = 12.0
+offset_right = 127.0
+offset_bottom = 13.0
+mouse_filter = 2
+color = Color(0.8, 0.96, 1, 0.9)
+
+[node name="Scanlines" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.1)
+
+[node name="Frame" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="Frame"]
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="VBox" type="VBoxContainer" parent="Frame/Margin"]
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="Frame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 11)
+text = "CODEQUEST"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="Subtitle" type="Label" parent="Frame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 5)
+text = "PIXEL ADVENTURE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 5
+theme_override_colors/font_color = Color(0.64, 0.86, 0.9, 1)
+
+[node name="PlayerLabel" type="Label" parent="Frame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 5)
+text = "PLAYER: NO SAVE YET"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 5
+theme_override_colors/font_color = Color(0.62, 0.9, 0.96, 1)
+
+[node name="TitlePage" type="VBoxContainer" parent="Frame/Margin/VBox"]
+theme_override_constants/separation = 1
+
+[node name="NewGameButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "NEW GAME"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="ContinueButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "CONTINUE"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="LoadButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "LOAD GAME"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="ParametersButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "PARAMETERS"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="ControlsButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "CONTROLS"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="QuitButton" type="Button" parent="Frame/Margin/VBox/TitlePage"]
+custom_minimum_size = Vector2(0, 8)
+text = "QUIT"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="LoadPage" type="VBoxContainer" parent="Frame/Margin/VBox"]
+visible = false
+theme_override_constants/separation = 1
+
+[node name="LoadHeading" type="Label" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "LOAD SLOT"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 7
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="AutoButton" type="Button" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "AUTO"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="Slot1Button" type="Button" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 1"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="Slot2Button" type="Button" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 2"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="Slot3Button" type="Button" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 3"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="LoadBackButton" type="Button" parent="Frame/Margin/VBox/LoadPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "BACK"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="ParametersPage" type="VBoxContainer" parent="Frame/Margin/VBox"]
+visible = false
+theme_override_constants/separation = 1
+
+[node name="ParametersHeading" type="Label" parent="Frame/Margin/VBox/ParametersPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "PARAMETERS"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 7
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="ReduceMotionCheck" type="CheckButton" parent="Frame/Margin/VBox/ParametersPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "REDUCE MOTION"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+
+[node name="ShowHintsCheck" type="CheckButton" parent="Frame/Margin/VBox/ParametersPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SHOW HINTS"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+
+[node name="ParametersBackButton" type="Button" parent="Frame/Margin/VBox/ParametersPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "BACK"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="ControlsPage" type="VBoxContainer" parent="Frame/Margin/VBox"]
+visible = false
+theme_override_constants/separation = 1
+
+[node name="ControlsHeading" type="Label" parent="Frame/Margin/VBox/ControlsPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "CONTROLS"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 7
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="ControlsText" type="Label" parent="Frame/Margin/VBox/ControlsPage"]
+custom_minimum_size = Vector2(0, 28)
+text = "MOVE   ARROWS / WASD\nINTERACT   E\nJOURNAL   J\nSKIP   E / ESC"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 5
+theme_override_colors/font_color = Color(0.8, 0.92, 0.96, 1)
+
+[node name="ControlsBackButton" type="Button" parent="Frame/Margin/VBox/ControlsPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "BACK"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="QuitPage" type="VBoxContainer" parent="Frame/Margin/VBox"]
+visible = false
+theme_override_constants/separation = 1
+
+[node name="QuitHeading" type="Label" parent="Frame/Margin/VBox/QuitPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "THANKS FOR PLAYING!"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 7
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="QuitText" type="Label" parent="Frame/Margin/VBox/QuitPage"]
+custom_minimum_size = Vector2(0, 20)
+text = "YOU MAY CLOSE THE TAB\nOR PRESS BACK."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.8, 0.92, 0.96, 1)
+
+[node name="QuitBackButton" type="Button" parent="Frame/Margin/VBox/QuitPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "BACK"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+[node name="StatusLabel" type="Label" parent="Frame/Margin/VBox"]
+custom_minimum_size = Vector2(0, 5)
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 5
+theme_override_colors/font_color = Color(0.56, 0.96, 0.72, 1)

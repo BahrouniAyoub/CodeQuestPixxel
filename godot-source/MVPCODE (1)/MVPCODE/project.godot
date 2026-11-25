@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="mvpcode"
-run/main_scene="uid://4po7g0777ft1"
+run/main_scene="uid://cqmainmenu001"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
@@ -59,10 +59,15 @@ toggle_journal={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":74,"key_label":0,"unicode":106,"location":0,"echo":false,"script":null)
 ]
 }
+toggle_objective={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":88,"key_label":0,"unicode":120,"location":0,"echo":false,"script":null)
+]
+}
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://RESOURSEDIA/.dialogue", "res://RESOURSEDIA/father.dialogue", "res://RESOURSEDIA/father_return.dialogue", "res://RESOURSEDIA/father_post_complete.dialogue", "res://MVPCODE/RESOURSEDIA/.dialogue", "res://MVPCODE/RESOURSEDIA/father.dialogue", "res://MVPCODE/RESOURSEDIA/father_return.dialogue")
+locale/translations_pot_files=PackedStringArray("res://RESOURSEDIA/.dialogue", "res://RESOURSEDIA/father.dialogue", "res://RESOURSEDIA/father_return.dialogue", "res://RESOURSEDIA/father_post_complete.dialogue", "res://RESOURSEDIA/mother.dialogue")
 
 [layer_names]
 

@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { CHAPTER1_QUESTS } from "./chapter1Quests";
 import actionableSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/actionable.gd?raw";
+import bedSaveSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/bed_save.gd?raw";
 import bridgeSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/codequest_bridge.gd?raw";
+import gameSceneSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/Game.tscn?raw";
+import mainMenuSceneSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/main_menu.tscn?raw";
+import mainMenuScriptSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/main_menu.gd?raw";
+import pauseMenuSceneSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/pause_menu.tscn?raw";
+import pauseMenuScriptSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/pause_menu.gd?raw";
+import saveMenuSceneSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/save_menu.tscn?raw";
+import saveMenuScriptSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/save_menu.gd?raw";
 import computerSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/computer_interaction.gd?raw";
 import fatherSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/father.gd?raw";
 import projectSource from "../../../godot-source/MVPCODE (1)/MVPCODE/project.godot?raw";
 import questManagerSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/QuestManager.gd?raw";
+import saveStoreSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/codequest_save_store.gd?raw";
 import stateSyncSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/chapter1_state_sync.gd?raw";
 
 /** Returns the body of one top-level GDScript function. */
@@ -19,10 +28,14 @@ function functionBody(source: string, functionName: string): string {
 
 describe("Godot source contract", () => {
   it("posts the exact CH1-01 and CH1-02 payloads from CodeQuestBridge", () => {
-    expect(bridgeSource).toContain('const INTRO_COMPLETE_EVENT_TYPE := "codequest:chapter1-intro-complete"');
+    expect(bridgeSource).toContain(
+      'const INTRO_COMPLETE_EVENT_TYPE := "codequest:chapter1-intro-complete"',
+    );
     expect(bridgeSource).toContain('const INTRO_DIALOGUE_ID := "father-intro-v1"');
     expect(bridgeSource).toContain('const INTRO_EVENT_ID := "ch1-01-father-dialogue-v1"');
-    expect(bridgeSource).toContain('const COMPUTER_COMPLETE_EVENT_TYPE := "codequest:chapter1-computer-complete"');
+    expect(bridgeSource).toContain(
+      'const COMPUTER_COMPLETE_EVENT_TYPE := "codequest:chapter1-computer-complete"',
+    );
     expect(bridgeSource).toContain('const COMPUTER_DIALOGUE_ID := "computer-interaction-v1"');
     expect(bridgeSource).toContain('const COMPUTER_EVENT_ID := "ch1-02-computer-interaction-v1"');
     expect(functionBody(bridgeSource, "notify_father_intro_completed")).toContain(
@@ -59,9 +72,7 @@ describe("Godot source contract", () => {
     expect(functionBody(actionableSource, "_on_dialogue_closed")).not.toContain(
       "Go to your computer",
     );
-    expect(actionableSource).toContain(
-      "dialogue_balloon.tree_exited.connect(_on_dialogue_closed)",
-    );
+    expect(actionableSource).toContain("dialogue_balloon.tree_exited.connect(_on_dialogue_closed)");
   });
 
   it("emits CH1-02 only inside the real E-key interaction", () => {
@@ -89,9 +100,7 @@ describe("Godot source contract", () => {
     expect(stateSyncSource).toContain("event.origin!==window.location.origin");
     expect(stateSyncSource).toContain("event.source!==window.parent");
     expect(stateSyncSource).toContain("codequest:chapter-state");
-    expect(projectSource).toContain(
-      'CodeQuestStateSync="*res://script/chapter1_state_sync.gd"',
-    );
+    expect(projectSource).toContain('CodeQuestStateSync="*res://script/chapter1_state_sync.gd"');
   });
 
   it("centralizes quest markers in QuestManager with single active target", () => {
@@ -121,5 +130,70 @@ describe("Godot source contract", () => {
     expect(functionBody(actionableSource, "_on_dialogue_ended")).toContain(
       "notify_father_dialogue_completed()",
     );
+  });
+
+  it("starts in a static fullscreen Godot menu backed by Godot save files", () => {
+    expect(projectSource).toContain('run/main_scene="uid://cqmainmenu001"');
+    expect(mainMenuSceneSource).toContain('path="res://script/main_menu.gd"');
+    for (const text of ["NEW GAME", "CONTINUE", "LOAD GAME", "PARAMETERS", "CONTROLS", "QUIT"]) {
+      expect(mainMenuSceneSource).toContain(`text = "${text}"`);
+    }
+    expect(mainMenuScriptSource).toContain("CodeQuestBridge.notify_new_game()");
+    expect(mainMenuScriptSource).toContain('CodeQuestStateSync.request_load("auto")');
+    expect(mainMenuScriptSource).toContain("CodeQuestStateSync.refresh_save_list()");
+    expect(mainMenuScriptSource).not.toContain("func _process(");
+    expect(mainMenuScriptSource).not.toContain("func _animate_in(");
+    expect(mainMenuSceneSource).toContain("anchor_right = 1.0");
+    expect(mainMenuSceneSource).toContain("anchor_bottom = 1.0");
+    expect(mainMenuSceneSource).toContain('text = "PLAYER: NO SAVE YET"');
+    expect(saveStoreSource).toContain('const SAVE_PATH := "user://codequest_saves.json"');
+    expect(saveStoreSource).toContain("static func normalize_character(");
+    expect(saveStoreSource).toContain("static func write_record(");
+  });
+
+  it("opens Godot save slots from E and an Escape pause menu with load and quit", () => {
+    expect(gameSceneSource).toContain('node name="PauseMenu"');
+    expect(gameSceneSource).toContain('node name="SaveMenu"');
+    expect(gameSceneSource).toContain('groups=["save_menu"]');
+    expect(bedSaveSource).toContain('get_tree().get_first_node_in_group("save_menu")');
+    expect(saveMenuSceneSource).toContain('text = "AUTO SAVE"');
+    expect(saveMenuSceneSource).toContain('text = "SLOT 1"');
+    expect(pauseMenuSceneSource).toContain('text = "BACK TO GAME"');
+    expect(pauseMenuSceneSource).toContain('text = "QUIT TO MENU"');
+    expect(pauseMenuScriptSource).toContain("KEY_ESCAPE");
+    expect(pauseMenuScriptSource).toContain("CodeQuestStateSync.request_load(slot)");
+    expect(saveMenuScriptSource).toContain(
+      'CodeQuestBridge.notify_request_state(slot, "Bedroom rest")',
+    );
+    expect(functionBody(bridgeSource, "notify_save_game")).toContain("notify_request_state(slot");
+  });
+
+  it("stores complete Godot saves and restores character and quest state on load", () => {
+    expect(bridgeSource).toContain(
+      'const CHARACTER_SNAPSHOT_EVENT_TYPE := "codequest:character-snapshot"',
+    );
+    expect(bridgeSource).toContain('const REQUEST_STATE_EVENT_TYPE := "codequest:request-state"');
+    expect(bridgeSource).toContain('const STATE_SNAPSHOT_EVENT_TYPE := "codequest:state-snapshot"');
+    expect(bridgeSource).toContain('const LOAD_STATE_EVENT_TYPE := "codequest:load-state"');
+    expect(bridgeSource).toContain('const STATE_COMMIT_EVENT_TYPE := "codequest:state-commit"');
+    expect(functionBody(bridgeSource, "notify_save_game")).toContain("notify_request_state(slot");
+    expect(functionBody(bridgeSource, "notify_request_state")).toContain(
+      'if not OS.has_feature("web"):',
+    );
+    expect(functionBody(bridgeSource, "notify_request_state")).toContain(
+      "CodeQuestStateSync.save_native_state(normalized_slot, reason)",
+    );
+    expect(functionBody(bridgeSource, "notify_new_game")).toContain("reset_native_state()");
+    expect(stateSyncSource).toContain("func save_native_state(");
+    expect(stateSyncSource).toContain("CodeQuestBridge.get_active_quest_snapshot()");
+    expect(stateSyncSource).toContain("CharacterSettings.character_name");
+    expect(stateSyncSource).toContain("CodeQuestSaveStore.write_record(record)");
+    expect(bedSaveSource).toContain('get_tree().get_first_node_in_group("save_menu")');
+    expect(gameSceneSource).toContain('node name="BedSave"');
+    expect(stateSyncSource).toContain("codequest:state-snapshot");
+    expect(stateSyncSource).toContain("codequest:load-state");
+    expect(stateSyncSource).toContain("CodeQuestBridge.apply_chapter_state(chapter_state)");
+    expect(questManagerSource).toContain("func prime_from_snapshot(");
+    expect(questManagerSource).toContain("if not is_instance_valid(marker):");
   });
 });

@@ -1,6 +1,8 @@
 .cq-journal { padding: 16px; overflow: auto; height: 100%; display: flex; flex-direction: column; gap: 14px; color: #e6edf7; }
 .cq-journal-hero h1 { display: flex; align-items: center; gap: 10px; margin: 4px 0 6px; font-size: 22px; color: #f4d47b; }
 .cq-journal-sub { margin: 0 0 12px; color: #9fb2c9; font-size: 13px; }
+.cq-journal-complete-toast { margin: 4px 0 8px; padding: 7px 10px; border: 1px solid #7fd99a; background: rgba(37, 90, 55, 0.9); color: #c7ffd8; font-size: 11px; font-weight: 800; letter-spacing: 0.4px; animation: cq-journal-complete-pop 0.3s ease-out; }
+@keyframes cq-journal-complete-pop { from { opacity: 0; transform: translateY(-5px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .cq-journal-progress-row { display: flex; flex-direction: column; gap: 6px; }
 .cq-journal-progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: #c5d3e3; }
 .cq-journal-progress-meta strong { color: #f4d47b; }

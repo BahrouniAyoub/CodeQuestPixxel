@@ -5,6 +5,7 @@ signal objective_changed(title: String, description: String)
 ## Rich quest snapshot for HUD and journal.
 signal quest_state_changed(snapshot: Dictionary)
 signal journal_open_changed(is_open: bool)
+signal quest_completed(quest_id: String)
 
 const QUEST_MARKER = preload("res://scene/QuestMarker.tscn")
 
@@ -19,6 +20,8 @@ var journal_open := false
 
 var _current_snapshot: Dictionary = {}
 var _marker_retry_left := 0.0
+var _known_completed_ids: Array[String] = []
+var _snapshot_initialized := false
 
 
 func _ready():
@@ -51,6 +54,16 @@ func get_snapshot() -> Dictionary:
 	return _current_snapshot.duplicate(true)
 
 
+func prime_from_snapshot(snapshot: Dictionary) -> void:
+	var raw_ids: Array = snapshot.get("completedQuestIds", [])
+	var ids: Array[String] = []
+	for value in raw_ids:
+		if typeof(value) == TYPE_STRING:
+			ids.append(String(value))
+	_known_completed_ids = ids
+	_snapshot_initialized = true
+
+
 func set_journal_open(is_open: bool) -> void:
 	if journal_open == is_open:
 		return
@@ -64,6 +77,7 @@ func toggle_journal() -> void:
 
 func apply_snapshot(snapshot: Dictionary) -> void:
 	_current_snapshot = snapshot.duplicate(true)
+	_track_completed_quests(snapshot)
 
 	var chapter_complete := bool(snapshot.get("chapterComplete", false))
 	var quest_title := String(snapshot.get("questTitle", ""))
@@ -82,6 +96,23 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 	objective_changed.emit(current_objective, current_description)
 	quest_state_changed.emit(get_snapshot())
 	_apply_marker_for_snapshot(snapshot)
+
+
+func _track_completed_quests(snapshot: Dictionary) -> void:
+	var raw_ids: Array = snapshot.get("completedQuestIds", [])
+	var ids: Array[String] = []
+	for value in raw_ids:
+		if typeof(value) == TYPE_STRING:
+			ids.append(String(value))
+
+	if not _snapshot_initialized:
+		_snapshot_initialized = true
+	else:
+		for quest_id in ids:
+			if not _known_completed_ids.has(quest_id):
+				quest_completed.emit(quest_id)
+
+	_known_completed_ids = ids
 
 
 func _apply_marker_for_snapshot(snapshot: Dictionary) -> bool:
@@ -136,6 +167,8 @@ func set_objective(title: String, description: String):
 func show_marker(target: Node2D, marker_offset: Vector2 = Vector2(0, -60)):
 	if not is_instance_valid(target):
 		return
+	if not is_instance_valid(marker):
+		marker = QUEST_MARKER.instantiate()
 
 	if marker.get_parent():
 		marker.get_parent().remove_child(marker)
@@ -152,7 +185,10 @@ func show_marker(target: Node2D, marker_offset: Vector2 = Vector2(0, -60)):
 
 
 func hide_marker():
-	if is_instance_valid(marker) and marker.get_parent():
+	if not is_instance_valid(marker):
+		current_target = null
+		return
+	if marker.get_parent():
 		marker.get_parent().remove_child(marker)
 
 	marker.visible = false

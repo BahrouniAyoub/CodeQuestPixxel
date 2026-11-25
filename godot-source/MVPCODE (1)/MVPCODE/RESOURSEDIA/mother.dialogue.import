@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://cqmomfun001"
+path="res://.godot/imported/mother.dialogue-c718ac7033f7968c7db96902a0dcf9f1.tres"
+
+[deps]
+
+source_file="res://RESOURSEDIA/mother.dialogue"
+dest_files=["res://.godot/imported/mother.dialogue-c718ac7033f7968c7db96902a0dcf9f1.tres"]
+
+[params]
+
+defaults=true
