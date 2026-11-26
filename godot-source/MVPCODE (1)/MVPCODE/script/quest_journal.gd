@@ -11,8 +11,11 @@ extends CanvasLayer
 @onready var location_label: Label = $Backdrop/Center/Panel/Margin/VBox/Location
 @onready var completed_label: Label = $Backdrop/Center/Panel/Margin/VBox/Completed
 @onready var footer_label: Label = $Backdrop/Center/Panel/Margin/VBox/Footer
+@onready var completion_toast: PanelContainer = $CompletionToast
+@onready var completion_label: Label = $CompletionToast/Label
 
 var _player_blocked_by_journal := false
+var _completion_tween: Tween
 
 
 func _ready() -> void:
@@ -22,6 +25,8 @@ func _ready() -> void:
 	if QuestManager.has_signal("quest_state_changed"):
 		QuestManager.quest_state_changed.connect(_on_quest_state_changed)
 	QuestManager.journal_open_changed.connect(_on_journal_open_changed)
+	if QuestManager.has_signal("quest_completed"):
+		QuestManager.quest_completed.connect(_on_quest_completed)
 	_refresh(QuestManager.get_snapshot())
 
 
@@ -57,6 +62,15 @@ func _setup_style() -> void:
 	location_label.add_theme_color_override("font_color", Color(0.72, 0.80, 0.86, 1.0))
 	completed_label.add_theme_color_override("font_color", Color(0.68, 0.76, 0.66, 1.0))
 	footer_label.add_theme_color_override("font_color", Color(0.65, 0.60, 0.50, 0.95))
+
+	var toast_style := StyleBoxFlat.new()
+	toast_style.bg_color = Color(0.13, 0.20, 0.13, 0.98)
+	toast_style.border_color = Color(0.55, 0.95, 0.62, 1.0)
+	toast_style.set_border_width_all(1)
+	toast_style.set_corner_radius_all(2)
+	toast_style.set_content_margin_all(2)
+	completion_toast.add_theme_stylebox_override("panel", toast_style)
+	completion_label.add_theme_color_override("font_color", Color(0.72, 1.0, 0.76, 1.0))
 
 	for lbl: Label in [title_label, chapter_label, progress_label, mission_title, mission_desc, objective_label, location_label, completed_label, footer_label]:
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -154,6 +168,22 @@ func _refresh(snapshot: Dictionary) -> void:
 
 	completed_label.text = _completed_text(snapshot.get("completedQuests", completed_ids))
 	footer_label.text = "J or Esc to close"
+
+
+func _on_quest_completed(quest_id: String) -> void:
+	_refresh(QuestManager.get_snapshot())
+	completion_label.text = "QUEST COMPLETE  ·  " + _quest_title_for_id(quest_id)
+	completion_toast.visible = true
+	completion_toast.modulate.a = 0.0
+
+	if _completion_tween and _completion_tween.is_valid():
+		_completion_tween.kill()
+
+	_completion_tween = create_tween()
+	_completion_tween.tween_property(completion_toast, "modulate:a", 1.0, 0.18)
+	_completion_tween.tween_interval(2.4)
+	_completion_tween.tween_property(completion_toast, "modulate:a", 0.0, 0.4)
+	_completion_tween.tween_callback(func(): completion_toast.visible = false)
 
 
 func _completed_text(completed: Array) -> String:

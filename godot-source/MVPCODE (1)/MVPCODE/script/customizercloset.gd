@@ -184,4 +184,34 @@ func _process(delta: float) -> void:
 
 # CLOSE WITHOUT LEAVING THE ROOM
 func _close_customizer() -> void:
+	var player_body := body_index
+	var player_skin := skin_index
+	var player_hair_style := hair_style_index
+	var player_hair_color := hair_color_index
+	if player != null:
+		player_body = player.body_index
+		player_skin = player.skin_index
+		player_hair_style = player.hair_style_index
+		player_hair_color = player.hair_color_index
+
+	CharacterSettings.body_index = player_body
+	CharacterSettings.skin_index = player_skin
+	CharacterSettings.hair_style_index = player_hair_style
+	CharacterSettings.hair_color_index = player_hair_color
+	CharacterSettings.top_index = top_index
+	CharacterSettings.bottom_index = bottom_index
+	CharacterSettings.feet_index = feet_index
+
+	CodeQuestBridge.notify_character_snapshot(
+		CodeQuestBridge.make_character_snapshot(
+			CharacterSettings.character_name,
+			player_body,
+			player_skin,
+			player_hair_style,
+			player_hair_color,
+			top_index,
+			bottom_index,
+			feet_index
+		)
+	)
 	hide()

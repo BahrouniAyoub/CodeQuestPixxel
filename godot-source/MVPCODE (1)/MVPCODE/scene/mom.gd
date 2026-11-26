@@ -10,7 +10,7 @@ enum State { IDLE, WALK, BUSY }
 ## Optional global-space floor rectangle. Leave size at 0 to disable.
 @export var walk_bounds := Rect2()
 @export_range(0.0, 1.0) var spot_chance := 0.35
-
+var can_move: bool = true
 @export_group("Walls")
 @export_flags_2d_physics var wall_mask := 1
 @export var foot_radius := 6.0

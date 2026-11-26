@@ -2,45 +2,68 @@
 
 [ext_resource type="Script" uid="uid://tqesdos0780c" path="res://objective_ui.gd" id="1_tco3q"]
 
-[node name="ObjectiveUI" type="CanvasLayer"]
+[node name="ObjectiveUI" type="CanvasLayer" unique_id=1239387549]
 script = ExtResource("1_tco3q")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 74.0
-offset_bottom = 34.0
-mouse_filter = 2
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=42668536]
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 84.0
+offset_bottom = 30.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 1
 
-[node name="Margin" type="MarginContainer" parent="PanelContainer"]
+[node name="Margin" type="MarginContainer" parent="PanelContainer" unique_id=1642067150]
 layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_top = 1
-theme_override_constants/margin_right = 2
-theme_override_constants/margin_bottom = 1
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 2
 
-[node name="VBox" type="VBoxContainer" parent="PanelContainer/Margin"]
+[node name="VBox" type="VBoxContainer" parent="PanelContainer/Margin" unique_id=707182869]
 layout_mode = 2
-mouse_filter = 2
 theme_override_constants/separation = 0
 
-[node name="ChapterLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="PanelContainer/Margin/VBox" unique_id=66443184]
 layout_mode = 2
-text = "CHAPTER 1"
+theme_override_constants/separation = 2
+
+[node name="ChapterLabel" type="Label" parent="PanelContainer/Margin/VBox/Header" unique_id=2124357539]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+text = "OBJECTIVE"
 uppercase = true
 
-[node name="TitleLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+[node name="HintLabel" type="Label" parent="PanelContainer/Margin/VBox/Header" unique_id=1448921937]
 layout_mode = 2
-text = "Quest Title"
-autowrap_mode = 2
+mouse_filter = 1
+horizontal_alignment = 2
 
-[node name="ObjectiveLabel" type="Label" parent="PanelContainer/Margin/VBox"]
+[node name="CloseButton" type="Button" parent="PanelContainer/Margin/VBox/Header" unique_id=1067329178]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+text = "X"
+flat = true
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/Margin/VBox" unique_id=1745213712]
+layout_mode = 2
+mouse_filter = 1
+text = "Quest Title"
+clip_text = true
+
+[node name="ObjectiveLabel" type="Label" parent="PanelContainer/Margin/VBox" unique_id=143599764]
 layout_mode = 2
 text = "Objective"
 autowrap_mode = 2
 
-[node name="HintLabel" type="Label" parent="PanelContainer/Margin/VBox"]
-layout_mode = 2
-text = "J · Journal"
-horizontal_alignment = 2
+[node name="OpenTab" type="Button" parent="." unique_id=1483415530]
+unique_name_in_owner = true
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 46.0
+offset_bottom = 18.0
+mouse_filter = 1
+text = "> QUEST"

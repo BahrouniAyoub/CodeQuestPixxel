@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { BookOpen, CheckCircle2, MapPin, ScrollText, Target } from "lucide-react";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
 import { getCurrentChapter1Quest } from "@/features/chapter1/chapter1Progress";
@@ -20,13 +21,34 @@ export function QuestJournalApp() {
   const completedCount = progress.completedQuestIds.length;
   const total = CHAPTER1_QUESTS.length;
   const percent = Math.round((completedCount / total) * 100);
+  const [completionNotice, setCompletionNotice] = useState<string | null>(null);
+  const previousCompleted = useRef<string[] | null>(null);
+
+  useEffect(() => {
+    const ids = progress.completedQuestIds;
+    if (previousCompleted.current === null) {
+      previousCompleted.current = [...ids];
+      return;
+    }
+    const previous = previousCompleted.current;
+    const added = ids.filter((id) => !previous.includes(id));
+    previousCompleted.current = [...ids];
+    if (added.length === 0) return;
+    const questId = added[added.length - 1];
+    const quest = CHAPTER1_QUESTS.find((entry) => entry.id === questId);
+    setCompletionNotice(`QUEST COMPLETE · ${quest?.title ?? questId}`);
+    const timeout = window.setTimeout(() => setCompletionNotice(null), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [progress.completedQuestIds]);
 
   if (loading || !hydrated) {
     return (
       <div className="cq-app cq-journal">
         <div className="cq-section-card">
           <div className="cq-eyebrow">QUEST JOURNAL</div>
-          <h2><BookOpen size={20} /> Loading journal…</h2>
+          <h2>
+            <BookOpen size={20} /> Loading journal…
+          </h2>
         </div>
       </div>
     );
@@ -36,7 +58,14 @@ export function QuestJournalApp() {
     <div className="cq-app cq-journal">
       <div className="cq-journal-hero cq-section-card">
         <div className="cq-eyebrow">QUEST JOURNAL</div>
-        <h1><ScrollText size={24} /> {CHAPTER1_TITLE}</h1>
+        {completionNotice ? (
+          <div className="cq-journal-complete-toast" role="status">
+            {completionNotice}
+          </div>
+        ) : null}
+        <h1>
+          <ScrollText size={24} /> {CHAPTER1_TITLE}
+        </h1>
         <p className="cq-journal-sub">
           {currentQuest
             ? "Track your current mission and see how far you've come."
@@ -45,13 +74,25 @@ export function QuestJournalApp() {
         <div className="cq-journal-progress-row">
           <div className="cq-journal-progress-meta">
             <span>Chapter progress</span>
-            <strong>{completedCount}/{total} quests</strong>
+            <strong>
+              {completedCount}/{total} quests
+            </strong>
           </div>
-          <div className="cq-progress-bar" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+          <div
+            className="cq-progress-bar"
+            role="progressbar"
+            aria-valuenow={percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
             <div className="cq-progress-bar-fill" style={{ width: `${percent}%` }} />
           </div>
         </div>
-        {error ? <div className="cq-journal-error" role="status">{error}</div> : null}
+        {error ? (
+          <div className="cq-journal-error" role="status">
+            {error}
+          </div>
+        ) : null}
       </div>
 
       <div className="cq-section-card cq-journal-current">
@@ -96,7 +137,10 @@ export function QuestJournalApp() {
             const done = progress.completedQuestIds.includes(quest.id);
             const active = currentQuest?.id === quest.id;
             return (
-              <li key={quest.id} className={`cq-journal-item ${done ? "is-done" : ""} ${active ? "is-active" : ""}`}>
+              <li
+                key={quest.id}
+                className={`cq-journal-item ${done ? "is-done" : ""} ${active ? "is-active" : ""}`}
+              >
                 <div className="cq-journal-item-status" aria-hidden="true">
                   {done ? <CheckCircle2 size={15} /> : <span className="cq-journal-dot" />}
                 </div>

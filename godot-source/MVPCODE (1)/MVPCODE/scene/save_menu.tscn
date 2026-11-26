@@ -1,0 +1,137 @@
+[gd_scene format=3 uid="uid://cqsavemenu01"]
+
+[ext_resource type="Script" uid="uid://cqsvmenu001" path="res://script/save_menu.gd" id="1_save"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.035, 0.055, 0.09, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.82, 1, 1)
+content_margin_left = 4.0
+content_margin_top = 3.0
+content_margin_right = 4.0
+content_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.1, 0.16, 0.24, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.6, 0.78, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.16, 0.34, 0.46, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.86, 0.38, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+bg_color = Color(0.95, 0.7, 0.22, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.95, 0.7, 1)
+
+[node name="SaveMenu" type="CanvasLayer"]
+process_mode = 4
+layer = 60
+script = ExtResource("1_save")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.02, 0.05, 0.86)
+
+[node name="Panel" type="PanelContainer" parent="Dim"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -62.0
+offset_top = -44.0
+offset_right = 62.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="Dim/Panel"]
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 3
+
+[node name="VBox" type="VBoxContainer" parent="Dim/Panel/Margin"]
+theme_override_constants/separation = 1
+
+[node name="StatusLabel" type="Label" parent="Dim/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 8)
+text = "Choose a slot to save"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 7
+theme_override_colors/font_color = Color(1, 0.85, 0.35, 1)
+
+[node name="NameLabel" type="Label" parent="Dim/Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 6)
+text = "PLAYER: PLAYER"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 5
+theme_override_colors/font_color = Color(0.62, 0.9, 0.96, 1)
+
+[node name="SlotPage" type="VBoxContainer" parent="Dim/Panel/Margin/VBox"]
+theme_override_constants/separation = 1
+
+[node name="AutoButton" type="Button" parent="Dim/Panel/Margin/VBox/SlotPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "AUTO SAVE"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+
+[node name="Slot1Button" type="Button" parent="Dim/Panel/Margin/VBox/SlotPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 1"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+
+[node name="Slot2Button" type="Button" parent="Dim/Panel/Margin/VBox/SlotPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 2"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+
+[node name="Slot3Button" type="Button" parent="Dim/Panel/Margin/VBox/SlotPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "SLOT 3"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+
+[node name="BackButton" type="Button" parent="Dim/Panel/Margin/VBox/SlotPage"]
+custom_minimum_size = Vector2(0, 8)
+text = "BACK"
+theme_override_font_sizes/font_size = 6
+theme_override_colors/font_color = Color(0.94, 0.96, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")

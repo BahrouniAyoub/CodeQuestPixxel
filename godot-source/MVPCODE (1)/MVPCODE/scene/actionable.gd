@@ -12,6 +12,7 @@ extends Area2D
 @export var post_complete_dialogue_resource: DialogueResource
 @export var post_complete_dialogue_start: String = "start"
 @export var prompt_label: Label
+@export var friendly_dialogue: bool = false
 
 @export var player: CharacterBody2D
 @export var npc: Node2D
@@ -23,6 +24,7 @@ var _return_event_sent := false
 var _using_intro_dialogue := false
 var _intro_event_sent := false
 var _using_post_complete_dialogue := false
+var _using_friendly_dialogue := false
 
 
 func _ready() -> void:
@@ -33,11 +35,30 @@ func _ready() -> void:
 		prompt_label.hide()
 
 
+func _can_talk_now() -> bool:
+	if QuestManager.journal_open:
+		return false
+
+	if friendly_dialogue:
+		return dialogue_resource != null
+
+	var chapter_complete := CodeQuestBridge.is_chapter_complete()
+	var quest_id := CodeQuestBridge.get_chapter_quest_id()
+
+	if chapter_complete:
+		return post_complete_dialogue_resource != null
+
+	if completion_quest_id == CodeQuestBridge.CH1_08_QUEST_ID and quest_id == CodeQuestBridge.CH1_08_QUEST_ID:
+		return return_dialogue_resource != null
+
+	return quest_id == CodeQuestBridge.CH1_01_QUEST_ID and dialogue_resource != null
+
+
 func _on_body_entered(body: Node2D) -> void:
 	if body is CharacterBody2D:
 		player_nearby = true
 		if prompt_label:
-			prompt_label.show()
+			prompt_label.visible = _can_talk_now()
 
 
 func _on_body_exited(body: Node2D) -> void:
@@ -57,23 +78,31 @@ func action() -> void:
 		_close_dialogue()
 		return
 
+	if not _can_talk_now():
+		return
+
 	var chapter_complete := CodeQuestBridge.is_chapter_complete()
 	var quest_id := CodeQuestBridge.get_chapter_quest_id()
 
+	_using_friendly_dialogue = friendly_dialogue
 	_using_return_dialogue = (
-		not chapter_complete
+		not friendly_dialogue
+		and not chapter_complete
 		and completion_quest_id == CodeQuestBridge.CH1_08_QUEST_ID
 		and return_dialogue_resource != null
 		and quest_id == CodeQuestBridge.CH1_08_QUEST_ID
 	)
 	_using_intro_dialogue = (
-		not chapter_complete
+		not friendly_dialogue
+		and not chapter_complete
 		and not _using_return_dialogue
 		and dialogue_resource != null
 		and quest_id == CodeQuestBridge.CH1_01_QUEST_ID
 	)
 	_using_post_complete_dialogue = (
-		not _using_return_dialogue
+		not friendly_dialogue
+		and chapter_complete
+		and not _using_return_dialogue
 		and not _using_intro_dialogue
 		and post_complete_dialogue_resource != null
 	)
@@ -86,9 +115,7 @@ func action() -> void:
 	elif _using_post_complete_dialogue:
 		chosen_resource = post_complete_dialogue_resource
 		chosen_start = post_complete_dialogue_start
-	elif not _using_intro_dialogue:
-		# No quest dialogue applies (e.g. CH1-02..CH1-07) and no friendly fallback
-		# was configured. Do not replay the intro dialogue.
+	elif not _using_intro_dialogue and not _using_friendly_dialogue:
 		return
 
 	if chosen_resource == null:
@@ -122,6 +149,7 @@ func _on_dialogue_ended(resource: DialogueResource) -> void:
 			return
 		_return_event_sent = true
 		CodeQuestBridge.notify_father_dialogue_completed()
+		_refresh_mirror_after_completion(true)
 		return
 
 	if _using_intro_dialogue:
@@ -132,6 +160,19 @@ func _on_dialogue_ended(resource: DialogueResource) -> void:
 			return
 		_intro_event_sent = true
 		CodeQuestBridge.notify_father_intro_completed()
+		_refresh_mirror_after_completion(false)
+
+
+func _refresh_mirror_after_completion(wait_for_chapter_complete: bool) -> void:
+	for i in 10:
+		await get_tree().create_timer(0.25).timeout
+		CodeQuestStateSync.refresh_from_mirror()
+		var snapshot := CodeQuestBridge.get_active_quest_snapshot()
+		if wait_for_chapter_complete:
+			if bool(snapshot.get("chapterComplete", false)):
+				return
+		elif String(snapshot.get("questId", "")) != CodeQuestBridge.CH1_01_QUEST_ID:
+			return
 
 
 func _close_dialogue() -> void:
@@ -142,9 +183,10 @@ func _close_dialogue() -> void:
 	_using_return_dialogue = false
 	_using_intro_dialogue = false
 	_using_post_complete_dialogue = false
+	_using_friendly_dialogue = false
 	set_characters_movement(true)
 	if prompt_label and player_nearby:
-		prompt_label.show()
+		prompt_label.visible = _can_talk_now()
 
 
 func _disconnect_dialogue_ended() -> void:
@@ -167,6 +209,7 @@ func _on_dialogue_closed() -> void:
 	_using_return_dialogue = false
 	_using_intro_dialogue = false
 	_using_post_complete_dialogue = false
+	_using_friendly_dialogue = false
 	dialogue_balloon = null
 	set_characters_movement(true)
 
@@ -176,4 +219,4 @@ func _on_dialogue_closed() -> void:
 		CodeQuestStateSync.refresh_from_mirror()
 
 	if prompt_label and player_nearby:
-		prompt_label.show()
+		prompt_label.visible = _can_talk_now()

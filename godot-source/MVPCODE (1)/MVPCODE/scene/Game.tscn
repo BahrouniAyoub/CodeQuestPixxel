@@ -17,6 +17,7 @@
 
 [ext_resource type="Resource" uid="uid://bf5615g16mctj" path="res://RESOURSEDIA/father_return.dialogue" id="12_frturn"]
 [ext_resource type="Resource" uid="uid://cq8fathpost01" path="res://RESOURSEDIA/father_post_complete.dialogue" id="12_fpost"]
+[ext_resource type="Resource" uid="uid://cqmomfun001" path="res://RESOURSEDIA/mother.dialogue" id="12_momfun"]
 [ext_resource type="Texture2D" uid="uid://ccqmdlw0363xe" path="res://assests/inter/Guitare.png" id="11_r3aus"]
 [ext_resource type="Script" uid="uid://bkahxy70fi2au" path="res://script/poop.gd" id="12_64o46"]
 [ext_resource type="AudioStream" uid="uid://whr7jqbw4arg" path="res://music/Billie Jean - Michael Jackson Fingerstyle Guitar TAB + Chords + Lyrics (mp3cut.net).mp3" id="13_563h6"]
@@ -43,6 +44,9 @@
 [ext_resource type="AudioStream" uid="uid://66aj0t3yhq45" path="res://music/Enregistrement 2026-11-08 130144.mp3" id="38_spa6w"]
 [ext_resource type="PackedScene" uid="uid://dqybl30bla2bl" path="res://objective_ui.tscn" id="39_iegxr"]
 [ext_resource type="PackedScene" uid="uid://cqjournal001" path="res://scene/quest_journal.tscn" id="40_qjrnl"]
+[ext_resource type="Script" uid="uid://cqbedsave001a" path="res://script/bed_save.gd" id="41_bedsv"]
+[ext_resource type="PackedScene" uid="uid://cqpausemenu1" path="res://scene/pause_menu.tscn" id="42_pause"]
+[ext_resource type="PackedScene" uid="uid://cqsavemenu01" path="res://scene/save_menu.tscn" id="43_save"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3mrqo"]
 texture = ExtResource("1_r0x5m")
@@ -963,6 +967,9 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bedsave"]
+size = Vector2(64, 48)
+
 [node name="Game" type="Node2D" unique_id=1933434340]
 
 [node name="Room" type="Node2D" parent="." unique_id=1202221913]
@@ -1096,6 +1103,24 @@ position = Vector2(6.0000305, 4.9999847)
 scale = Vector2(2.6249986, 2.46875)
 sprite_frames = SubResource("SpriteFrames_edxlu")
 animation = &"idle_up"
+
+[node name="Actionable" parent="mom" unique_id=2083471064 node_paths=PackedStringArray("player", "npc", "prompt_label") instance=ExtResource("10_g1aoe")]
+position = Vector2(8, 10)
+dialogue_resource = ExtResource("12_momfun")
+friendly_dialogue = true
+player = NodePath("../../Player")
+npc = NodePath("..")
+prompt_label = NodePath("Prompt")
+
+[node name="Prompt" type="Label" parent="mom/Actionable"]
+visible = false
+offset_left = -46.0
+offset_top = -54.0
+offset_right = 46.0
+offset_bottom = -36.0
+text = "Press E to Talk"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_lrqgo")
 
 [node name="father" type="Node2D" parent="." unique_id=931193538]
 position = Vector2(320, 129)
@@ -1417,6 +1442,26 @@ panning_strength = 15.11
 
 [node name="QuestJournal" parent="." unique_id=581299113 instance=ExtResource("40_qjrnl")]
 
+[node name="BedSave" type="Area2D" parent="." unique_id=581299114]
+position = Vector2(-410, -250)
+script = ExtResource("41_bedsv")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BedSave" unique_id=581299115]
+shape = SubResource("RectangleShape2D_bedsave")
+
+[node name="Label" type="Label" parent="BedSave" unique_id=581299116]
+offset_left = -104.0
+offset_top = -112.0
+offset_right = 104.0
+offset_bottom = -92.0
+text = "Press E to Rest & Save"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_lrqgo")
+
+[node name="PauseMenu" parent="." unique_id=581299117 instance=ExtResource("42_pause")]
+
+[node name="SaveMenu" parent="." unique_id=581299118 groups=["save_menu"] instance=ExtResource("43_save")]
+
 [connection signal="body_entered" from="screen/Area2D" to="screen" method="_on_area_2d_body_entered"]
 [connection signal="body_exited" from="screen/Area2D" to="screen" method="_on_area_2d_body_exited"]
 [connection signal="body_entered" from="closet/Area2D" to="closet/Area2D" method="_on_body_entered"]
@@ -1431,3 +1476,5 @@ panning_strength = 15.11
 [connection signal="body_exited" from="shower/Area2D" to="shower/Area2D" method="_on_body_exited"]
 [connection signal="body_entered" from="fridge/Area2D" to="fridge/Area2D" method="_on_body_entered"]
 [connection signal="body_exited" from="fridge/Area2D" to="fridge/Area2D" method="_on_body_exited"]
+[connection signal="body_entered" from="BedSave" to="BedSave" method="_on_body_entered"]
+[connection signal="body_exited" from="BedSave" to="BedSave" method="_on_body_exited"]

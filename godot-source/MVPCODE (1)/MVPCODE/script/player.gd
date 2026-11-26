@@ -279,8 +279,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# Keep interaction available so E can also close the dialogue.
-	if Input.is_action_just_pressed(interaction_action):
+	if Input.is_action_just_pressed(interaction_action) and not _dialogue_is_open():
 		interact_with_nearby_actionable()
 
 	# Freeze movement and animation while dialogue is active.
@@ -1294,8 +1293,17 @@ func create_shadow() -> void:
 # =============================================================================
 # INTERACTION / DIALOGUE
 # =============================================================================
+func _dialogue_is_open() -> bool:
+	for node in get_tree().get_nodes_in_group("dialogue_actionable"):
+		if is_instance_valid(node) and is_instance_valid(node.get("dialogue_balloon")):
+			return true
+	return false
+
+
 func interact_with_nearby_actionable() -> void:
 	if QuestManager.journal_open:
+		return
+	if _dialogue_is_open():
 		return
 	if player_collision == null or player_collision.shape == null:
 		push_warning("Player CollisionShape2D or its Shape2D is missing.")

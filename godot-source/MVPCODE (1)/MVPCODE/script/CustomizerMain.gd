@@ -211,4 +211,17 @@ func create_character() -> void:
 
 	CharacterSettings.character_name = name_edit.text.strip_edges()
 
+	CodeQuestBridge.notify_character_snapshot(
+		CodeQuestBridge.make_character_snapshot(
+			CharacterSettings.character_name,
+			body_index,
+			skin_index,
+			hair_style_index,
+			hair_color_index,
+			top_index,
+			bottom_index,
+			feet_index
+		)
+	)
+
 	get_tree().change_scene_to_file("res://scene/Game.tscn")
