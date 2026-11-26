@@ -1,40 +1,45 @@
 [gd_scene format=3 uid="uid://cl0fgdbic2ent"]
 
 [ext_resource type="Script" uid="uid://chpl5n4rfs65c" path="res://script/customizercloset.gd" id="1_apkw4"]
-[ext_resource type="Texture2D" uid="uid://c6jp15dbouw23" path="res://Customizer Assets/Assets/UI Assets/Customizer BG.png" id="2_or0xo"]
 [ext_resource type="Texture2D" uid="uid://b6sm44smu7007" path="res://Customizer Assets/Assets/UI Assets/BG Selector.png" id="3_0ydbm"]
 [ext_resource type="Texture2D" uid="uid://d4akicksk82el" path="res://Customizer Assets/Assets/UI Assets/Basic Textbox.png" id="4_ujuau"]
 [ext_resource type="FontFile" uid="uid://64xm6t5fxphb" path="res://Customizer Assets/Assets/UI Assets/pixel.ttf" id="5_n7m25"]
 [ext_resource type="Texture2D" uid="uid://bkvv04s40u1ei" path="res://Customizer Assets/Assets/UI Assets/Basic Buttons-Sheet.png" id="6_4pg0s"]
-[ext_resource type="Texture2D" uid="uid://0qwl7s2adbo5" path="res://Customizer Assets/Assets/UI Assets/export button.png" id="7_f4gcm"]
+
+[sub_resource type="Theme" id="Theme_3yu6r"]
+default_font = ExtResource("5_n7m25")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
+bg_color = Color(0.035, 0.055, 0.09, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.82, 1, 1)
+shadow_color = Color(0, 0, 0, 0.65)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+bg_color = Color(0.11, 0.08, 0.2, 1)
+border_width_bottom = 1
+border_color = Color(0.4, 0.82, 1, 0.55)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_43nsc"]
 texture = ExtResource("3_0ydbm")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_preview"]
+bg_color = Color(0.02, 0.03, 0.07, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.75, 1, 0.5)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3w67i"]
 content_margin_left = 10.0
 content_margin_top = 5.0
 content_margin_right = 10.0
 texture = ExtResource("4_ujuau")
-
-[sub_resource type="Theme" id="Theme_3yu6r"]
-default_font = ExtResource("5_n7m25")
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_t0ibe"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(0, 48, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ogboj"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(48, 48, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3armh"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(16, 48, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_s3w5q"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(64, 48, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_oxjvg"]
 atlas = ExtResource("6_4pg0s")
@@ -52,14 +57,6 @@ region = Rect2(16, 0, 16, 16)
 atlas = ExtResource("6_4pg0s")
 region = Rect2(64, 0, 16, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_rw8jj"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(0, 208, 48, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_j0aus"]
-atlas = ExtResource("6_4pg0s")
-region = Rect2(48, 208, 48, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_5nyo0"]
 atlas = ExtResource("6_4pg0s")
 region = Rect2(0, 192, 48, 16)
@@ -68,316 +65,274 @@ region = Rect2(0, 192, 48, 16)
 atlas = ExtResource("6_4pg0s")
 region = Rect2(48, 192, 48, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_xcg82"]
-atlas = ExtResource("7_f4gcm")
-region = Rect2(0, 0, 48, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_rw8jj"]
+atlas = ExtResource("6_4pg0s")
+region = Rect2(0, 208, 48, 16)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_3dyni"]
-atlas = ExtResource("7_f4gcm")
-region = Rect2(48, 0, 48, 16)
+[sub_resource type="AtlasTexture" id="AtlasTexture_j0aus"]
+atlas = ExtResource("6_4pg0s")
+region = Rect2(48, 208, 48, 16)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.07, 0.16, 0.28, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.82, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.25, 0.55, 0.75, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.13, 0.3, 0.45, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7, 0.95, 1, 1)
 
 [node name="Customizer" type="Control" unique_id=220988393]
 layout_mode = 3
 anchors_preset = 0
+theme = SubResource("Theme_3yu6r")
 script = ExtResource("1_apkw4")
 
-[node name="Background" type="TextureRect" parent="." unique_id=1652701120]
-modulate = Color(0.56078434, 0.5019608, 0.8392157, 1)
+[node name="Dim" type="ColorRect" parent="." unique_id=1028709181]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-texture = ExtResource("2_or0xo")
+offset_right = 223.0
+offset_bottom = 158.0
+mouse_filter = 2
+color = Color(0.01, 0.02, 0.05, 0.72)
 
-[node name="PreviewWindow" type="Panel" parent="." unique_id=98925832]
+[node name="Window" type="Panel" parent="." unique_id=550110696]
 layout_mode = 0
-offset_left = 52.0
-offset_top = 7.0
-offset_right = 92.0
-offset_bottom = 47.0
+offset_left = 1.0
+offset_top = 2.0
+offset_right = 223.0
+offset_bottom = 157.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_window")
+
+[node name="Header" type="Panel" parent="." unique_id=672918279]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 1.0
+offset_right = 221.0
+offset_bottom = 38.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1627949259]
+layout_mode = 0
+offset_left = 19.0
+offset_top = 27.0
+offset_right = 101.0
+offset_bottom = 39.0
+theme_override_colors/font_color = Color(0.55, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "changing.."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HintLabel" type="Label" parent="." unique_id=1013593769]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 15.0
+offset_right = 209.0
+offset_bottom = 35.0
+theme_override_colors/font_color = Color(0.5, 0.68, 0.82, 1)
+theme_override_font_sizes/font_size = 6
+text = "E CLOSE"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PreviewWindow" type="Panel" parent="." unique_id=740057238]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 47.0
+offset_right = 104.0
+offset_bottom = 110.0
 theme_override_styles/panel = SubResource("StyleBoxTexture_43nsc")
 
-[node name="CharacterPreview" type="Node2D" parent="." unique_id=189958320]
-position = Vector2(72, 29)
+[node name="PreviewInner" type="Panel" parent="." unique_id=710880629]
+layout_mode = 0
+offset_left = 33.0
+offset_top = 48.0
+offset_right = 103.0
+offset_bottom = 110.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_preview")
 
-[node name="Body" type="Sprite2D" parent="CharacterPreview" unique_id=1855982832]
+[node name="CharacterPreview" type="Node2D" parent="." unique_id=1396518258]
+position = Vector2(68, 80)
+scale = Vector2(1.2, 1.2)
 
-[node name="Bottom" type="Sprite2D" parent="CharacterPreview" unique_id=1569094639]
+[node name="Body" type="Sprite2D" parent="CharacterPreview" unique_id=1214683260]
 
-[node name="Top" type="Sprite2D" parent="CharacterPreview" unique_id=480990768]
+[node name="Bottom" type="Sprite2D" parent="CharacterPreview" unique_id=1364947824]
 
-[node name="Feet" type="Sprite2D" parent="CharacterPreview" unique_id=1967301232]
+[node name="Top" type="Sprite2D" parent="CharacterPreview" unique_id=1344797257]
 
-[node name="Hair" type="Sprite2D" parent="CharacterPreview" unique_id=1106517267]
+[node name="Feet" type="Sprite2D" parent="CharacterPreview" unique_id=773933394]
 
-[node name="NameLabel" type="Label" parent="." unique_id=769117324]
+[node name="Hair" type="Sprite2D" parent="CharacterPreview" unique_id=294320219]
+
+[node name="NameLabel" type="Label" parent="." unique_id=166317889]
 visible = false
 layout_mode = 0
 offset_left = 62.0
 offset_top = 6.0
 offset_right = 109.0
 offset_bottom = 29.0
-scale = Vector2(0.5, 0.5)
 theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
 theme_override_font_sizes/font_size = 11
 text = "Name"
 
-[node name="NameEdit" type="LineEdit" parent="." unique_id=1218509152]
+[node name="NameEdit" type="LineEdit" parent="." unique_id=942939235]
 visible = false
 layout_mode = 0
 offset_left = 81.0
 offset_top = 3.0
 offset_right = 210.37
 offset_bottom = 27.0
-scale = Vector2(0.46, 0.46)
 theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
 theme_override_styles/normal = SubResource("StyleBoxTexture_3w67i")
 
-[node name="BodyLabel" type="Label" parent="." unique_id=500371732]
-visible = false
+[node name="TopLabel" type="Label" parent="." unique_id=940119634]
 layout_mode = 0
-offset_left = 7.0
-offset_top = 66.0
-offset_right = 47.0
-offset_bottom = 89.0
-scale = Vector2(0.5, 0.5)
-theme = SubResource("Theme_3yu6r")
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Body"
+offset_left = 153.0
+offset_top = 51.0
+offset_right = 177.0
+offset_bottom = 63.0
+theme_override_colors/font_color = Color(0.78, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "TOP"
+vertical_alignment = 1
 
-[node name="BodyAButton" type="TextureButton" parent="." unique_id=1440128346]
-visible = false
+[node name="TopPrev" type="TextureButton" parent="." unique_id=114721008]
 layout_mode = 0
-offset_left = 29.000002
-offset_top = 62.0
-offset_right = 45.0
-offset_bottom = 78.0
-scale = Vector2(0.8, 0.8)
-texture_normal = SubResource("AtlasTexture_t0ibe")
-texture_pressed = SubResource("AtlasTexture_ogboj")
-
-[node name="BodyBButton" type="TextureButton" parent="." unique_id=886346250]
-visible = false
-layout_mode = 0
-offset_left = 42.000004
-offset_top = 62.0
-offset_right = 58.000004
-offset_bottom = 78.0
-scale = Vector2(0.8, 0.8)
-texture_normal = SubResource("AtlasTexture_3armh")
-texture_pressed = SubResource("AtlasTexture_s3w5q")
-
-[node name="HairstyleLabel" type="Label" parent="." unique_id=195798666]
-visible = false
-layout_mode = 0
-offset_left = 73.0
-offset_top = 19.0
-offset_right = 143.0
-offset_bottom = 42.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Hairstyle"
-
-[node name="HairstylePrev" type="TextureButton" parent="." unique_id=1812791516]
-visible = false
-layout_mode = 0
-offset_left = 107.0
-offset_top = 14.0
-offset_right = 123.0
-offset_bottom = 30.0
+offset_left = 181.0
+offset_top = 48.0
+offset_right = 197.0
+offset_bottom = 64.0
 texture_normal = SubResource("AtlasTexture_oxjvg")
 texture_pressed = SubResource("AtlasTexture_3yu6r")
 
-[node name="HairstyleNext" type="TextureButton" parent="." unique_id=491121881]
-visible = false
+[node name="TopNext" type="TextureButton" parent="." unique_id=667033162]
 layout_mode = 0
-offset_left = 124.0
-offset_top = 14.0
-offset_right = 140.0
-offset_bottom = 30.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="HaircolorLabel" type="Label" parent="." unique_id=1089058925]
-visible = false
-layout_mode = 0
-offset_left = 73.0
-offset_top = 32.0
-offset_right = 144.0
-offset_bottom = 55.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Haircolor"
-
-[node name="HaircolorPrev" type="TextureButton" parent="." unique_id=140939740]
-visible = false
-layout_mode = 0
-offset_left = 107.0
-offset_top = 27.0
-offset_right = 123.0
-offset_bottom = 43.0
-texture_normal = SubResource("AtlasTexture_oxjvg")
-texture_pressed = SubResource("AtlasTexture_3yu6r")
-
-[node name="HaircolorNext" type="TextureButton" parent="." unique_id=630317157]
-visible = false
-layout_mode = 0
-offset_left = 124.0
-offset_top = 27.0
-offset_right = 140.0
-offset_bottom = 43.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="TopLabel" type="Label" parent="." unique_id=1224433281]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 50.0
-offset_right = 111.0
-offset_bottom = 73.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Top"
-
-[node name="TopPrev" type="TextureButton" parent="." unique_id=1371190937]
-layout_mode = 0
-offset_left = 53.0
-offset_top = 45.0
-offset_right = 69.0
-offset_bottom = 61.0
-texture_normal = SubResource("AtlasTexture_oxjvg")
-texture_pressed = SubResource("AtlasTexture_3yu6r")
-
-[node name="TopNext" type="TextureButton" parent="." unique_id=2006013395]
-layout_mode = 0
-offset_left = 64.0
-offset_top = 45.0
-offset_right = 80.0
-offset_bottom = 61.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="BottomLabel" type="Label" parent="." unique_id=79146320]
-layout_mode = 0
-offset_left = 33.0
-offset_top = 61.0
-offset_right = 104.0
-offset_bottom = 84.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Bottom"
-
-[node name="BottomPrev" type="TextureButton" parent="." unique_id=1248436069]
-layout_mode = 0
-offset_left = 53.0
-offset_top = 56.0
-offset_right = 69.0
-offset_bottom = 72.0
-texture_normal = SubResource("AtlasTexture_oxjvg")
-texture_pressed = SubResource("AtlasTexture_3yu6r")
-
-[node name="BottomNext" type="TextureButton" parent="." unique_id=168503524]
-layout_mode = 0
-offset_left = 65.0
-offset_top = 56.0
-offset_right = 81.0
-offset_bottom = 72.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="FeetLabel" type="Label" parent="." unique_id=1105304325]
-layout_mode = 0
-offset_left = 37.0
-offset_top = 72.0
-offset_right = 108.0
-offset_bottom = 95.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Feet"
-
-[node name="FeetPrev" type="TextureButton" parent="." unique_id=705357108]
-layout_mode = 0
-offset_left = 53.0
-offset_top = 67.0
-offset_right = 69.0
-offset_bottom = 83.0
-texture_normal = SubResource("AtlasTexture_oxjvg")
-texture_pressed = SubResource("AtlasTexture_3yu6r")
-
-[node name="FeetNext" type="TextureButton" parent="." unique_id=142387630]
-layout_mode = 0
-offset_left = 65.0
-offset_top = 67.0
-offset_right = 81.0
-offset_bottom = 83.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="SkinLabel" type="Label" parent="." unique_id=1711789700]
-visible = false
-layout_mode = 0
-offset_left = 7.0
-offset_top = 78.0
-offset_right = 78.0
-offset_bottom = 101.0
-scale = Vector2(0.5, 0.5)
-theme_override_colors/font_color = Color(0.14117648, 0.16862746, 0.2901961, 1)
-theme_override_font_sizes/font_size = 11
-text = "Skin"
-
-[node name="SkinPrev" type="TextureButton" parent="." unique_id=1116863506]
-visible = false
-layout_mode = 0
-offset_left = 25.0
-offset_top = 73.0
-offset_right = 41.0
-offset_bottom = 89.0
-texture_normal = SubResource("AtlasTexture_oxjvg")
-texture_pressed = SubResource("AtlasTexture_3yu6r")
-
-[node name="SkinNext" type="TextureButton" parent="." unique_id=151700367]
-visible = false
-layout_mode = 0
-offset_left = 43.0
-offset_top = 73.0
-offset_right = 59.0
-offset_bottom = 89.0
-texture_normal = SubResource("AtlasTexture_43nsc")
-texture_pressed = SubResource("AtlasTexture_3w67i")
-
-[node name="RandomButton" type="TextureButton" parent="." unique_id=24012404]
-visible = false
-layout_mode = 0
-offset_left = 12.0
-offset_top = 51.000004
-offset_right = 60.0
+offset_left = 199.0
+offset_top = 48.0
+offset_right = 218.0
 offset_bottom = 67.0
-scale = Vector2(0.6, 0.6)
-texture_normal = SubResource("AtlasTexture_rw8jj")
-texture_pressed = SubResource("AtlasTexture_j0aus")
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
 
-[node name="RotateButton" type="TextureButton" parent="." unique_id=1678793154]
+[node name="BottomLabel" type="Label" parent="." unique_id=455445458]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 2.0
-offset_right = 60.0
-offset_bottom = 18.0
-scale = Vector2(0.6, 0.6)
+offset_left = 146.0
+offset_top = 67.0
+offset_right = 181.0
+offset_bottom = 79.0
+theme_override_colors/font_color = Color(0.78, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "BOTTOM"
+vertical_alignment = 1
+
+[node name="BottomPrev" type="TextureButton" parent="." unique_id=539648443]
+layout_mode = 0
+offset_left = 181.0
+offset_top = 64.0
+offset_right = 197.0
+offset_bottom = 80.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="BottomNext" type="TextureButton" parent="." unique_id=634684511]
+layout_mode = 0
+offset_left = 199.0
+offset_top = 64.0
+offset_right = 215.0
+offset_bottom = 80.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="FeetLabel" type="Label" parent="." unique_id=748294212]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 85.0
+offset_right = 180.0
+offset_bottom = 97.0
+theme_override_colors/font_color = Color(0.78, 0.92, 1, 1)
+theme_override_font_sizes/font_size = 8
+text = "FEET"
+vertical_alignment = 1
+
+[node name="FeetPrev" type="TextureButton" parent="." unique_id=1501666157]
+layout_mode = 0
+offset_left = 181.0
+offset_top = 80.0
+offset_right = 197.0
+offset_bottom = 96.0
+texture_normal = SubResource("AtlasTexture_oxjvg")
+texture_pressed = SubResource("AtlasTexture_3yu6r")
+
+[node name="FeetNext" type="TextureButton" parent="." unique_id=937432137]
+layout_mode = 0
+offset_left = 199.0
+offset_top = 80.0
+offset_right = 215.0
+offset_bottom = 96.0
+texture_normal = SubResource("AtlasTexture_43nsc")
+texture_pressed = SubResource("AtlasTexture_3w67i")
+
+[node name="RotateButton" type="TextureButton" parent="." unique_id=1789033139]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 131.0
+offset_right = 75.0
+offset_bottom = 147.0
 texture_normal = SubResource("AtlasTexture_5nyo0")
 texture_pressed = SubResource("AtlasTexture_0mwuc")
 
-[node name="CreateCharacterButton" type="TextureButton" parent="." unique_id=150895795]
+[node name="RandomButton" type="TextureButton" parent="." unique_id=496597698]
+layout_mode = 0
+offset_left = 97.0
+offset_top = 131.0
+offset_right = 145.0
+offset_bottom = 149.0
+texture_normal = SubResource("AtlasTexture_rw8jj")
+texture_pressed = SubResource("AtlasTexture_j0aus")
+
+[node name="CreateCharacterButton" type="Button" parent="." unique_id=1333321028]
+layout_mode = 0
+offset_left = 168.0
+offset_top = 126.0
+offset_right = 219.0
+offset_bottom = 152.0
+theme_override_colors/font_color = Color(0.85, 0.97, 1, 1)
+theme_override_font_sizes/font_size = 7
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+text = "CLOSE"
+
+[node name="OutfitStatus" type="Label" parent="." unique_id=1835706427]
 visible = false
 layout_mode = 0
-offset_left = 117.0
-offset_top = 85.0
-offset_right = 167.8167
-offset_bottom = 103.14882
-scale = Vector2(0.49, 0.49)
-texture_normal = SubResource("AtlasTexture_xcg82")
-texture_pressed = SubResource("AtlasTexture_3dyni")
+offset_right = 40.0
+offset_bottom = 16.0

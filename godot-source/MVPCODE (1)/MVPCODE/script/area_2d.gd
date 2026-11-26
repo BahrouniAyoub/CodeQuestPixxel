@@ -17,8 +17,15 @@ func _on_body_entered(body: Node2D) -> void:
 func _on_body_exited(body: Node2D) -> void:
 	if body is CharacterBody2D:
 		player_nearby = false
-		customizer.hide()
+		_close_customizer()
 		text.hide()
+
+
+func _close_customizer() -> void:
+	if customizer.visible and customizer.has_method("save_appearance"):
+		customizer.call("save_appearance")
+	customizer.hide()
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not player_nearby:
@@ -27,5 +34,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_E:
 			text.hide()
-			customizer.visible = not customizer.visible
+			if customizer.visible:
+				_close_customizer()
+			else:
+				if customizer.has_method("refresh_appearance"):
+					customizer.call("refresh_appearance")
+				customizer.show()
 			get_viewport().set_input_as_handled()

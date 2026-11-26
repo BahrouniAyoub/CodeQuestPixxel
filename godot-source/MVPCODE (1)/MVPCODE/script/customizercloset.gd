@@ -9,6 +9,7 @@ extends Control
 @onready var hair_sprite: Sprite2D = $CharacterPreview/Hair
 
 @onready var name_edit: LineEdit = $NameEdit
+@onready var outfit_status: Label = $OutfitStatus
 
 # REAL PLAYER IN THE ROOM
 var player: CharacterBody2D = null
@@ -89,6 +90,12 @@ func load_player_appearance() -> void:
 
 func _on_name_changed(new_name: String) -> void:
 	CharacterSettings.character_name = new_name
+	save_appearance()
+
+
+func refresh_appearance() -> void:
+	load_player_appearance()
+	update_character()
 
 
 func _wrap(value: int, count: int) -> int:
@@ -119,6 +126,7 @@ func _cycle(field: String, delta: int) -> void:
 
 	update_character()
 	update_real_player()
+	save_appearance()
 
 
 # UPDATE THE PREVIEW
@@ -135,6 +143,12 @@ func update_character() -> void:
 	feet_sprite.texture = CharacterData.feet_textures[body_index][feet_index][d]
 
 	hair_sprite.texture = CharacterData.hair_textures[hair_style_index][hair_color_index][d]
+
+	outfit_status.text = "TOP %02d  BOTTOM %02d  SHOES %02d" % [
+		top_index + 1,
+		bottom_index + 1,
+		feet_index + 1
+	]
 
 
 # UPDATE THE PLAYER IN THE ROOM
@@ -160,34 +174,16 @@ func _randomize_outfit() -> void:
 
 	update_character()
 	update_real_player()
+	save_appearance()
 
 
-# ROTATE PREVIEW
-func _on_rotate_button_pressed() -> void:
-	auto_rotate = not auto_rotate
-
-
-func _process(delta: float) -> void:
-
-	if not auto_rotate and direction_index == FRONT_DIRECTION:
-		return
-
-	rotate_timer += delta
-
-	if rotate_timer >= rotate_interval:
-
-		rotate_timer = 0.0
-		direction_index = (direction_index + 1) % 4
-
-		update_character()
-
-
-# CLOSE WITHOUT LEAVING THE ROOM
-func _close_customizer() -> void:
+# SAVE THE OUTFIT AS SOON AS IT CHANGES SO SAVE/CONTINUE KEEPS IT
+func save_appearance() -> void:
 	var player_body := body_index
 	var player_skin := skin_index
 	var player_hair_style := hair_style_index
 	var player_hair_color := hair_color_index
+
 	if player != null:
 		player_body = player.body_index
 		player_skin = player.skin_index
@@ -214,4 +210,29 @@ func _close_customizer() -> void:
 			feet_index
 		)
 	)
+
+
+# ROTATE PREVIEW
+func _on_rotate_button_pressed() -> void:
+	auto_rotate = not auto_rotate
+
+
+func _process(delta: float) -> void:
+
+	if not auto_rotate and direction_index == FRONT_DIRECTION:
+		return
+
+	rotate_timer += delta
+
+	if rotate_timer >= rotate_interval:
+
+		rotate_timer = 0.0
+		direction_index = (direction_index + 1) % 4
+
+		update_character()
+
+
+# CLOSE WITHOUT LEAVING THE ROOM
+func _close_customizer() -> void:
+	save_appearance()
 	hide()

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { CHAPTER1_QUESTS } from "./chapter1Quests";
 import actionableSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/actionable.gd?raw";
+import closetAreaSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/area_2d.gd?raw";
+import closetSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/customizercloset.gd?raw";
 import bedSaveSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/bed_save.gd?raw";
 import bridgeSource from "../../../godot-source/MVPCODE (1)/MVPCODE/script/codequest_bridge.gd?raw";
 import gameSceneSource from "../../../godot-source/MVPCODE (1)/MVPCODE/scene/Game.tscn?raw";
@@ -166,6 +168,20 @@ describe("Godot source contract", () => {
       'CodeQuestBridge.notify_request_state(slot, "Bedroom rest")',
     );
     expect(functionBody(bridgeSource, "notify_save_game")).toContain("notify_request_state(slot");
+  });
+
+  it("saves closet outfit changes immediately so save and continue keeps them", () => {
+    expect(functionBody(closetSource, "_cycle")).toContain("save_appearance()");
+    expect(functionBody(closetSource, "_randomize_outfit")).toContain("save_appearance()");
+    expect(functionBody(closetSource, "save_appearance")).toContain(
+      "CharacterSettings.top_index = top_index",
+    );
+    expect(functionBody(closetSource, "save_appearance")).toContain(
+      "CodeQuestBridge.notify_character_snapshot(",
+    );
+    expect(functionBody(closetAreaSource, "_close_customizer")).toContain(
+      'customizer.call("save_appearance")',
+    );
   });
 
   it("stores complete Godot saves and restores character and quest state on load", () => {
