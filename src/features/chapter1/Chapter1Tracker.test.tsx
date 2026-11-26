@@ -40,7 +40,7 @@ beforeEach(() => {
   resetChapter1();
   useProgress.setState({
     completions: {},
-    currentTicketId: "CQ-001",
+    currentTicketId: null,
     started: [],
     celebrate: 0,
   });
@@ -171,18 +171,15 @@ describe("Chapter1Tracker", () => {
     expect(screen.getByText("Chapter 1 Complete — The First Paycheck")).toBeInTheDocument();
   });
 
-  it("keeps the existing Progress app sections working", () => {
+  it("keeps Progress app working with Chapter 1 focus after legacy tickets removed", () => {
     resetChapter1({ hydrated: true });
     render(<ProgressApp />);
 
     expect(
       screen.getByRole("heading", { name: /Chapter 1 — The First Paycheck/ }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Achievements/ })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Sprint 01 · Python basics/ })).toBeInTheDocument();
-    expect(screen.getByText("TOTAL XP")).toBeInTheDocument();
-    expect(screen.getByText("0/5")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Hello, Pixel City/ })).toBeInTheDocument();
-    expect(screen.getAllByRole("button")).toHaveLength(TICKETS.length);
+    expect(screen.queryByRole("heading", { name: /Sprint 01 · Python basics/ })).not.toBeInTheDocument();
+    expect(screen.queryByText("TOTAL XP")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Hello, Pixel City/ })).not.toBeInTheDocument();
   });
 });

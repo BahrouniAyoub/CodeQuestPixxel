@@ -77,7 +77,7 @@ function resetStores() {
   resetTicketsViewStateForTests();
   useProgress.setState({
     completions: {},
-    currentTicketId: "CQ-001",
+    currentTicketId: null,
     started: [],
     celebrate: 0,
   });
@@ -121,41 +121,26 @@ function resetStores() {
 beforeEach(resetStores);
 afterEach(cleanup);
 
-describe("Tickets app project switcher", () => {
-  it("keeps the general ticket workflow unchanged", () => {
+describe("Tickets app after legacy CQ tickets removed", () => {
+  it("shows only the Café Calculator mission and no legacy CQ tickets", () => {
     render(<TicketsApp />);
 
-    expect(screen.getByRole("heading", { name: /My Tickets/i, level: 1 })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Hello, Pixel City", level: 2 }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /My Tickets/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /Open in Code Editor/ }));
-
-    expect(useProgress.getState().currentTicketId).toBe("CQ-001");
-    expect(useProgress.getState().started).toContain("CQ-001");
+    expect(screen.getByRole("heading", { name: /Café Calculator/i, level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: /My Tickets/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/CQ-001/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hello, Pixel City/)).not.toBeInTheDocument();
   });
 
-  it("switches to the café project and remembers the selected task across remounts", () => {
+  it("remembers the selected café task across remounts", () => {
     const first = render(<TicketsApp />);
 
-    fireEvent.click(screen.getByRole("tab", { name: /Café Calculator/ }));
     expect(screen.getByText("Build a Café Order Calculator")).toBeInTheDocument();
-
     fireEvent.click(screen.getByRole("button", { name: /Discount rules/ }));
     expect(screen.getByText(/apply_discount\(20\) → 18/)).toBeInTheDocument();
 
     first.unmount();
     render(<TicketsApp />);
 
-    expect(screen.getByRole("tab", { name: /Café Calculator/ })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
     expect(screen.getByText("Build a Café Order Calculator")).toBeInTheDocument();
     expect(screen.getByText(/apply_discount\(20\) → 18/)).toBeInTheDocument();
   });
@@ -177,7 +162,6 @@ describe("Tickets app project switcher", () => {
     });
 
     render(<TicketsApp />);
-    fireEvent.click(screen.getByRole("tab", { name: /Café Calculator/ }));
 
     expect(screen.getByText(/Four development tasks · Multi-file Python project/)).toBeInTheDocument();
     expect(screen.getByText("0/4")).toBeInTheDocument();
@@ -203,7 +187,6 @@ describe("Tickets app project switcher", () => {
     });
 
     render(<TicketsApp />);
-    fireEvent.click(screen.getByRole("tab", { name: /Café Calculator/ }));
 
     expect(screen.getAllByText(/Three development tasks/).length).toBeGreaterThan(0);
     expect(screen.getByText("1/3")).toBeInTheDocument();

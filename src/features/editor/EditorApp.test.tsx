@@ -1,27 +1,19 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
-import {
-  completeChapter1Quest,
-  initialChapter1Progress,
-  type Chapter1Progress,
-} from "@/features/chapter1/chapter1Progress";
-import { CHAPTER1_QUESTS } from "@/features/chapter1/chapter1Quests";
+import { initialChapter1Progress } from "@/features/chapter1/chapter1Progress";
 import { initialCafeMilestoneProgress } from "@/features/chapter1/cafeCoding/cafeMilestoneProgress";
 import { useCafeMilestones } from "@/features/chapter1/cafeCoding/cafeMilestoneStore";
 import { useGigboardApplication } from "@/features/browser/gigboardApplicationStore";
-import { ALEX_ACCEPTANCE_MESSAGE } from "@/features/browser/data/gigboardApplication";
-import { CAFE_CALCULATOR_JOB_ID } from "@/features/browser/data/gigboardJobs";
 import { useFileSession } from "@/features/editor/fileSession";
 import { useProgress } from "@/features/progress/progressStore";
 import { useDrafts } from "@/features/tickets/draftStore";
-import { TICKETS_BY_ID } from "@/features/tickets/data/tickets";
 import { EditorApp } from "./EditorApp";
 
 const runner = vi.hoisted(() => ({
   status: "ready" as const,
   init: vi.fn(async () => undefined),
-  run: vi.fn(async (_request?: { code?: string; echoPrompts?: boolean }) => ({
+  run: vi.fn(async () => ({
     engine: "pyodide" as const,
     ok: true,
     stdout: "",
@@ -55,40 +47,22 @@ vi.mock("@uiw/react-codemirror", async () => {
         "aria-label": props["aria-label"] ?? "Python code editor",
         value: props.value,
         disabled: props.editable === false,
-        onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) =>
-          props.onChange?.(event.target.value),
+        onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => props.onChange?.(event.target.value),
       }),
   };
 });
 
-function progressAfter(count: number): Chapter1Progress {
-  return CHAPTER1_QUESTS.slice(0, count).reduce(
-    (progress, quest) => completeChapter1Quest(progress, quest.id),
-    initialChapter1Progress,
-  );
-}
-
 function resetStores(): void {
   useProgress.setState({
     completions: {},
-    currentTicketId: "CQ-001",
+    currentTicketId: null,
     started: [],
     celebrate: 0,
   });
   useDrafts.setState({ drafts: {}, saveState: {} });
   useFileSession.setState({ filePath: null, dirty: false });
-  useChapter1.setState({
-    progress: initialChapter1Progress,
-    hydrated: true,
-    loading: false,
-    error: null,
-  });
-  useGigboardApplication.setState({
-    application: null,
-    hydrated: true,
-    loading: false,
-    error: null,
-  });
+  useChapter1.setState({ progress: initialChapter1Progress, hydrated: true, loading: false, error: null });
+  useGigboardApplication.setState({ application: null, hydrated: true, loading: false, error: null });
   useCafeMilestones.setState({
     progress: initialCafeMilestoneProgress,
     hydrated: true,
@@ -102,57 +76,26 @@ function resetStores(): void {
 beforeEach(resetStores);
 afterEach(cleanup);
 
-describe("Python editor after café instructions moved to Tickets", () => {
-  it("keeps the existing ticket Run behavior", async () => {
+describe("EditorApp with legacy CQ tickets removed", () => {
+  it("renders a safe no-ticket state without crashing", () => {
     render(<EditorApp />);
 
-    expect(screen.getByText("CQ-001 · Variables and Printing")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Run" }));
-
-    await waitFor(() => expect(runner.run).toHaveBeenCalledTimes(1));
-    expect(runner.run.mock.calls[0]?.[0]).toMatchObject({
-      code: TICKETS_BY_ID["CQ-001"].starterCode,
-      echoPrompts: true,
-    });
+    expect(screen.getByText("NO ACTIVE TICKET")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Submit tests" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Run" })).toBeDisabled();
   });
 
-  it("keeps the existing ticket test submission behavior", async () => {
-    render(<EditorApp />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Submit tests" }));
-
-    await waitFor(() => expect(runner.run).toHaveBeenCalledTimes(3));
-    expect(screen.getByRole("button", { name: /Test Results/ })).toBeInTheDocument();
-  });
-
-  it("does not render café milestone instructions inside the editor", async () => {
-    useChapter1.setState({
-      progress: progressAfter(4),
-      hydrated: true,
-      loading: false,
-      error: null,
-    });
-    useGigboardApplication.setState({
-      application: {
-        jobId: CAFE_CALCULATOR_JOB_ID,
-        proposal: "I will build the café order calculator with clean Python functions.",
-        status: "accepted",
-        submittedAt: "2026-01-02T09:00:00.000Z",
-        acceptedAt: "2026-01-02T10:00:00.000Z",
-        acceptanceMessage: ALEX_ACCEPTANCE_MESSAGE,
-      },
-      hydrated: true,
-      loading: false,
-      error: null,
+  it("does not crash when persisted progress points at a removed legacy ticket", () => {
+    useProgress.getState().hydrate({
+      version: 1,
+      completions: { "CQ-001": { ticketId: "CQ-001", completedAt: 1 } } as never,
+      currentTicketId: "CQ-001" as never,
+      started: ["CQ-001"] as never,
     });
 
     render(<EditorApp />);
 
-    expect(screen.queryByText("Build a Café Order Calculator")).not.toBeInTheDocument();
-    expect(screen.queryByText("Milestone 1: Variables and print")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Verify Task" })).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Run" }));
-    await waitFor(() => expect(runner.run).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("NO ACTIVE TICKET")).toBeInTheDocument();
+    expect(screen.queryByText(/CQ-001/)).not.toBeInTheDocument();
   });
 });

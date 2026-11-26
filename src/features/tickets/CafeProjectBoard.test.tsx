@@ -135,7 +135,7 @@ function resetStores() {
 
   useProgress.setState({
     completions: {},
-    currentTicketId: "CQ-001",
+    currentTicketId: null,
     started: [],
     celebrate: 0,
   });

@@ -87,7 +87,7 @@ function resetStores(): void {
   });
   useProgress.setState({
     completions: {},
-    currentTicketId: "CQ-001",
+    currentTicketId: null,
     started: [],
     celebrate: 0,
   });
@@ -294,14 +294,13 @@ describe("GigBoard café application UI", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("leaves other GigBoard jobs as browsing-only listings", async () => {
+  it("does not expose removed legacy GigBoard jobs", async () => {
     setChapterProgress(3);
     render(<BrowserApp />);
     navigateTo("gigboard.codequest/jobs/rename-files-python");
 
-    expect(screen.getByRole("button", { name: "Apply for Project" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Apply for Project" }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Website not found" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Apply for Project" })).not.toBeInTheDocument();
     expect(useGigboardApplication.getState().application).toBeNull();
   });
 });

@@ -7,6 +7,27 @@ import '../shared-apps.css';
 import { Chapter1Tracker } from '@/features/chapter1/Chapter1Tracker';
 import { CafeProjectGuidancePanel } from '@/features/chapter1/cafeSetup/CafeProjectGuidancePanel';
 export function ProgressApp(){
- const progress=useProgress(); const xp=totalXp(progress.completions); const completed=TICKETS.filter(t=>progress.completions[t.id]).length;const level=levelForXp(xp);const badges=achievements(progress.completions);
- return <div className="cq-app cq-progress"><div className="cq-progress-hero"><div className="cq-eyebrow">DEVELOPER PROFILE / LEVEL {level.level}</div><h1><Trophy size={29}/> {level.title}</h1><p>Every completed ticket brings you closer to becoming a Pixel Pro.</p><div className="cq-progress-stats"><div><Star size={19}/><strong>{xp}</strong><small>TOTAL XP</small></div><div><CheckCircle2 size={19}/><strong>{completed}/{TICKETS.length}</strong><small>TICKETS DONE</small></div><div><Target size={19}/><strong>{level.level}</strong><small>LEVEL</small></div></div><div className="cq-progress-bar-label"><span>Level progress</span><span>{xp}/{MAX_XP} XP</span></div><div className="cq-progress-track"><div style={{width:`${xp/MAX_XP*100}%`}}/></div></div><Chapter1Tracker/><CafeProjectGuidancePanel variant="compact"/><div className="cq-progress-section"><h2><Award size={19}/> Achievements</h2><div className="cq-badge-grid">{badges.map(a=><div key={a.id} className={`cq-achievement ${a.unlocked?'unlocked':''}`}><div>{a.unlocked?<Award size={26}/>:<LockKeyhole size={25}/>}</div><strong>{a.title}</strong><small>{a.description}</small><span>{a.unlocked?'UNLOCKED':'LOCKED'}</span></div>)}</div></div><div className="cq-progress-section"><h2><Target size={19}/> Sprint 01 · Python basics</h2><div className="cq-progress-tickets">{TICKETS.map(t=><button key={t.id} onClick={()=>{progress.setCurrentTicket(t.id);useWindows.getState().open('tickets');}}><span>{progress.completions[t.id]?'✓':'○'}</span><strong>{t.id}</strong><span>{t.title}</span><b>{t.xp} XP</b></button>)}</div></div></div>;
+ const progress=useProgress();
+ const hasTickets = TICKETS.length > 0;
+ const xp=totalXp(progress.completions);
+ const completed=TICKETS.filter(t=>progress.completions[t.id]).length;
+ const level=levelForXp(xp);
+ const badges=achievements(progress.completions);
+ const progressPct = MAX_XP > 0 ? (xp / MAX_XP) * 100 : 0;
+ return <div className="cq-app cq-progress">
+  <div className="cq-progress-hero">
+    <div className="cq-eyebrow">DEVELOPER PROFILE / LEVEL {level.level}</div>
+    <h1><Trophy size={29}/> {level.title}</h1>
+    <p>{hasTickets ? "Every completed ticket brings you closer to becoming a Pixel Pro." : "Track your Chapter 1 progress and keep building your developer journey."}</p>
+    {hasTickets ? <>
+      <div className="cq-progress-stats"><div><Star size={19}/><strong>{xp}</strong><small>TOTAL XP</small></div><div><CheckCircle2 size={19}/><strong>{completed}/{TICKETS.length}</strong><small>TICKETS DONE</small></div><div><Target size={19}/><strong>{level.level}</strong><small>LEVEL</small></div></div>
+      <div className="cq-progress-bar-label"><span>Level progress</span><span>{xp}/{MAX_XP} XP</span></div>
+      <div className="cq-progress-track"><div style={{width:`${progressPct}%`}}/></div>
+    </> : <div className="cq-progress-stats"><div><Target size={19}/><strong>{level.level}</strong><small>LEVEL</small></div></div>}
+  </div>
+  <Chapter1Tracker/>
+  <CafeProjectGuidancePanel variant="compact"/>
+  {hasTickets && badges.length > 0 ? <div className="cq-progress-section"><h2><Award size={19}/> Achievements</h2><div className="cq-badge-grid">{badges.map(a=><div key={a.id} className={`cq-achievement ${a.unlocked?'unlocked':''}`}><div>{a.unlocked?<Award size={26}/>:<LockKeyhole size={25}/>}</div><strong>{a.title}</strong><small>{a.description}</small><span>{a.unlocked?'UNLOCKED':'LOCKED'}</span></div>)}</div></div> : null}
+  {hasTickets ? <div className="cq-progress-section"><h2><Target size={19}/> Sprint 01 · Python basics</h2><div className="cq-progress-tickets">{TICKETS.map(t=><button key={t.id} onClick={()=>{progress.setCurrentTicket(t.id);useWindows.getState().open('tickets');}}><span>{progress.completions[t.id]?'✓':'○'}</span><strong>{t.id}</strong><span>{t.title}</span><b>{t.xp} XP</b></button>)}</div></div> : null}
+ </div>;
 }

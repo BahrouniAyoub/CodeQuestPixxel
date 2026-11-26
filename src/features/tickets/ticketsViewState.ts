@@ -22,7 +22,8 @@ export type TicketsView = "general" | "cafe";
 const DEFAULT_CAFE_TASK_ID: CafeMilestoneId = CAFE_MILESTONE_IDS[0];
 const DEFAULT_CAFE_DEV_TASK_ID: CafeDevTaskId = CAFE_DEV_TASK_IDS[0];
 
-let view: TicketsView = "general";
+// Legacy CQ tickets were retired; Café Calculator is the player-facing mission.
+let view: TicketsView = "cafe";
 let selectedCafeTaskId: CafeMilestoneId = DEFAULT_CAFE_TASK_ID;
 let selectedCafeDevTaskId: CafeDevTaskId = DEFAULT_CAFE_DEV_TASK_ID;
 
@@ -54,7 +55,7 @@ export function setSelectedCafeDevTaskId(id: CafeDevTaskId): void {
 
 /** Test-only reset so module state cannot leak between test cases. */
 export function resetTicketsViewStateForTests(): void {
-  view = "general";
+  view = "cafe";
   selectedCafeTaskId = DEFAULT_CAFE_TASK_ID;
   selectedCafeDevTaskId = DEFAULT_CAFE_DEV_TASK_ID;
 }

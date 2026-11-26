@@ -37,3 +37,4 @@ Example: `001-development-environment-setup.md`
 | Report | Date | Branch | Status | Summary |
 |---|---|---|---|---|
 | [001-development-environment-setup.md](./001-development-environment-setup.md) | 2026-11-26 | `feature/pixelos-cleanup` | Complete | Established permanent AI-assisted development docs, workflow rules, baseline verification, and report/decision structure. |
+| [002-remove-legacy-tickets.md](./002-remove-legacy-tickets.md) | 2026-11-26 | `feature/pixelos-cleanup` | Complete | Removed legacy CQ demo tickets and non-Chapter-1 GigBoard jobs; sanitized legacy save IDs; kept Café Calculator mission and reusable ticket architecture intact. |

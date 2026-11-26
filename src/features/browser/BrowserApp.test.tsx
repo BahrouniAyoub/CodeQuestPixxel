@@ -139,53 +139,39 @@ describe("BrowserApp", () => {
     expect(addressBar()).toHaveValue("gigboard.codequest/jobs");
   });
 
-  it("renders GigBoard job listings with the café project", () => {
+  it("renders GigBoard job listings with only the café project", () => {
     render(<BrowserApp />);
     navigateTo("gigboard.codequest/jobs");
 
     expect(screen.getByRole("heading", { name: /Browse freelance jobs/ })).toBeInTheDocument();
-    expect(screen.getByText("7 jobs found")).toBeInTheDocument();
+    expect(screen.getByText("1 job found")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Build a Café Order Calculator" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Rename Files with Python" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Rename Files with Python" })).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "View details for Build a Café Order Calculator" }),
     ).toBeInTheDocument();
   });
 
-  it("searches jobs and filters by category and difficulty", () => {
+  it("searches and filters the café-only job catalog", () => {
     render(<BrowserApp />);
     navigateTo("gigboard.codequest/jobs");
 
-    const search = screen.getByLabelText("Search jobs");
-    fireEvent.change(search, { target: { value: "calculator" } });
+    fireEvent.change(screen.getByLabelText("Search jobs"), { target: { value: "calculator" } });
     expect(screen.getByText("1 job found")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Build a Café Order Calculator" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Rename Files with Python" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Build a Café Order Calculator" })).toBeInTheDocument();
 
     clearFilters();
-    fireEvent.change(screen.getByLabelText("Filter by category"), {
-      target: { value: "Web Development" },
-    });
-    expect(screen.getByText("2 jobs found")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Build a Personal Portfolio" })).toBeInTheDocument();
-
-    fireEvent.change(screen.getByLabelText("Filter by difficulty"), {
-      target: { value: "Beginner" },
-    });
-    expect(screen.getByText("1 job found")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Website Contact Form" })).toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Build a Personal Portfolio" }),
-    ).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Filter by category"), { target: { value: "Web Development" } });
+    expect(screen.getByRole("heading", { name: "No jobs match those filters" })).toBeInTheDocument();
 
     clearFilters();
-    expect(screen.getByText("7 jobs found")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Filter by difficulty"), { target: { value: "Advanced" } });
+    expect(screen.getByRole("heading", { name: "No jobs match those filters" })).toBeInTheDocument();
+
+    clearFilters();
+    expect(screen.getByText("1 job found")).toBeInTheDocument();
   });
 
   it("shows an empty state when no jobs match", () => {
@@ -200,7 +186,7 @@ describe("BrowserApp", () => {
       screen.getByRole("heading", { name: "No jobs match those filters" }),
     ).toBeInTheDocument();
     clearFilters();
-    expect(screen.getByText("7 jobs found")).toBeInTheDocument();
+    expect(screen.getByText("1 job found")).toBeInTheDocument();
   });
 
   it("opens job details directly and through a job card", () => {

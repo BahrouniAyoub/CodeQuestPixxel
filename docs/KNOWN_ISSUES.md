@@ -15,6 +15,7 @@ Status as of 2026-11-26 baseline. Items are observed from code/docs/baseline run
 | KI-007 | Python runner security | Medium | Known limitation | Pyodide worker is not a security sandbox for hostile code. | `pyodideRunner.ts` comment; design limitation, not a bug to hide. |
 | KI-008 | Simulated apps | Low | Known limitation | Browser and Mail are intentionally simulated/internal MVP experiences, not full real services. | Feature docs and implementation. |
 | KI-009 | Generated artifacts in workspace | Low | Open | `node_modules/`, `.output/`, `.wrangler/` exist locally; can create noise/confusion. | `.gitignore` covers most, but local presence requires care not to commit artifacts. |
+| KI-010 | Tests | Low | Open | `GigBoardDevMode.test.tsx` showed a timing-sensitive failure during full `npm test` run but passed on isolated rerun. | Observed 2026-11-26 during Task 002 full suite: 1/540 failed; isolated rerun 7/7 passed. Investigate async wait/assertion robustness. |
 
 ## Resolved / Historical Notes
 

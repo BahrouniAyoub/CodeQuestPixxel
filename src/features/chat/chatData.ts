@@ -1,5 +1,3 @@
-import type { TicketId } from "@/features/tickets/data/tickets";
-
 export type ChannelId = "general" | "dev" | "mentor";
 export type MemberId = "alex" | "maya" | "sam" | "you";
 
@@ -43,8 +41,8 @@ export function seedMessages(now: number): ChatMessage[] {
   return [
     m("general", "alex", "Morning team! Please welcome our newest developer 🎉", 42, 1),
     m("general", "sam", "Welcome aboard! The coffee machine is on floor 8-bit.", 40, 2),
-    m("general", "maya", "Glad to have you. Your tickets are waiting in My Tickets.", 38, 3),
-    m("dev", "alex", "Sprint goal: onboarding tickets CQ-001 to CQ-005. Start with CQ-001 — it unlocks the rest.", 35, 1),
+    m("general", "maya", "Glad to have you. Check your Chapter 1 mission when you're ready to start real client work.", 38, 3),
+    m("dev", "alex", "Your first client opportunity is on GigBoard. Read the brief carefully before you apply.", 35, 1),
     m("dev", "sam", "Pro tip: hit Run to try your code, Submit to run the real tests.", 33, 2),
     m(
       "mentor",
@@ -57,28 +55,8 @@ export function seedMessages(now: number): ChatMessage[] {
   ];
 }
 
-export const COMPLETION_MESSAGES: Record<TicketId, { channel: ChannelId; author: MemberId; text: string }[]> = {
-  "CQ-001": [
-    { channel: "dev", author: "alex", text: "CQ-001 merged ✅ Variables and print() — the foundation of everything. CQ-002 is yours." },
-    { channel: "mentor", author: "maya", text: "Nice first ticket! Next up: input() always gives you a string. Keep that in mind." },
-  ],
-  "CQ-002": [
-    { channel: "dev", author: "sam", text: "Badge printer works! No more 'gRaCe' badges at the front desk 😄" },
-    { channel: "mentor", author: "maya", text: "String methods mastered. Conditions next — watch your boundary values (>= vs >)." },
-  ],
-  "CQ-003": [
-    { channel: "dev", author: "alex", text: "Grader shipped. Edge cases at 90 and 50 handled — that's real-world thinking." },
-    { channel: "mentor", author: "maya", text: "You're officially a Python Beginner. Loops are next: let the computer repeat for you." },
-  ],
-  "CQ-004": [
-    { channel: "dev", author: "sam", text: "3… 2… 1… Liftoff! 🚀 The deploy countdown is live." },
-    { channel: "mentor", author: "maya", text: "Last one: functions. Remember — return gives a value back, print just shows it." },
-  ],
-  "CQ-005": [
-    { channel: "general", author: "alex", text: "Huge shout-out: our new dev finished every onboarding ticket! 🏆" },
-    { channel: "mentor", author: "maya", text: "Functions done — you write reusable code now. Proud of you!" },
-  ],
-};
+/** Completion chat messages keyed by active ticket ID. Legacy CQ tickets removed. */
+export const COMPLETION_MESSAGES: Partial<Record<string, { channel: ChannelId; author: MemberId; text: string }[]>> = {};
 
 const MENTOR_TIPS: { match: RegExp; reply: string }[] = [
   { match: /syntax|colon|:/i, reply: "SyntaxError usually means a missing colon after if/for/def, or an unclosed quote/bracket." },

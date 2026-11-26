@@ -1,47 +1,44 @@
 import { describe, expect, it } from "vitest";
 import { MAX_XP, TICKETS } from "@/features/tickets/data/tickets";
-import { achievements, applyVerifiedCompletion, isUnlocked, ticketStatus, totalXp, type Completions } from "./progressLogic";
+import {
+  achievements,
+  applyVerifiedCompletion,
+  isUnlocked,
+  sanitizeCompletions,
+  sanitizeCurrentTicketId,
+  sanitizeStarted,
+  totalXp,
+} from "./progressLogic";
 
-const pass = { engine: "pyodide" as const, allPassed: true, total: 3, passed: 3 };
+const pass = { engine: "pyodide" as const, allPassed: true, total: 1, passed: 1 };
 
-describe("ticket progression", () => {
-  it("only CQ-001 is unlocked at the start", () => {
-    expect(isUnlocked("CQ-001", {})).toBe(true);
-    expect(isUnlocked("CQ-002", {})).toBe(false);
-    expect(ticketStatus("CQ-005", {}, [])).toBe("locked");
+describe("progressLogic with legacy CQ tickets removed", () => {
+  it("has no active legacy ticket catalog", () => {
+    expect(TICKETS).toHaveLength(0);
+    expect(MAX_XP).toBe(0);
   });
 
-  it("completing a ticket unlocks the next one", () => {
+  it("does not award or track removed legacy ticket IDs", () => {
     const r = applyVerifiedCompletion({}, "CQ-001", pass);
-    expect(r.awarded).toBe(true);
-    expect(isUnlocked("CQ-002", r.completions)).toBe(true);
-    expect(isUnlocked("CQ-003", r.completions)).toBe(false);
-  });
-
-  it("awards XP only once per ticket", () => {
-    const first = applyVerifiedCompletion({}, "CQ-001", pass);
-    const second = applyVerifiedCompletion(first.completions, "CQ-001", pass);
-    expect(second.awarded).toBe(false);
-    expect(second.reason).toBe("already-completed");
-    expect(totalXp(second.completions)).toBe(100);
-  });
-
-  it("does not complete a ticket when any test fails", () => {
-    const r = applyVerifiedCompletion({}, "CQ-001", { ...pass, allPassed: false, passed: 2 });
     expect(r.awarded).toBe(false);
-    expect(r.completions["CQ-001"]).toBeUndefined();
+    expect(r.reason).toBe("unknown-ticket");
+    expect(totalXp(r.completions)).toBe(0);
+    expect(isUnlocked("CQ-001", {})).toBe(false);
   });
 
-  it("cannot complete a locked ticket", () => {
-    const r = applyVerifiedCompletion({}, "CQ-003", pass);
-    expect(r.reason).toBe("locked");
+  it("returns no ticket achievements when catalog is empty", () => {
+    expect(achievements({})).toEqual([]);
   });
 
-  it("max XP is 1000 and all achievements unlock at the end", () => {
-    let c: Completions = {};
-    for (const t of TICKETS) c = applyVerifiedCompletion(c, t.id, pass).completions;
-    expect(MAX_XP).toBe(1000);
-    expect(totalXp(c)).toBe(1000);
-    expect(achievements(c).every((a) => a.unlocked)).toBe(true);
+  it("sanitizes legacy/unknown persisted ticket IDs", () => {
+    const completions = sanitizeCompletions({
+      "CQ-001": { ticketId: "CQ-001", completedAt: 123 },
+      "CQ-005": { ticketId: "CQ-005", completedAt: 456 },
+      UNKNOWN: { ticketId: "UNKNOWN", completedAt: 789 },
+    });
+    expect(completions).toEqual({});
+
+    expect(sanitizeStarted(["CQ-001", "UNKNOWN", "CQ-002"])).toEqual([]);
+    expect(sanitizeCurrentTicketId("CQ-001", {})).toBeNull();
   });
 });

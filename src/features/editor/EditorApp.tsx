@@ -38,21 +38,16 @@ export function EditorApp() {
 
   const progress = useProgress();
   const id = progress.currentTicketId;
-  const ticket = TICKETS_BY_ID[id];
+  const ticket = id ? TICKETS_BY_ID[id] : undefined;
 
-  const ticketCode = useDrafts(
-    (state) =>
-      state.drafts[id] ?? TICKETS_BY_ID[id].starterCode
-  );
+  const ticketCode = useDrafts((state) => {
+    if (!id || !ticket) return "";
+    return state.drafts[id] ?? ticket.starterCode;
+  });
 
-  const saveState = useDrafts(
-    (state) => state.saveState[id] ?? "saved"
-  );
+  const saveState = useDrafts((state) => (id ? (state.saveState[id] ?? "saved") : "saved"));
 
-  const unlocked = isUnlocked(
-    id,
-    progress.completions
-  );
+  const unlocked = ticket && id ? isUnlocked(id, progress.completions) : false;
 
   // --------------------------------------------------
   // File mode
@@ -247,15 +242,9 @@ export function EditorApp() {
       !fileError
     );
 
-  const canEdit =
-    isFileMode
-      ? fileReady && !fileSaving
-      : unlocked;
+  const canEdit = isFileMode ? fileReady && !fileSaving : Boolean(ticket && unlocked);
 
-  const canRun =
-    !busy &&
-    fileReady &&
-    (isFileMode || unlocked);
+  const canRun = !busy && fileReady && (isFileMode ? true : Boolean(ticket && unlocked));
 
   // --------------------------------------------------
   // Code editing
@@ -273,6 +262,7 @@ export function EditorApp() {
       setFileDirty(true);
       useFileSession.getState().setDirty(true);
     } else {
+      if (!id || !ticket) return;
       useDrafts.getState().setCode(id, value);
     }
   };
@@ -349,6 +339,7 @@ export function EditorApp() {
 
     // Personal Python files must never submit ticket tests.
     if (submit && isFileMode) return;
+    if (submit && (!ticket || !id)) return;
 
     const runFilePath = filePath;
     const submittedCode = code;
@@ -360,29 +351,19 @@ export function EditorApp() {
 
     const stillCurrent = () =>
       runId === activeRun.current &&
-      useFileSession.getState().filePath ===
-        runFilePath &&
-      (
-        runFilePath !== null ||
-        useProgress.getState().currentTicketId === id
-      );
+      useFileSession.getState().filePath === runFilePath &&
+      (runFilePath !== null || useProgress.getState().currentTicketId === id);
 
     try {
       const runner = getPythonRunner();
 
       if (submit) {
-        const result = await runTestSuite(
-          runner,
-          submittedCode,
-          ticket.tests
-        );
+        if (!ticket || !id) return;
+        const result = await runTestSuite(runner, submittedCode, ticket.tests);
 
         if (!stillCurrent()) return;
 
-        if (
-          useDrafts.getState().getCode(id) !==
-          submittedCode
-        ) {
+        if (useDrafts.getState().getCode(id) !== submittedCode) {
           return;
         }
 
@@ -393,25 +374,16 @@ export function EditorApp() {
             .map(
               (outcome) =>
                 `${outcome.passed ? "PASS" : "FAIL"} · ${outcome.name}${
-                  outcome.passed
-                    ? ""
-                    : `\n${outcome.message}`
-                }`
+                  outcome.passed ? "" : `\n${outcome.message}`
+                }`,
             )
-            .join("\n\n") ||
-            "No tests executed."
+            .join("\n\n") || "No tests executed.",
         );
 
         if (result.allPassed) {
-          const attempt =
-            await useProgress
-              .getState()
-              .submitVerified(id, result);
+          const attempt = await useProgress.getState().submitVerified(id, result);
 
-          if (
-            !attempt.awarded &&
-            attempt.reason !== "already-completed"
-          ) {
+          if (!attempt.awarded && attempt.reason !== "already-completed") {
             notify({
               kind: "warning",
               title: "Submission not accepted",
@@ -521,22 +493,15 @@ export function EditorApp() {
             </>
           ) : (
             <>
-              <span className="cq-muted">
-                ● {saveState}
-              </span>
+              <span className="cq-muted">● {ticket ? saveState : "No ticket"}</span>
 
               <button
                 title="Reset starter code"
+                disabled={!ticket || !id}
                 onClick={() => {
-                  if (
-                    window.confirm(
-                      "Reset this ticket to starter code?"
-                    )
-                  ) {
-                    useDrafts
-                      .getState()
-                      .resetToStarter(id);
-
+                  if (!ticket || !id) return;
+                  if (window.confirm("Reset this ticket to starter code?")) {
+                    useDrafts.getState().resetToStarter(id);
                     setSuite(null);
                   }
                 }}
@@ -544,15 +509,7 @@ export function EditorApp() {
                 <RotateCcw size={15} />
               </button>
 
-              <button
-                onClick={() =>
-                  useWindows
-                    .getState()
-                    .open("tickets")
-                }
-              >
-                Ticket details
-              </button>
+              <button onClick={() => useWindows.getState().open("tickets")}>Ticket details</button>
             </>
           )}
         </div>
@@ -563,32 +520,28 @@ export function EditorApp() {
       {isFileMode ? (
         <div className="cq-editor-ticket">
           <div>
-            <span className="cq-eyebrow">
-              FILE EXPLORER · PYTHON FILE
-            </span>
-
-            <h2>
-              {filePath?.split("/").pop()}
-            </h2>
+            <span className="cq-eyebrow">FILE EXPLORER · PYTHON FILE</span>
+            <h2>{filePath?.split("/").pop()}</h2>
           </div>
-
-          <span className="cq-tag">
-            File mode
-          </span>
+          <span className="cq-tag">File mode</span>
         </div>
-      ) : (
+      ) : ticket && id ? (
         <div className="cq-editor-ticket">
           <div>
             <span className="cq-eyebrow">
               {id} · {ticket.topic}
             </span>
-
             <h2>{ticket.title}</h2>
           </div>
-
-          <span className="cq-tag">
-            ✦ {ticket.xp} XP
-          </span>
+          <span className="cq-tag">✦ {ticket.xp} XP</span>
+        </div>
+      ) : (
+        <div className="cq-editor-ticket">
+          <div>
+            <span className="cq-eyebrow">NO ACTIVE TICKET</span>
+            <h2>Open a file or continue Chapter 1</h2>
+          </div>
+          <span className="cq-tag">File mode available</span>
         </div>
       )}
 
@@ -596,14 +549,8 @@ export function EditorApp() {
 
       <div className="cq-editor-file">
         <FileCode2 size={15} />
-
-        {isFileMode
-          ? filePath
-          : ticket.fileName}
-
-        <span className="cq-muted">
-          Python
-        </span>
+        {isFileMode ? filePath : ticket?.fileName ?? "No ticket selected"}
+        <span className="cq-muted">Python</span>
       </div>
 
       {fileError && (
@@ -679,7 +626,7 @@ export function EditorApp() {
             Run
           </button>
 
-          {!isFileMode && (
+          {!isFileMode && ticket && (
             <button
               className="cq-action-primary"
               disabled={!canRun}
