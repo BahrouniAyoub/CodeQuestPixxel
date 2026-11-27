@@ -22,22 +22,25 @@ TanStack Start / React
 
 ### Routing
 - TanStack Start file routes in `src/routes/`.
-- `game.tsx` is the main integration point: mounts Godot iframe, handles bridge messages, shows/hides PixelOS overlay, coordinates save/load/state commit.
+- `game.tsx` is the main integration point: mounts Godot iframe, handles bridge messages, shows/hides PixelOS overlay, coordinates save/load/state commit, and passes the live character name plus a shared Return to Game callback to PixelOS.
 
 ### App Shell
-- `src/app/PixelOS.tsx`: hydrates stores, renders desktop, windows, taskbar/start/search, notifications.
+- `src/app/PixelOS.tsx`: hydrates stores, renders desktop, windows, notifications, and delegates the Start menu to `StartMenu` and taskbar to `Taskbar`.
+- `src/app/StartMenu.tsx` / `StartMenu.css`: reusable Windows-style launcher; owns Start pin/search/all-apps views, recommendations, player/quest footer, keyboard/focus handling, and stable semantic IDs. It launches apps through the existing window manager only.
+- `src/app/Taskbar.tsx` / `Taskbar.css`: dynamic taskbar UI. Derives visible items from window state and effective taskbar pin preference via pure `src/app/taskbarModel.ts`. Shows pinned apps (open or closed) and open unpinned apps (including minimized), one entry per app; closed unpinned apps are removed, closed pinned apps remain. Uses `taskbarClick(id)` for icon clicks; context menu provides state-aware Open/Focus/Restore/Minimize/Close/Pin/Unpin actions and closes through `windowStore.close(id)` (Editor dirty guard preserved). Provides lightweight name+state tooltip, horizontal overflow controls, and stable tutorial IDs (`taskbar`, `taskbar-app-${id}`, `taskbar-app-indicator-${id}`, overflow/context-menu IDs).
 - `src/app/BootScreen.tsx`: boot/restore fallback.
-- `src/app/pixel-os-shell.css` and feature CSS files provide styling.
+- `src/app/pixel-os-shell.css` and feature CSS files provide styling. Taskbar-specific styles live in `Taskbar.css`.
 
 ### Window Management
 - Pure reducer: `src/core/windows/windowReducer.ts`.
 - Zustand store: `src/core/windows/windowStore.ts`.
-- Responsibilities: open/close/focus/minimize/maximize/geometry/taskbar behavior/z-order/clamping/hydration.
+- Responsibilities: open/close/focus/minimize/maximize/geometry/taskbar click behavior/z-order/clamping/hydration.
 - Geometry persisted debounced to IndexedDB `prefs/windows`.
 - Closing editor can be blocked by dirty file session (`useFileSession().closeFile()`).
+- Taskbar presentation is derived in `taskbarModel.ts` and rendered by `Taskbar.tsx`; it reads window state but does not create a second window manager/store. Normal taskbar icon clicks reuse `taskbarClick(id)`; Start menu launch continues to use `open(id)`.
 
 ### App Registry
-- `src/core/applications/registry.ts` defines `AppId`, metadata, default/min sizes, pinning, ordering, and search.
+- `src/core/applications/registry.ts` defines `AppId`, metadata, default/min sizes, pinning, ordering, and search. `PINNED_APPS` remains the registry default pin list (used by desktop shortcuts and as the taskbar default when no custom taskbar pin preference exists); `START_PINNED_APPS` is an ID-only Start-menu view order. `searchApps()` matches IDs, titles, short titles, and descriptions. Deterministic `APP_ORDER` is used by taskbar derivation for open unpinned apps.
 - Current apps: `tickets`, `editor`, `chat`, `mail`, `browser`, `progress`, `journal`, `settings`, `terminal`, `explorer`.
 
 ### Feature Modules
@@ -46,7 +49,7 @@ TanStack Start / React
 - `editor/`: CodeMirror Python editor, run/submit/tests, file mode, draft/file session integration.
 - `terminal/`: limited command-line interface, Python execution through shared runner.
 - `explorer/`: virtual filesystem UI.
-- `browser/`: simulated internal sites/pages including GigBoard.
+- `browser/`: simulated internal sites/pages including GigBoard. `browserNavigationIntent.ts` is a non-persisted one-shot handoff from launcher surfaces; `BrowserApp` consumes it through the existing `goTo()` path so there is still one router and one CH1-03 discovery guard.
 - `mail/`: scripted/simulated client communication.
 - `progress/`: XP/level/achievements derived from verified ticket completions.
 - `journal/`: Chapter 1 quest journal/tracker.
@@ -116,7 +119,7 @@ Defined primarily by `src/routes/game.tsx`, `src/features/chapter1/godotBridge.t
 - **Game saves**: `progress/codequest:save:*` (`gameMenu/gameSave.ts`).
 - **Cafe/GigBoard/Mail/Payment**: feature-specific keys in IndexedDB stores (see feature modules).
 - **Window geometry**: `prefs/windows`.
-- **Settings**: `prefs/settings`.
+- **Settings**: `prefs/settings` (theme, UI scale, reduced motion, notifications, and additive optional `taskbarPinnedAppIds` global UI preference; missing = registry defaults, explicit `[]` = no taskbar pins).
 - **Drafts**: `drafts/*`.
 - **Chat**: `chat/state`.
 - **Filesystem**: `fs/*` paths as keys.

@@ -49,7 +49,8 @@ beforeEach(() => {
     uiScale: 1,
     reducedMotion: false,
     notificationsEnabled: true,
-  });
+    taskbarPinnedAppIds: undefined,
+  } as any);
   useBrowserNavigationIntent.setState({ request: null });
   useNotifications.setState({ history: [], toasts: [], unseen: 0 });
 });

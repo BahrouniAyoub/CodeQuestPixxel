@@ -20,6 +20,33 @@ npm run build:dev   # Development-mode build
 | `npm run lint` | BLOCKED/TIMEOUT | Timed out after 120s and again after 180s; no final pass/fail result obtained. |
 | `npm run build` | PASS | Built client/ssr/nitro successfully in ~39s total. Warning: large chunks >500kB and tsconfig-paths/native note. |
 
+## Task 004 Results (2026-11-27, Windows-style Start menu)
+
+| Command | Result | Notes |
+|---|---|---|
+| `npm test` (pre-change baseline) | PASS | 67 test files, 540 tests; 44.71s. |
+| Focused Start/registry/Browser/game Vitest run | PASS | 7 test files, 50 tests; 10.24s. |
+| `npm test` (final) | PASS | 71 test files, 565 tests; 36.33s. |
+| `npm run build` | PASS | Existing chunk-size and `vite-tsconfig-paths` warnings only. |
+| `npx tsc --noEmit` | FAIL (pre-existing) | 13 diagnostics in unmodified files; no new diagnostics. |
+| `npm run lint` | FAIL (pre-existing) | 2906 problems (2892 errors, 14 warnings); no new file had diagnostics. |
+
+Manual browser verification for the Start menu was not performed; follow the checklist below and the instructions in `docs/reports/004-windows-style-start-menu.md`.
+
+## Task 005 Results (2026-11-27, Dynamic Taskbar)
+
+| Command | Result | Notes |
+|---|---|---|
+| `npm test` (fresh baseline before Task 005 source edits) | PASS | 71 test files, 565 tests; 63.95s. |
+| Focused taskbar/settings/window/registry/Start tests | PASS | 7 test files, 38 tests; 9.78s (`taskbarModel`, `Taskbar`, `PixelOS`, `StartMenu`, `settingsStore`, `windowReducer`, `registry`). |
+| `npx vitest run src/app/Taskbar.test.tsx` | PASS | 1 file, 8 tests; 7.10s. |
+| `npm test` (final full suite) | PASS | 74 test files, 584 tests; 47.09s. |
+| `npm run build` | PASS | Existing vite-tsconfig-paths/chunk-size/Nitro/plugin-timing warnings only. |
+| `npx tsc --noEmit` | FAIL (pre-existing) | 13 diagnostics in unmodified files; 0 new after fixing 2 Task 005 test casts for `exactOptionalPropertyTypes`. |
+| `npm run lint` | BLOCKED/TIMEOUT (pre-existing) | Timed out after 120000ms before completion; KI-001 backlog. |
+
+Manual browser verification for the dynamic taskbar was not performed; follow the checklist below and `docs/reports/005-dynamic-taskbar.md`.
+
 ## Test Layout
 
 - Vitest config: `vitest.config.ts` (jsdom, globals, setup `src/test/setup.ts`, includes `src/**/*.{test,spec}.{ts,tsx}`).
@@ -35,6 +62,11 @@ npm run build:dev   # Development-mode build
 | Cafe setup/coding workflow | `src/features/chapter1/cafeSetup/*.test.ts(x)`, `src/features/chapter1/cafeCoding/*.test.ts` |
 | Tickets/progress/editor | `src/features/tickets/*.test.tsx`, `src/features/progress/progressLogic.test.ts`, `src/features/editor/*.test.ts(x)` |
 | Browser/GigBoard/mail | `src/features/browser/*.test.tsx`, `src/features/mail/*.test.ts(x)` |
+| Start menu / shell integration | `src/app/StartMenu.test.tsx`, `src/app/PixelOS.test.tsx`, `src/core/applications/registry.test.ts` |
+| Taskbar / window shell | `src/app/taskbarModel.test.ts`, `src/app/Taskbar.test.tsx`, `src/app/PixelOS.test.tsx`, `src/core/windows/windowReducer.test.ts` |
+| Settings / taskbar pinning | `src/features/settings/settingsStore.test.ts` |
+| Browser navigation intent | `src/features/browser/browserNavigationIntent.test.ts`, `src/features/browser/BrowserApp.test.tsx` |
+| Return to Game / player name | `src/routes/-game-fresh.test.tsx` |
 | Runner/filesystem/save | `src/services/runner/testing.test.ts`, `src/features/gameMenu/gameSave.test.ts` |
 
 ## What to Run by Change Type
@@ -61,11 +93,20 @@ npm run build:dev   # Development-mode build
 2. Confirm Godot loads in iframe.
 3. Trigger `codequest:open-os` flow by interacting with in-game computer.
 4. Open PixelOS apps: Tickets, Editor, Browser, Mail, Journal, Explorer, Terminal, Settings.
-5. Run a simple Python script in Editor; verify output.
-6. Verify file create/edit/save/reopen in Explorer/Editor.
-7. Verify Chapter 1 quest state updates in Journal and Godot objective UI.
-8. Verify save/load flow (auto/slot) and character persistence.
-9. Verify no console errors/blocking regressions in normal flow.
+5. Open Start from the taskbar; verify ten Start pins, All Apps, application-only search, keyboard/focus behavior, Escape/outside-click dismissal, and the live player footer.
+6. Open GigBoard from the Start recommendation with Browser closed and already open; verify `gigboard.codequest` navigation without early CH1-03 completion.
+7. Verify Return to Game from the Start footer, confirm there is no floating Exit Computer overlay button, then re-enter the OS.
+8. Check dynamic taskbar: pinned apps visible when closed, open unpinned apps (Terminal/Explorer) appear, closed unpinned apps disappear, closed pinned apps remain. One icon per app.
+9. Verify taskbar click semantics: closed opens, background focuses, focused minimizes, minimized restores/focuses. Start menu launch still focuses already-open apps without minimizing.
+10. Right-click taskbar icons in closed/running/focused/minimized states; verify state-aware actions (Open/Focus/Restore/Minimize/Close/Pin/Unpin). Close uses window close path; dirty Editor close cancellation keeps editor open.
+11. Pin/unpin apps; confirm missing pref uses defaults, explicit empty keeps no pins, invalid/duplicate persisted IDs are cleaned, and pin preference persists across refresh/reopen. Pinning is global UI preference (not per-save).
+12. Narrow viewport / high UI scale: verify horizontal overflow controls appear only when needed, focused/newly opened app can be brought into view, Start/notifications/clock remain accessible, tooltip/context menu not clipped.
+13. Check dark/light theme, UI scale, reduced motion, and a narrow/short viewport; confirm the menu stays bounded and scrolls internally. Taskbar states must remain distinguishable without color only.
+14. Run a simple Python script in Editor; verify output.
+15. Verify file create/edit/save/reopen in Explorer/Editor.
+16. Verify Chapter 1 quest state updates in Journal and Godot objective UI.
+17. Verify save/load flow (auto/slot) and character persistence, including the Start footer name.
+18. Verify no console errors/blocking regressions in normal flow.
 
 ## Godot Validation
 

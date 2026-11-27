@@ -15,6 +15,9 @@ All notable project-level documentation/process changes should be recorded here.
 - Task 004 Windows-style Start menu: reusable `src/app/StartMenu.tsx` / `StartMenu.css` with Start-only pins, All Apps, application-only search, recommendations, live player footer, Return to Game, and keyboard/focus support.
 - Task 004 Browser handoff: non-persisted `browserNavigationIntent.ts` consumed through existing `BrowserApp.goTo()`; no new router or quest-state bypass.
 - Task 004 report and decision record: `docs/reports/004-windows-style-start-menu.md`, `docs/decisions/001-windows-style-start-menu-integration.md`.
+- Task 005 dynamic taskbar: extracted `Taskbar.tsx`/`Taskbar.css` with pure `taskbarModel.ts` derivation, dynamic running/unpinned app visibility, distinct state indicators, lightweight app-name/state tooltip, state-aware context menu, and horizontal overflow controls.
+- Task 005 pinning preference: additive optional `taskbarPinnedAppIds` in existing `settingsStore` (`prefs/settings`), normalized on hydrate/update; missing uses registry defaults, explicit empty array respected.
+- Task 005 report and decision record: `docs/reports/005-dynamic-taskbar.md`, `docs/decisions/002-dynamic-taskbar-pinning-preference.md`.
 
 ### Changed
 - Retired legacy CQ-001..CQ-005 demo tickets from active catalog; Tickets app is Café Calculator-only when no general tickets exist.
@@ -24,6 +27,7 @@ All notable project-level documentation/process changes should be recorded here.
 - Start menu presentation moved out of `PixelOS.tsx`; the shell now delegates to `StartMenu` and keeps desktop/taskbar/window behavior unchanged.
 - `START_PINNED_APPS` defines Start-only order without changing desktop/taskbar `pinned` flags; `searchApps()` also matches application IDs.
 - `/game` passes the live character name and a shared return callback to PixelOS. The temporary floating Return to Game overlay button was removed after manual validation; the Start menu footer action is the only in-OS return control.
+- Taskbar rendering moved out of `PixelOS.tsx` into `Taskbar.tsx`; taskbar items are derived from window state + effective pin preference, with deterministic `APP_ORDER` for open unpinned apps and Start/desktop shortcuts unchanged.
 
 ### Baseline (2026-11-26)
 - Tests: `npm test` passed (65 files, 540 tests).
@@ -37,3 +41,11 @@ All notable project-level documentation/process changes should be recorded here.
 - `npm run build` passed with existing chunk/plugin warnings.
 - `npx tsc --noEmit` still fails with 13 pre-existing diagnostics in unmodified files.
 - `npm run lint` still fails with 2906 pre-existing problems (2892 errors, 14 warnings); no newly created file has lint diagnostics.
+
+### Task 005 validation (2026-11-27)
+- Fresh baseline before Task 005 source edits: `npm test` passed (71 files, 565 tests, 63.95s).
+- Focused taskbar/settings/window tests: 7 files, 38 tests passed (9.78s).
+- Final full suite: `npm test` passed (74 files, 584 tests, 47.09s).
+- `npm run build` passed with existing chunk/plugin warnings.
+- `npx tsc --noEmit` failed with 13 pre-existing diagnostics in unmodified files (0 new after fixing 2 test-file exactOptionalPropertyTypes casts).
+- `npm run lint` timed out at 120000 ms before completion; pre-existing lint backlog remains (KI-001).

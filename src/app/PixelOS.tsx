@@ -1,13 +1,12 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
 } from "react";
 import { Rnd } from "react-rnd";
-import { X, Minus, Square, PanelsTopLeft, Bell, Clock3 } from "lucide-react";
+import { X, Minus, Square } from "lucide-react";
 import wallpaper from "@/assets/wallpaper-night-city.jpg";
 import { APPS, PINNED_APPS, type AppId } from "@/core/applications/registry";
 import { PixelIcon } from "@/shared/components/PixelIcon";
@@ -40,6 +39,7 @@ import { ExplorerApp } from "@/features/explorer/ExplorerApp";
 import { TerminalApp } from "@/features/terminal/TerminalApp";
 import type { TicketId } from "@/features/tickets/data/tickets";
 import StartMenu from "./StartMenu";
+import Taskbar from "./Taskbar";
 
 export interface PixelOSProps {
   /** Supplied by the /game route; the standalone desktop preview uses Player. */
@@ -154,10 +154,8 @@ function WindowFrame({ id, z }: { id: AppId; z: number }) {
 }
 
 export default function PixelOS({ playerName = "Player", onReturnToGame }: PixelOSProps) {
-  const windows = useWindows((state) => state.windows);
   const order = useWindows((state) => state.order);
-  const focused = useWindows((state) => state.focused);
-  const { open, taskbarClick, dispatch } = useWindows.getState();
+  const { open, dispatch } = useWindows.getState();
   const settings = useSettings();
   const notifications = useNotifications();
   const [notificationCenter, setNotificationCenter] = useState(false);
@@ -369,69 +367,15 @@ export default function PixelOS({ playerName = "Player", onReturnToGame }: Pixel
           )}
         </div>
       )}
-      <div className="cq-taskbar">
-        <div className="cq-taskbar-brand" title="CodeQuest Pixel OS">
-          <PanelsTopLeft size={19} />
-          <span>CodeQuest</span>
-        </div>
-        <div className="cq-taskbar-center">
-          <button
-            ref={startButtonRef}
-            type="button"
-            className={`cq-taskbar-button cq-start-button ${startOpen ? "cq-taskbar-focused" : ""}`}
-            onClick={toggleStart}
-            aria-label={startOpen ? "Close Start menu" : "Open Start menu"}
-            aria-expanded={startOpen}
-            aria-controls="cq-start-menu"
-            aria-haspopup="dialog"
-            data-tutorial-id="start-button"
-          >
-            <span>▦</span>
-          </button>
-          {PINNED_APPS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              className={`cq-taskbar-button ${windows[id].open ? "cq-taskbar-running" : ""} ${focused === id ? "cq-taskbar-focused" : ""}`}
-              title={APPS[id].title}
-              aria-label={`Open ${APPS[id].title}`}
-              onClick={() => {
-                closeStartMenu(false);
-                taskbarClick(id);
-              }}
-            >
-              <PixelIcon name={APPS[id].icon} size={29} />
-            </button>
-          ))}
-        </div>
-        <div className="cq-taskbar-tray">
-          <button
-            type="button"
-            className="cq-tray-bell"
-            aria-label="Notification center"
-            onClick={() => {
-              setNotificationCenter((value) => !value);
-              notifications.markSeen();
-            }}
-          >
-            <Bell size={16} />
-            {notifications.unseen > 0 && <span>{notifications.unseen}</span>}
-          </button>
-          <div className="cq-clock">
-            <span>
-              {clock.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-            </span>
-            <span>
-              {clock.toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-          <Clock3 size={15} />
-        </div>
-      </div>
+      <Taskbar
+        startOpen={startOpen}
+        startButtonRef={startButtonRef}
+        onToggleStart={toggleStart}
+        onCloseStart={() => closeStartMenu(false)}
+        notificationCenterOpen={notificationCenter}
+        onToggleNotificationCenter={() => setNotificationCenter((value) => !value)}
+        clock={clock}
+      />
     </div>
   );
 }
