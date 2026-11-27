@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://script/city_world.gd" id="1_city"]
+[ext_resource type="Script" path="res://script/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scene/day_night.gd" id="3_daynight"]
+[ext_resource type="AudioStream" path="res://music/freesound_community-concrete-footsteps-6752 (mp3cut.net).mp3" id="4_steps"]
+[ext_resource type="PackedScene" path="res://objective_ui.tscn" id="5_objective"]
+[ext_resource type="PackedScene" path="res://scene/quest_journal.tscn" id="6_journal"]
+[ext_resource type="PackedScene" path="res://scene/pause_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://scene/save_menu.tscn" id="8_save"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_city"]
+radius = 4.3333335
+height = 8.666667
+
+[node name="City" type="Node2D"]
+script = ExtResource("1_city")
+
+[node name="FromHouseSpawn" type="Marker2D" parent="."]
+position = Vector2(-1000, -500)
+
+[node name="CarExitSpawn" type="Marker2D" parent="."]
+position = Vector2(-640, -500)
+
+[node name="Player" type="CharacterBody2D" parent="." groups=["player"]]
+position = Vector2(-1000, -500)
+scale = Vector2(3, 3)
+collision_mask = 17
+script = ExtResource("2_player")
+speed = 300.0
+
+[node name="Body" type="Sprite2D" parent="Player"]
+
+[node name="Bottom" type="Sprite2D" parent="Player"]
+
+[node name="Top" type="Sprite2D" parent="Player"]
+
+[node name="Feet" type="Sprite2D" parent="Player"]
+
+[node name="Hair" type="Sprite2D" parent="Player"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(-0.33333334, 10.333333)
+shape = SubResource("CapsuleShape2D_city")
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(-1, 4.666667)
+zoom = Vector2(0.22, 0.22)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="Player"]
+
+[node name="DayNight" type="Node2D" parent="Player"]
+script = ExtResource("3_daynight")
+
+[node name="ClockLabel" type="Label" parent="Player/DayNight"]
+
+[node name="Footsteps" type="AudioStreamPlayer2D" parent="Player"]
+stream = ExtResource("4_steps")
+
+[node name="ObjectiveUI" parent="." instance=ExtResource("5_objective")]
+
+[node name="QuestJournal" parent="." instance=ExtResource("6_journal")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("7_pause")]
+
+[node name="SaveMenu" parent="." groups=["save_menu"] instance=ExtResource("8_save")]

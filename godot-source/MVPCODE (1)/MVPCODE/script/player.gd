@@ -2,6 +2,8 @@ extends CharacterBody2D
 
 # Set to false while a dialogue is open.
 var can_move: bool = true
+var driving: bool = false
+var driven_vehicle: Node = null
 
 # =============================================================================
 # MOVEMENT
@@ -272,6 +274,12 @@ func _ready() -> void:
 	if enable_shadow:
 		create_shadow()
 
+	var spawn_marker_name := SceneDoor.consume_pending_spawn()
+	if not spawn_marker_name.is_empty():
+		var marker := get_parent().get_node_or_null(NodePath(spawn_marker_name)) as Node2D
+		if marker != null:
+			global_position = marker.global_position
+
 	wander_home = global_position
 	fidget_timer = randf_range(fidget_min_delay, fidget_max_delay)
 
@@ -279,6 +287,13 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if driving:
+		if Input.is_action_just_pressed(interaction_action) and driven_vehicle != null and is_instance_valid(driven_vehicle):
+			driven_vehicle.call("exit_car")
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	if Input.is_action_just_pressed(interaction_action) and not _dialogue_is_open():
 		interact_with_nearby_actionable()
 

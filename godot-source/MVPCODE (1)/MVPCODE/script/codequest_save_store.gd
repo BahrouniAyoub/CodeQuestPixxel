@@ -35,6 +35,7 @@ static func normalize_character(raw: Variant) -> Dictionary:
 		"top_index": int(source.get("top_index", source.get("topIndex", 0))),
 		"bottom_index": int(source.get("bottom_index", source.get("bottomIndex", 0))),
 		"feet_index": int(source.get("feet_index", source.get("feetIndex", 0))),
+		"car_permission": bool(source.get("car_permission", source.get("carPermission", false))),
 	}
 
 

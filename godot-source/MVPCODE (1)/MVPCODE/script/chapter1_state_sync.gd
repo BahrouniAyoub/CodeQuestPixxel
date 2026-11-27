@@ -84,6 +84,7 @@ func _native_character_snapshot() -> Dictionary:
 		"top_index": CharacterSettings.top_index,
 		"bottom_index": CharacterSettings.bottom_index,
 		"feet_index": CharacterSettings.feet_index,
+		"car_permission": CharacterSettings.car_permission,
 	}
 
 
@@ -181,13 +182,15 @@ func _on_chapter_state_message(args: Array) -> void:
 
 func _write_state_snapshot(state: Dictionary) -> void:
 	var slot := CodeQuestSaveStore.normalize_slot(String(state.get("slot", "auto")))
+	var character := CodeQuestSaveStore.normalize_character(state.get("character", {}))
+	character["car_permission"] = CharacterSettings.car_permission
 	var record := {
 		"schema": CodeQuestSaveStore.SAVE_VERSION,
 		"version": CodeQuestSaveStore.SAVE_VERSION,
 		"slot": slot,
 		"savedAt": String(state.get("savedAt", "")),
 		"reason": String(state.get("reason", "Saved game")),
-		"character": CodeQuestSaveStore.normalize_character(state.get("character", {})),
+		"character": character,
 		"progress": state.get("progress", {}),
 		"payment": state.get("payment", null),
 		"chapterState": state.get("chapterState", {}),
@@ -220,6 +223,7 @@ func _apply_load_state(save: Dictionary) -> void:
 	CharacterSettings.top_index = int(character.get("top_index", 0))
 	CharacterSettings.bottom_index = int(character.get("bottom_index", 0))
 	CharacterSettings.feet_index = int(character.get("feet_index", 0))
+	CharacterSettings.car_permission = bool(character.get("car_permission", false))
 	CodeQuestBridge.last_character_snapshot = character
 
 	var chapter_state: Dictionary = {}

@@ -1,0 +1,13 @@
+City art sources
+
+Pixor library assets (CC0 1.0, no credit required):
+- dog-selout-40.png: https://pixor.art/library/farm/dog/
+- traffic-light-selout-64.png: https://pixor.art/library/city/traffic-light
+- car-selout-64.png: https://pixor.art/library/vehicles/car/
+- police-car-selout-64.png: https://pixor.art/library/vehicles/police-car/
+- apartment-selout-64.png: https://pixor.art/library/city/apartment/
+- skyscraper-selout-64.png: https://pixor.art/library/city/skyscraper/
+- bus-stop-selout-64.png: https://pixor.art/library/city/bus-stop/
+- street-lamp-selout-64.png: https://pixor.art/library/city/street-light/
+
+All Pixor library files are released under CC0 1.0: https://pixor.art/library/license/

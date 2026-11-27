@@ -12,9 +12,11 @@ extends Node2D
 
 var game_time: float
 var camera: Camera2D
+var night_level: float = 0.0
 
 
 func _ready():
+	add_to_group("day_night")
 	game_time = starting_hour
 	camera = get_viewport().get_camera_2d()
 
@@ -82,10 +84,16 @@ func update_day_night():
 	else:
 		target_color = Color("#29334f")
 
+	var brightness: float = (target_color.r + target_color.g + target_color.b) / 3.0
+	night_level = clampf(1.0 - brightness, 0.0, 1.0)
 	canvas_modulate.color = canvas_modulate.color.lerp(
 		target_color,
 		1.0 - exp(-0.5 * get_process_delta_time())
 	)
+
+
+func get_night_level() -> float:
+	return night_level
 
 
 func get_clock_text() -> String:
