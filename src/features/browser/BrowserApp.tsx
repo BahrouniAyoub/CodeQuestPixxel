@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 import { useWindows } from "@/core/windows/windowStore";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
+import { useBrowserNavigationIntent } from "./browserNavigationIntent";
 import "../shared-apps.css";
 import "./browser.css";
 import {
@@ -82,6 +84,8 @@ export function BrowserApp() {
   const [tabs, setTabs] = useState<BrowserTab[]>(() => [
     { id: "tab-0", history: createBrowserHistory() },
   ]);
+  const navigationRequest = useBrowserNavigationIntent((state) => state.request);
+  const consumeNavigation = useBrowserNavigationIntent((state) => state.consumeNavigation);
   const [activeTabId, setActiveTabId] = useState("tab-0");
   const [addressInput, setAddressInput] = useState(BROWSER_HOME_ADDRESS);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -123,25 +127,39 @@ export function BrowserApp() {
     return () => window.removeEventListener("pointerdown", handlePointerDown);
   }, [openMenu]);
 
-  const updateHistory = (next: BrowserHistory) => {
-    setTabs((current) =>
-      current.map((tab) => (tab.id === activeTabId ? { ...tab, history: next } : tab)),
-    );
-    setAddressInput(currentBrowserAddress(next));
-  };
+  const updateHistory = useCallback(
+    (next: BrowserHistory) => {
+      setTabs((current) =>
+        current.map((tab) => (tab.id === activeTabId ? { ...tab, history: next } : tab)),
+      );
+      setAddressInput(currentBrowserAddress(next));
+    },
+    [activeTabId],
+  );
 
-  const goTo = (input: string) => {
-    const next = navigateBrowserHistory(history, input);
-    updateHistory(next);
+  const goTo = useCallback(
+    (input: string) => {
+      const next = navigateBrowserHistory(history, input);
+      updateHistory(next);
 
-    // CH1-03 is completed by an explicit user navigation to the café job
-    // details, never by rendering the page. completeQuest itself only advances
-    // when CH1-03 is the active quest, so earlier quests cannot be skipped.
-    const target = resolveBrowserAddress(currentBrowserAddress(next));
-    if (target.page === "gigboard-job" && target.jobSlug === CAFE_CALCULATOR_JOB_SLUG) {
-      void useChapter1.getState().completeQuest("CH1-03");
-    }
-  };
+      // CH1-03 is completed by an explicit user navigation to the café job
+      // details, never by rendering the page. completeQuest itself only advances
+      // when CH1-03 is the active quest, so earlier quests cannot be skipped.
+      const target = resolveBrowserAddress(currentBrowserAddress(next));
+      if (target.page === "gigboard-job" && target.jobSlug === CAFE_CALCULATOR_JOB_SLUG) {
+        void useChapter1.getState().completeQuest("CH1-03");
+      }
+    },
+    [history, updateHistory],
+  );
+
+  // Cross-app launch intents reuse the same navigation path as the omnibox.
+  // Consuming immediately prevents replay after remount or hydration.
+  useEffect(() => {
+    if (!navigationRequest) return;
+    goTo(navigationRequest.address);
+    consumeNavigation();
+  }, [consumeNavigation, goTo, navigationRequest]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

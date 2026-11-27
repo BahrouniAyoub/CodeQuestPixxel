@@ -10,9 +10,10 @@ import {
   FATHER_INTRO_COMPLETION_PAYLOAD,
   GODOT_CHAPTER_STATE_EVENT_TYPE,
 } from "@/features/chapter1/godotBridge";
+import { createGameSaveRecord, DEFAULT_CHARACTER } from "@/features/gameMenu/gameSave";
 import { useNotifications } from "@/features/notifications/notificationStore";
 import { trackedSave } from "@/services/persistence/saveStatus";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/services/persistence/db", () => ({
@@ -35,8 +36,31 @@ vi.mock("@/services/persistence/saveStatus", async (importOriginal) => {
 vi.mock("@/app/PixelOS", async () => {
   const React = await import("react");
   return {
-    default: function MockPixelOS() {
-      return React.createElement("div", { "data-testid": "pixel-os" }, "PixelOS");
+    default: function MockPixelOS({
+      playerName,
+      onReturnToGame,
+    }: {
+      playerName?: string;
+      onReturnToGame?: () => void;
+    }) {
+      return React.createElement(
+        "div",
+        null,
+        React.createElement(
+          "div",
+          { "data-testid": "pixel-os", "data-player-name": playerName ?? "Player" },
+          "PixelOS",
+        ),
+        React.createElement(
+          "button",
+          {
+            type: "button",
+            "data-testid": "start-return-to-game",
+            onClick: onReturnToGame,
+          },
+          "Return to Game",
+        ),
+      );
     },
   };
 });
@@ -210,5 +234,70 @@ describe("/game fresh Chapter 1 journey", () => {
       expect(useChapter1.getState().progress.currentQuestIndex).toBe(CHAPTER1_QUESTS.length);
     });
     expect(useChapter1.getState().progress.money).toBe(50);
+  });
+
+  it("passes the live character name to PixelOS and closes the OS from the Start action", async () => {
+    render(<BrowserGame />);
+    const iframe = document.querySelector<HTMLIFrameElement>("#codequest-godot")!;
+    const source = iframe.contentWindow as unknown as MessageEventSource;
+
+    await waitFor(() => {
+      expect(useChapter1.getState().hydrated).toBe(true);
+      expect(useCafePayment.getState().hydrated).toBe(true);
+    });
+
+    act(() => dispatchFromGodot(source, { type: "codequest:open-os" }));
+    await screen.findByTestId("pixel-os");
+    expect(screen.getByTestId("pixel-os")).toHaveAttribute("data-player-name", DEFAULT_CHARACTER.name);
+    expect(iframe).toHaveStyle({ visibility: "hidden" });
+
+    act(() =>
+      dispatchFromGodot(source, {
+        type: "codequest:character-snapshot",
+        character: {
+          name: "Snapshot Hero",
+          body_index: DEFAULT_CHARACTER.bodyIndex,
+          skin_index: DEFAULT_CHARACTER.skinIndex,
+          hair_style_index: DEFAULT_CHARACTER.hairStyleIndex,
+          hair_color_index: DEFAULT_CHARACTER.hairColorIndex,
+          top_index: DEFAULT_CHARACTER.topIndex,
+          bottom_index: DEFAULT_CHARACTER.bottomIndex,
+          feet_index: DEFAULT_CHARACTER.feetIndex,
+        },
+      }),
+    );
+    expect(screen.getByTestId("pixel-os")).toHaveAttribute("data-player-name", "Snapshot Hero");
+
+    fireEvent.click(screen.getByTestId("start-return-to-game"));
+    expect(screen.queryByTestId("pixel-os")).not.toBeInTheDocument();
+    expect(iframe).toHaveStyle({ visibility: "visible" });
+  });
+
+  it("updates the Start menu player name when another save is loaded", async () => {
+    render(<BrowserGame />);
+    const iframe = document.querySelector<HTMLIFrameElement>("#codequest-godot")!;
+    const source = iframe.contentWindow as unknown as MessageEventSource;
+
+    await waitFor(() => {
+      expect(useChapter1.getState().hydrated).toBe(true);
+      expect(useCafePayment.getState().hydrated).toBe(true);
+    });
+
+    act(() => dispatchFromGodot(source, { type: "codequest:open-os" }));
+    await screen.findByTestId("pixel-os");
+
+    const save = createGameSaveRecord({
+      slot: "auto",
+      reason: "Load for Start menu",
+      character: { ...DEFAULT_CHARACTER, name: "Loaded Hero" },
+      progress: initialChapter1Progress,
+      payment: null,
+    });
+    act(() => dispatchFromGodot(source, { type: "codequest:load-state", save }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pixel-os")).toHaveAttribute("data-player-name", "Loaded Hero");
+    });
+    expect(screen.getByTestId("game-save-notice")).toHaveTextContent("Loaded Hero");
   });
 });

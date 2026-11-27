@@ -74,6 +74,7 @@ interface CompletionBanner {
 
 export function BrowserGame() {
   const [showOS, setShowOS] = useState(false);
+  const [playerName, setPlayerName] = useState(DEFAULT_CHARACTER.name);
   const [frameLoadCount, setFrameLoadCount] = useState(0);
   const [banner, setBanner] = useState<CompletionBanner | null>(null);
   const [saveNotice, setSaveNotice] = useState("");
@@ -173,6 +174,10 @@ export function BrowserGame() {
     return true;
   }, []);
 
+  const returnToGame = useCallback(() => {
+    setShowOS(false);
+  }, []);
+
   const resetForNewGame = useCallback(() => {
     restoringRef.current = true;
     useChapter1.setState({
@@ -190,6 +195,7 @@ export function BrowserGame() {
     });
     questSignatureRef.current = questSignature(initialChapter1Progress);
     latestCharacterRef.current = null;
+    setPlayerName(DEFAULT_CHARACTER.name);
     setSaveNotice("");
     setBanner(null);
     restoringRef.current = false;
@@ -219,6 +225,7 @@ export function BrowserGame() {
       });
       questSignatureRef.current = questSignature(save.progress);
       latestCharacterRef.current = save.character;
+      setPlayerName(save.character.name.trim() || DEFAULT_CHARACTER.name);
       setSaveNotice(`Loaded ${save.character.name || "Player"}`);
       setBanner(null);
       restoringRef.current = false;
@@ -261,6 +268,7 @@ export function BrowserGame() {
         latestCharacterRef.current ??
         DEFAULT_CHARACTER;
       latestCharacterRef.current = character;
+      setPlayerName(character.name.trim() || DEFAULT_CHARACTER.name);
 
       const rawSlot = data["slot"];
       const requestedSlot = typeof rawSlot === "string" && rawSlot.trim() ? rawSlot.trim() : "auto";
@@ -322,7 +330,10 @@ export function BrowserGame() {
 
       if (event.data["type"] === "codequest:character-snapshot") {
         const character = parseCharacterSnapshot(event.data["character"]);
-        if (character !== null) latestCharacterRef.current = character;
+        if (character !== null) {
+          latestCharacterRef.current = character;
+          setPlayerName(character.name.trim() || DEFAULT_CHARACTER.name);
+        }
         return;
       }
 
@@ -510,28 +521,9 @@ export function BrowserGame() {
         <div style={{ position: "absolute", inset: 0, background: "#101827" }}>
           <ClientOnly fallback={<BootScreen />}>
             <Suspense fallback={<BootScreen />}>
-              <PixelOS />
+              <PixelOS playerName={playerName} onReturnToGame={returnToGame} />
             </Suspense>
           </ClientOnly>
-          <button
-            type="button"
-            onClick={() => setShowOS(false)}
-            style={{
-              position: "fixed",
-              top: 8,
-              right: 12,
-              zIndex: 2147483647,
-              background: "#f2d782",
-              color: "#111",
-              border: "2px solid #111",
-              borderRadius: 5,
-              padding: "9px 15px",
-              fontWeight: 800,
-              cursor: "pointer",
-            }}
-          >
-            Exit Computer · Return to Game
-          </button>
         </div>
       )}
     </main>

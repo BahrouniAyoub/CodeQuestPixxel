@@ -13,6 +13,18 @@ describe("window manager", () => {
     expect(s.order[s.order.length - 1]).toBe("tickets");
   });
 
+  it("re-opening an already-open app focuses it instead of minimizing it", () => {
+    let s = createInitialState(bounds);
+    s = windowReducer(s, { type: "OPEN", id: "browser", bounds });
+    s = windowReducer(s, { type: "OPEN", id: "editor", bounds });
+    s = windowReducer(s, { type: "OPEN", id: "browser", bounds });
+
+    expect(s.windows.browser.open).toBe(true);
+    expect(s.windows.browser.minimized).toBe(false);
+    expect(s.focused).toBe("browser");
+    expect(s.order[s.order.length - 1]).toBe("browser");
+  });
+
   it("taskbar click minimizes the focused window and restores a minimized one", () => {
     let s = createInitialState(bounds);
     s = windowReducer(s, { type: "TASKBAR_CLICK", id: "chat", bounds });

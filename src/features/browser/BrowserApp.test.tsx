@@ -2,7 +2,10 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest";
 import { APPS, APP_ORDER, PINNED_APPS } from "@/core/applications/registry";
 import { useWindows } from "@/core/windows/windowStore";
+import { completeChapter1Quest, initialChapter1Progress } from "@/features/chapter1/chapter1Progress";
 import { useChapter1 } from "@/features/chapter1/chapter1Store";
+import { useBrowserNavigationIntent } from "./browserNavigationIntent";
+import { GIGBOARD_ADDRESS } from "./browserRoutes";
 import { BrowserApp } from "./BrowserApp";
 import { searchQuestSearch } from "./data/searchIndex";
 
@@ -29,7 +32,16 @@ function clearFilters(): void {
   fireEvent.click(buttons[0]!);
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  useBrowserNavigationIntent.setState({ request: null });
+  useChapter1.setState({
+    progress: initialChapter1Progress,
+    hydrated: false,
+    loading: false,
+    error: null,
+  });
+});
 
 describe("BrowserApp", () => {
   it("renders the browser home page with its internal-site note", () => {
@@ -312,5 +324,62 @@ describe("BrowserApp", () => {
     expect(useWindows.getState().focused).toBe("browser");
 
     act(() => useWindows.getState().close("browser"));
+  });
+
+  it("consumes a Start recommendation intent once when Browser mounts", () => {
+    act(() => useBrowserNavigationIntent.getState().requestNavigation(GIGBOARD_ADDRESS));
+
+    const view = render(<BrowserApp />);
+
+    expect(addressBar()).toHaveValue(GIGBOARD_ADDRESS);
+    expect(
+      screen.getByRole("heading", { name: /Find work that fits your skills/ }),
+    ).toBeInTheDocument();
+    expect(useBrowserNavigationIntent.getState().request).toBeNull();
+
+    view.unmount();
+    render(<BrowserApp />);
+    expect(addressBar()).toHaveValue("home.codequest");
+  });
+
+  it("honors a Start recommendation while Browser is already open", () => {
+    render(<BrowserApp />);
+    expect(addressBar()).toHaveValue("home.codequest");
+
+    act(() => useBrowserNavigationIntent.getState().requestNavigation(GIGBOARD_ADDRESS));
+
+    expect(addressBar()).toHaveValue(GIGBOARD_ADDRESS);
+    expect(useBrowserNavigationIntent.getState().request).toBeNull();
+  });
+
+  it("does not bypass GigBoard discovery rules when following a Start recommendation", () => {
+    const ch103Active = completeChapter1Quest(
+      completeChapter1Quest(initialChapter1Progress, "CH1-01"),
+      "CH1-02",
+    );
+    act(() =>
+      useChapter1.setState({
+        progress: ch103Active,
+        hydrated: true,
+        loading: false,
+        error: null,
+      }),
+    );
+
+    render(<BrowserApp />);
+    act(() => useBrowserNavigationIntent.getState().requestNavigation(GIGBOARD_ADDRESS));
+
+    expect(ch103Active.currentQuestIndex).toBe(2);
+    expect(useChapter1.getState().progress.completedQuestIds).not.toContain("CH1-03");
+  });
+
+  it("keeps ordinary omnibox navigation working after a recommendation is consumed", () => {
+    render(<BrowserApp />);
+    act(() => useBrowserNavigationIntent.getState().requestNavigation(GIGBOARD_ADDRESS));
+
+    navigateTo("search.codequest");
+
+    expect(addressBar()).toHaveValue("search.codequest");
+    expect(screen.getByRole("textbox", { name: "Search QuestSearch" })).toBeInTheDocument();
   });
 });

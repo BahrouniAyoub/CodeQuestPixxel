@@ -147,12 +147,30 @@ export const APP_ORDER: AppId[] = [
 ];
 export const PINNED_APPS: AppId[] = APP_ORDER.filter((id) => APPS[id].pinned);
 
+/**
+ * Start-menu presentation order. This is an ID-only view over APPS; it does
+ * not duplicate app metadata or change desktop/taskbar pinning.
+ */
+export const START_PINNED_APPS = [
+  "browser",
+  "mail",
+  "editor",
+  "explorer",
+  "chat",
+  "tickets",
+  "terminal",
+  "progress",
+  "journal",
+  "settings",
+] as const satisfies readonly AppId[];
+
 export function searchApps(query: string): AppDefinition[] {
   const q = query.trim().toLowerCase();
   const all = APP_ORDER.map((id) => APPS[id]);
   if (!q) return all;
   return all.filter(
     (a) =>
+      a.id.toLowerCase().includes(q) ||
       a.title.toLowerCase().includes(q) ||
       a.shortTitle.toLowerCase().includes(q) ||
       a.description.toLowerCase().includes(q),
